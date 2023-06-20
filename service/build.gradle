@@ -1,0 +1,68 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.12'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'com.google.cloud.tools.jib'
+	id 'checkstyle'
+	id 'jacoco'
+	id 'com.diffplug.spotless'
+	id 'com.github.spotbugs'
+	id 'pmd'
+	id 'org.sonarqube'
+}
+
+java {
+	sourceCompatibility = '11'
+	targetCompatibility = '11'
+}
+
+apply from: "${rootDir}/gradle/openapi-tools/server.gradle"
+apply from: "${rootDir}/gradle/code-quality.gradle"
+
+def mapstructVersion = '1.5.5.Final'
+
+configurations {
+	compileOnly.extendsFrom annotationPocessor
+}
+
+dependencies {
+	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+	compileOnly 'com.google.code.findbugs:annotations:3.0.1'
+	compileOnly 'org.springframework.boot:spring-boot-devtools'
+	compileOnly 'org.projectlombok:lombok'
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'com.google.cloud:spring-cloud-gcp-starter-secretmanager:3.5.3'
+
+	implementation 'io.nuvalence.dsgov:dsgov-auth:0.0.9'
+	implementation 'io.nuvalence.dsgov:dsgov-logging:0.0.11'
+	implementation 'org.liquibase:liquibase-core:4.22.0'
+
+	// version bump to address known CVEs
+	implementation 'org.yaml:snakeyaml:1.33'
+
+	runtimeOnly 'org.postgresql:postgresql:42.6.0'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.10'
+	testImplementation 'org.avaje.composite:junit:5.1'
+	testImplementation 'org.mockito:junit-jupiter:2.20.0'
+	testImplementation 'org.mockito:mockito-core:4.4.0'
+	testImplementation 'org.springframework.security:spring-security-test:5.6.2'
+	testImplementation 'org.mockito:mockito-inline:3.11.2'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs = [
+			'-Amapstruct.suppressGeneratorTimestamp=true'
+	]
+}

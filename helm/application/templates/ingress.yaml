@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{.Chart.Name}}-ingress
+  namespace: {{ .Values.namespace | default "default" }}
+spec:
+  rules:
+    - host: {{ .Values.net.host }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: {{ .Values.net.contextPath }}
+            backend:
+              service:
+                name: {{.Chart.Name}}
+                port:
+                  number: {{ .Values.net.servicePort }}

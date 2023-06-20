@@ -1,0 +1,29 @@
+server:
+  servlet:
+    context-path: /ns
+
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.xml
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_CONNECTION_URL}
+    user: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID}
+
+auth:
+  token-filter:
+    self-signed:
+      issuer: dsgov
+      public-key: ${SELF_SIGN_PUBLIC_KEY}
+  token-client:
+    self-signed:
+      issuer: dsgov
+      private-key: ${SELF_SIGN_PRIVATE_KEY}
+      roles: "um:reader, um:application-client"
+
+cerbos:
+  uri: ${CERBOS_URI}

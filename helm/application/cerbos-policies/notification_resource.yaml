@@ -1,0 +1,9 @@
+apiVersion: api.cerbos.dev/v1
+resourcePolicy:
+  version: "default"
+  resource: notification
+  rules:
+    - actions: ["send"]
+      roles:
+        - notification-sender
+      effect: EFFECT_ALLOW
