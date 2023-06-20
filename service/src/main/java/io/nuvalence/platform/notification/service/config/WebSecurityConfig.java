@@ -16,6 +16,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 /**
  * Configures TokenFilter.
@@ -31,6 +35,18 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public class WebSecurityConfig {
     @Value("${spring.cloud.gcp.project-id}")
     private String gcpProjectId;
+
+    @Value("${management.endpoints.web.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Value("${management.endpoints.web.cors.allowed-methods}")
+    private List<String> allowedMethods;
+
+    @Value("${management.endpoints.web.cors.allowed-headers}")
+    private List<String> allowedHeaders;
+
+    @Value("${management.endpoints.web.cors.allow-credentials}")
+    private boolean allowCredentials;
 
     @Value("${auth.token-filter.self-signed.issuer}")
     private String selfSignIssuer;
@@ -91,5 +107,24 @@ public class WebSecurityConfig {
                                         RsaKeyUtility.getPublicKeyFromString(selfSignPublicKey))),
                         LoggingContextFilter.class)
                 .build();
+    }
+
+    /**
+     * Provides configurer that sets up CORS.
+     *
+     * @return a configured configurer
+     */
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins(allowedOrigins.toArray(String[]::new))
+                        .allowedHeaders(allowedHeaders.toArray(String[]::new))
+                        .allowedMethods(allowedMethods.toArray(String[]::new))
+                        .allowCredentials(allowCredentials);
+            }
+        };
     }
 }
