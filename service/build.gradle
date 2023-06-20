@@ -35,13 +35,15 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-secretmanager:3.5.3'
 
 	implementation 'io.nuvalence.dsgov:dsgov-auth:0.0.9'
 	implementation 'io.nuvalence.dsgov:dsgov-logging:0.0.11'
-	implementation 'org.liquibase:liquibase-core:4.22.0'
+	implementation 'org.liquibase:liquibase-core'
 
 	// version bump to address known CVEs
 	implementation 'org.yaml:snakeyaml:1.33'
