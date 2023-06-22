@@ -31,9 +31,10 @@ public class EmailLayoutService {
      */
     public EmailLayout createEmailLayout(final String key, final EmailLayout emailLayout) {
         OffsetDateTime now = OffsetDateTime.now();
+
         Optional<EmailLayout> emailLayoutFound =
                 emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
-        if (emailLayoutFound.isPresent()) {
+        if (emailLayoutFound.isPresent() && emailLayoutFound.get().isSameVersion(emailLayout)) {
             EmailLayout existingEmailLayout = emailLayoutFound.get();
             existingEmailLayout.setName(emailLayout.getName());
             existingEmailLayout.setDescription(emailLayout.getDescription());
@@ -41,14 +42,20 @@ public class EmailLayoutService {
             existingEmailLayout.setInputs(emailLayout.getInputs());
             existingEmailLayout.setLastUpdatedTimestamp(now);
             return emailLayoutRepository.save(existingEmailLayout);
-        } else {
-            emailLayout.setKey(key);
-            emailLayout.setStatus("DRAFT");
-            emailLayout.setCreatedBy(getCreatedBy().orElse(null));
-            emailLayout.setCreatedTimestamp(now);
-            emailLayout.setLastUpdatedTimestamp(now);
-            return emailLayoutRepository.save(emailLayout);
         }
+
+        int version = 0;
+        if (emailLayoutFound.isPresent() && !emailLayoutFound.get().isSameVersion(emailLayout)) {
+            version = emailLayoutFound.get().getVersion() + 1;
+        }
+
+        emailLayout.setKey(key);
+        emailLayout.setStatus("DRAFT");
+        emailLayout.setVersion(version);
+        emailLayout.setCreatedBy(getCreatedBy().orElse(null));
+        emailLayout.setCreatedTimestamp(now);
+        emailLayout.setLastUpdatedTimestamp(now);
+        return emailLayoutRepository.save(emailLayout);
     }
 
     /**

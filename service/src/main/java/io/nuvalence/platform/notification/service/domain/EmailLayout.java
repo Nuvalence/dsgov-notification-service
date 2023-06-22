@@ -69,4 +69,16 @@ public class EmailLayout {
 
     @Column(name = "last_updated_timestamp")
     private OffsetDateTime lastUpdatedTimestamp;
+
+    /**
+     * Determine if the given email layout is the same version as this one.
+     *
+     * @param emailLayout email layout to compare
+     * @return true if the email layout is the same version
+     */
+    public boolean isSameVersion(EmailLayout emailLayout) {
+        return this.content.equals(emailLayout.getContent())
+                && this.inputs.size() == emailLayout.getInputs().size()
+                && this.inputs.containsAll(emailLayout.getInputs());
+    }
 }

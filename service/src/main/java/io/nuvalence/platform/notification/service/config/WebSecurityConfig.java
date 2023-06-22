@@ -35,7 +35,7 @@ import java.util.List;
                         + " tests.")
 public class WebSecurityConfig {
 
-    private static final String namespace = "ns";
+    private static final String NAMESPACE = "ns";
 
     @Value("${spring.cloud.gcp.project-id}")
     private String gcpProjectId;
@@ -69,13 +69,13 @@ public class WebSecurityConfig {
     @Order(0)
     public SecurityFilterChain apidocs(HttpSecurity http) throws Exception {
         return http.requestMatchers(
-                        (matchers) ->
+                        matchers ->
                                 matchers.antMatchers(
                                         "/",
                                         "/swagger-ui.html",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**"))
-                .authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll())
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .requestCache()
                 .disable()
                 .securityContext()
@@ -99,14 +99,14 @@ public class WebSecurityConfig {
         return http.csrf()
                 .disable()
                 .authorizeHttpRequests(
-                        (authorize) -> authorize.antMatchers("/actuator/health").permitAll())
-                .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+                        authorize -> authorize.antMatchers("/actuator/health").permitAll())
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .sessionManagement(
-                        (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterAfter(new LoggingContextFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(
                         new TokenFilter(
-                                new FirebaseAuthenticationProvider(gcpProjectId, namespace),
+                                new FirebaseAuthenticationProvider(gcpProjectId, NAMESPACE),
                                 new SelfSignedTokenAuthenticationProvider(
                                         selfSignIssuer,
                                         RsaKeyUtility.getPublicKeyFromString(selfSignPublicKey))),
