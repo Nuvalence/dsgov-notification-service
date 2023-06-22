@@ -10,7 +10,7 @@ steps:
       - "-c"
       - |
         ./gradlew \
-          clean build jacocoTestReport sonarqube
+          clean build jacocoTestReport
     secretEnv: ['SONARQUBE_TOKEN']
 
   - id: 'Upload Build reports to GCS'
