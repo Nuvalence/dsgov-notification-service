@@ -2,6 +2,7 @@ package io.nuvalence.platform.notification.service.config;
 
 import io.nuvalence.auth.token.SelfSignedTokenAuthenticationProvider;
 import io.nuvalence.auth.token.TokenFilter;
+import io.nuvalence.auth.token.firebase.FirebaseAuthenticationProvider;
 import io.nuvalence.auth.util.RsaKeyUtility;
 import io.nuvalence.logging.filter.LoggingContextFilter;
 import io.nuvalence.platform.notification.service.utils.JacocoIgnoreInGeneratedReport;
@@ -33,6 +34,9 @@ import java.util.List;
                 "Initialization has side effects making unit tests difficult. Tested in acceptance"
                         + " tests.")
 public class WebSecurityConfig {
+
+    private static final String namespace = "ns";
+
     @Value("${spring.cloud.gcp.project-id}")
     private String gcpProjectId;
 
@@ -102,6 +106,7 @@ public class WebSecurityConfig {
                 .addFilterAfter(new LoggingContextFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(
                         new TokenFilter(
+                                new FirebaseAuthenticationProvider(gcpProjectId, namespace),
                                 new SelfSignedTokenAuthenticationProvider(
                                         selfSignIssuer,
                                         RsaKeyUtility.getPublicKeyFromString(selfSignPublicKey))),

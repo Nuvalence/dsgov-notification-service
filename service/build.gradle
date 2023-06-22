@@ -29,6 +29,8 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
+	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+
 	compileOnly 'com.google.code.findbugs:annotations:3.0.1'
 	compileOnly 'org.springframework.boot:spring-boot-devtools'
 	compileOnly 'org.projectlombok:lombok'
@@ -41,7 +43,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-secretmanager:3.5.3'
 
-	implementation 'io.nuvalence.dsgov:dsgov-auth:0.0.9'
+	implementation 'io.hypersistence:hypersistence-utils-hibernate-55:3.5.0'
+
+	implementation 'io.nuvalence.dsgov:dsgov-auth:0.1.5'
 	implementation 'io.nuvalence.dsgov:dsgov-logging:0.0.11'
 	implementation 'org.liquibase:liquibase-core'
 

@@ -12,6 +12,7 @@ openApiGenerate {
             openApiNullable: "false",
             delegatePattern: "true",
             documentationProvider: 'springdoc',
-            configPackage: "${group}.${name}.generated.config"
+            configPackage: "${group}.${name}.generated.config",
+            useTags: "true"
     ]
 }
