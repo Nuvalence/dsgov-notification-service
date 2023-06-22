@@ -10,9 +10,6 @@ steps:
       - "-c"
       - |
         ./gradlew \
-          -Dsonar.login="$$SONARQUBE_TOKEN" \
-          -Dsonar.projectKey=${REPO_NAME}-${_PR_NUMBER} \
-          -Dsonar.projectName=${REPO_NAME}-${_PR_NUMBER} \
           clean build jacocoTestReport sonarqube
     secretEnv: ['SONARQUBE_TOKEN']
 
