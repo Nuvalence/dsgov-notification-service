@@ -33,7 +33,9 @@ public class EmailLayoutService {
         OffsetDateTime now = OffsetDateTime.now();
         Optional<EmailLayout> emailLayoutFound = emailLayoutRepository.findEmailLayoutByKey(key);
         if (emailLayoutFound.isPresent()) {
-            emailLayoutFound
+            EmailLayout existingEmailLayout = emailLayoutFound.get();
+            existingEmailLayout.setName(emailLayout.getName());
+            return emailLayoutRepository.save(existingEmailLayout);
         } else {
             emailLayout.setKey(key);
             emailLayout.setStatus("DRAFT");
