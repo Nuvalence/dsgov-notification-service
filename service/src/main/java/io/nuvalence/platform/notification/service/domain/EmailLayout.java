@@ -3,7 +3,6 @@ package io.nuvalence.platform.notification.service.domain;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
