@@ -31,10 +31,15 @@ public class EmailLayoutService {
      */
     public EmailLayout createEmailLayout(final String key, final EmailLayout emailLayout) {
         OffsetDateTime now = OffsetDateTime.now();
-        Optional<EmailLayout> emailLayoutFound = emailLayoutRepository.findEmailLayoutByKey(key);
+        Optional<EmailLayout> emailLayoutFound =
+                emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
         if (emailLayoutFound.isPresent()) {
             EmailLayout existingEmailLayout = emailLayoutFound.get();
             existingEmailLayout.setName(emailLayout.getName());
+            existingEmailLayout.setDescription(emailLayout.getDescription());
+            existingEmailLayout.setContent(emailLayout.getContent());
+            existingEmailLayout.setInputs(emailLayout.getInputs());
+            existingEmailLayout.setLastUpdatedTimestamp(now);
             return emailLayoutRepository.save(existingEmailLayout);
         } else {
             emailLayout.setKey(key);
@@ -53,7 +58,7 @@ public class EmailLayoutService {
      * @return Email Layout
      */
     public Optional<EmailLayout> getEmailLayoutByKey(final String key) {
-        return emailLayoutRepository.findEmailLayoutByKey(key);
+        return emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
     }
 
     private Optional<String> getCreatedBy() {
