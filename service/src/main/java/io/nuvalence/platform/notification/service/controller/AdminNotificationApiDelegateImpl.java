@@ -55,13 +55,14 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
 
     @Override
     public ResponseEntity<EmailLayoutPageDTO> getEmailLayouts(
-            Integer page, Integer size, String sortOrder, String sortBy) {
+            Integer page, Integer size, String sortOrder, String sortBy, String name) {
         SearchEmailLayoutFilter filter =
                 SearchEmailLayoutFilter.builder()
                         .page(page)
                         .size(size)
                         .sortOrder(sortOrder)
                         .sortBy(sortBy)
+                        .name(name)
                         .build();
         Page<EmailLayout> result = emailLayoutService.getEmailLayouts(filter);
         EmailLayoutPageDTO response =

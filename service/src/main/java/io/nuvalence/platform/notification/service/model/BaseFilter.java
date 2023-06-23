@@ -31,10 +31,10 @@ public abstract class BaseFilter {
             case "createdtimestamp":
             case "lastupdatedtimestamp":
             case "status":
-                if (sortOrder.equalsIgnoreCase("desc")) {
-                    sort = Sort.by(Sort.Direction.DESC, sortBy);
-                } else {
+                if (sortOrder.equalsIgnoreCase("asc")) {
                     sort = Sort.by(Sort.Direction.ASC, sortBy);
+                } else {
+                    sort = Sort.by(Sort.Direction.DESC, sortBy);
                 }
                 break;
             default:
