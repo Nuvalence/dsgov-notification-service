@@ -2,9 +2,11 @@ package io.nuvalence.platform.notification.service.service;
 
 import io.nuvalence.auth.token.UserToken;
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
+import io.nuvalence.platform.notification.service.model.SearchEmailLayoutFilter;
 import io.nuvalence.platform.notification.service.repository.EmailLayoutRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -66,6 +68,11 @@ public class EmailLayoutService {
      */
     public Optional<EmailLayout> getEmailLayoutByKey(final String key) {
         return emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
+    }
+
+    public Page<EmailLayout> getEmailLayouts(final SearchEmailLayoutFilter filter) {
+        return emailLayoutRepository.findAll(
+                filter.getEmailLayoutSpecifications(), filter.getPageRequest());
     }
 
     private Optional<String> getCreatedBy() {

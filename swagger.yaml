@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Swagger Petstore
+  title: Notification Service
   license:
     name: MIT
 servers:
@@ -71,7 +71,7 @@ paths:
             description: The page number for pagination (zero-based)
           - name: size
             in: query
-            description: How many items to return at one time (max 100)
+            description: How many items to return at one time (max 200)
             required: false
             schema:
               type: integer
@@ -91,7 +91,7 @@ paths:
               default: DESC
           - in: query
             name: sortBy
-            description: Field to sort users by. Email is chosen by default.
+            description: Field to sort email layouts by. Email is chosen by default.
             required: false
             schema:
               type: string
@@ -176,10 +176,10 @@ components:
     EmailLayoutPageDTO:
       type: object
       required:
-        - users
+        - items
         - pagingMetadata
       properties:
-        users:
+        items:
           type: array
           items:
             $ref: '#/components/schemas/EmailLayoutResponseModel'

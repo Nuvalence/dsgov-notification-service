@@ -6,11 +6,16 @@ import io.nuvalence.platform.notification.service.generated.models.EmailLayoutPa
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutResponseModel;
 import io.nuvalence.platform.notification.service.mapper.EmailLayoutMapper;
+import io.nuvalence.platform.notification.service.mapper.PagingMetadataMapper;
+import io.nuvalence.platform.notification.service.model.SearchEmailLayoutFilter;
 import io.nuvalence.platform.notification.service.service.EmailLayoutService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Collectors;
 
 /**
  * Implementation of AdminNotificationApiDelegate.
@@ -22,6 +27,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
 
     private final EmailLayoutService emailLayoutService;
     private final EmailLayoutMapper emailLayoutMapper;
+    private final PagingMetadataMapper pagingMetadataMapper;
 
     @Override
     public ResponseEntity<EmailLayoutResponseModel> createEmailLayout(
@@ -50,6 +56,20 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     @Override
     public ResponseEntity<EmailLayoutPageDTO> getEmailLayouts(
             Integer page, Integer size, String sortOrder, String sortBy) {
-        return null;
+        SearchEmailLayoutFilter filter =
+                SearchEmailLayoutFilter.builder()
+                        .page(page)
+                        .size(size)
+                        .sortOrder(sortOrder)
+                        .sortBy(sortBy)
+                        .build();
+        Page<EmailLayout> result = emailLayoutService.getEmailLayouts(filter);
+        EmailLayoutPageDTO response =
+                new EmailLayoutPageDTO(
+                        result.getContent().stream()
+                                .map(emailLayoutMapper::emailLayoutToEmailLayoutResponseModel)
+                                .collect(Collectors.toList()),
+                        pagingMetadataMapper.toPagingMetadata(result));
+        return ResponseEntity.ok(response);
     }
 }
