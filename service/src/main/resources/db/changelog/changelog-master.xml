@@ -29,7 +29,7 @@
             <column name="content" type="text">
                 <constraints nullable="false"/>
             </column>
-            <column name="createdBy" type="VARCHAR(64)">
+            <column name="createdby" type="VARCHAR(64)">
                 <constraints nullable="true"/>
             </column>
             <column name="created_timestamp" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">

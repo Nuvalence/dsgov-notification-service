@@ -11,6 +11,10 @@ import java.util.Locale;
  */
 @SuperBuilder
 public abstract class BaseFilter {
+    private static final String DEFAULT_SORT_BY = "lastUpdatedTimestamp";
+    private static final int DEFAULT_SIZE = 50;
+    private static final int DEFAULT_PAGE = 0;
+
     protected String sortBy;
     protected String sortOrder;
     protected Integer page;
@@ -23,24 +27,26 @@ public abstract class BaseFilter {
      */
     public PageRequest getPageRequest() {
         Sort sort = Sort.unsorted();
-
-        switch (sortBy.toLowerCase(Locale.ENGLISH)) {
+        String resolvedSortBy =
+                sortBy == null ? DEFAULT_SORT_BY : sortBy;
+        switch (resolvedSortBy.toLowerCase(Locale.ENGLISH)) {
             case "key":
             case "name":
             case "version":
             case "createdtimestamp":
             case "lastupdatedtimestamp":
             case "status":
-                if (sortOrder.equalsIgnoreCase("asc")) {
-                    sort = Sort.by(Sort.Direction.ASC, sortBy);
+                if ("asc".equalsIgnoreCase(sortOrder)) {
+                    sort = Sort.by(Sort.Direction.ASC, resolvedSortBy);
                 } else {
-                    sort = Sort.by(Sort.Direction.DESC, sortBy);
+                    sort = Sort.by(Sort.Direction.DESC, resolvedSortBy);
                 }
                 break;
             default:
                 break;
         }
 
-        return PageRequest.of(page, size, sort);
+        return PageRequest.of(
+                page == null ? DEFAULT_PAGE : page, size == null ? DEFAULT_SIZE : size, sort);
     }
 }
