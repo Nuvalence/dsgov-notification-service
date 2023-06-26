@@ -6,8 +6,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class NotificationServiceTest {
+class NotificationServiceTest {
 
     @Test
-    public void testSpringBoootContext() {}
+    void testSpringBoootContext() {}
 }
