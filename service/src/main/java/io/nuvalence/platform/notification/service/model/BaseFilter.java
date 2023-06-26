@@ -26,10 +26,17 @@ public abstract class BaseFilter {
      * @return PageRequest object
      */
     public PageRequest getPageRequest() {
+        String resolvedSortBy = sortBy == null ? DEFAULT_SORT_BY : sortBy;
+
+        return PageRequest.of(
+                page == null ? DEFAULT_PAGE : page,
+                size == null ? DEFAULT_SIZE : size,
+                resolveSort(resolvedSortBy));
+    }
+
+    private Sort resolveSort(String sortBy) {
         Sort sort = Sort.unsorted();
-        String resolvedSortBy =
-                sortBy == null ? DEFAULT_SORT_BY : sortBy;
-        switch (resolvedSortBy.toLowerCase(Locale.ENGLISH)) {
+        switch (sortBy.toLowerCase(Locale.ENGLISH)) {
             case "key":
             case "name":
             case "version":
@@ -37,16 +44,14 @@ public abstract class BaseFilter {
             case "lastupdatedtimestamp":
             case "status":
                 if ("asc".equalsIgnoreCase(sortOrder)) {
-                    sort = Sort.by(Sort.Direction.ASC, resolvedSortBy);
+                    sort = Sort.by(Sort.Direction.ASC, sortBy);
                 } else {
-                    sort = Sort.by(Sort.Direction.DESC, resolvedSortBy);
+                    sort = Sort.by(Sort.Direction.DESC, sortBy);
                 }
                 break;
             default:
                 break;
         }
-
-        return PageRequest.of(
-                page == null ? DEFAULT_PAGE : page, size == null ? DEFAULT_SIZE : size, sort);
+        return sort;
     }
 }
