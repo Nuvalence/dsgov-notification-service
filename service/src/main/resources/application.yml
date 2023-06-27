@@ -3,6 +3,17 @@ server:
     context-path: /ns
 
 spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_CONNECTION_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml
@@ -13,6 +24,17 @@ spring:
   cloud:
     gcp:
       project-id: ${GCP_PROJECT_ID}
+
+management:
+  endpoints:
+    web:
+      cors:
+        allow-credentials: true
+        allowed-origins: ${ALLOWED_ORIGINS}
+        allowed-methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+        allowed-headers: "*"
+      exposure:
+        include: "*"
 
 auth:
   token-filter:

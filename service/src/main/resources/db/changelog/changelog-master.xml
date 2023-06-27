@@ -5,84 +5,51 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd"
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
-    <changeSet id="add-template-tables" author="gcastro12">
-        <createTable tableName="template">
-            <column name="id" type="integer" autoIncrement="true">
-                <constraints primaryKey="true"
-                             primaryKeyName="pk_template_id"
-                             nullable="false" />
+
+    <changeSet id="email-layout-table" author="deibys.quintero">
+        <createTable tableName="email_layout">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="varchar(255)">
-                <constraints nullable="false" unique="true" />
+            <column name="key" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="name" type="varchar(1024)">
+                <constraints nullable="false" />
             </column>
             <column name="description" type="varchar(1024)">
-                <constraints nullable="true" />
-            </column>
-            <column name="group_key" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+            <column name="version" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="varchar(55)">
                 <constraints nullable="false"/>
             </column>
-            <column name="date_updated" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+            <column name="content" type="text">
                 <constraints nullable="false"/>
             </column>
-        </createTable>
-        <createTable tableName="template_type">
-            <column name="id" type="integer" autoIncrement="true">
-                <constraints primaryKey="true"
-                             primaryKeyName="pk_template_type_id"
-                             nullable="false" />
+            <column name="createdby" type="VARCHAR(64)">
+                <constraints nullable="true"/>
             </column>
-            <column name="template_id" type="integer">
-                <constraints foreignKeyName="fk_template_type_template_id"
-                             references="template(id)"
-                             nullable="false" />
+            <column name="created_timestamp" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="true"/>
             </column>
-            <column name="type" type="varchar(100)">
-                <constraints nullable="false" />
-            </column>
-            <column name="provider" type="varchar(100)">
-                <constraints nullable="false" />
-            </column>
-            <column name="external_template_id" type="varchar(255)">
-                <constraints nullable="false" />
-            </column>
-        </createTable>
-        <addUniqueConstraint tableName="template_type"
-                             columnNames="template_id, type"
-                             constraintName="u_template_type"/>
-    </changeSet>
-    <changeSet id="add-notification-log" author="gcastro12">
-        <createTable tableName="notification_log">
-            <column name="id" type="uuid">
-                <constraints primaryKey="true"
-                             primaryKeyName="pk_email_log_id"
-                             nullable="false"/>
-            </column>
-            <column name="template_type_id" type="integer">
-                <constraints foreignKeyName="fk_email_log_template_type"
-                             references="template_type(id)"
-                             nullable="true"/>
-            </column>
-            <column name="template_name" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="notification_type" type="varchar(100)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="recipient" type="varchar(320)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="disposition" type="varchar(100)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="date_received" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column name="date_sent" type="datetime">
+            <column name="last_updated_timestamp" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="true"/>
             </column>
         </createTable>
+        <createTable tableName="email_layout_input">
+            <column name="email_layout_id" type="uuid"  >
+                <constraints nullable="false" foreignKeyName="fk_email_layout_input_email_layout_id" references="email_layout(id)"/>
+            </column>
+            <column name="input" type="varchar(1024)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="email_layout_id, input"
+                       constraintName="pk_email_layout_input"
+                       tableName="email_layout_input"
+                       validate="true" />
     </changeSet>
 </databaseChangeLog>

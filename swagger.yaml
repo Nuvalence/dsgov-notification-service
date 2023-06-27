@@ -1,111 +1,212 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Swagger Petstore
+  title: Notification Service
   license:
     name: MIT
 servers:
   - url: /api/v1
 paths:
-  /pets:
+  /admin/email-layout/{key}:
     get:
-      summary: List all pets
-      operationId: listPets
+      summary: Get email layout by key
+      operationId: getEmailLayoutByKey
       tags:
-        - pets
+        - admin-notification
       parameters:
-        - name: limit
-          in: query
-          description: How many items to return at one time (max 100)
-          required: false
-          schema:
-            type: integer
-            format: int32
-      responses:
-        "200":
-          description: A paged array of pets
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Pets"
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    post:
-      summary: Create a pet
-      operationId: createPets
-      tags:
-        - pets
-      responses:
-        "201":
-          description: Null response
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/pets/{petId}":
-    get:
-      summary: Info for a specific pet
-      operationId: showPetById
-      tags:
-        - pets
-      parameters:
-        - name: petId
+        - name: key
           in: path
+          description: The key of the email layout to retrieve
           required: true
-          description: The id of the pet to retrieve
           schema:
             type: string
       responses:
         "200":
-          description: Expected response to a valid request
+          description: Email layout object returned
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pets"
-        default:
-          description: unexpected error
+                $ref: "#/components/schemas/EmailLayoutResponseModel"
+        "404":
+          description: Email layout not found
+    put:
+      summary: Create a new email layout
+      operationId: createEmailLayout
+      tags:
+        - admin-notification
+      parameters:
+        - name: key
+          in: path
+          description: The key of the email layout to save
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Email layout object that needs to be added to the db
+        required: true
+        content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailLayoutRequestModel"
+      responses:
+        "201":
+          description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/EmailLayoutResponseModel"
+  /admin/email-layouts:
+    get:
+        summary: Get all email layouts
+        operationId: getEmailLayouts
+        tags:
+            - admin-notification
+        parameters:
+          - in: query
+            name: page
+            required: false
+            schema:
+              type: integer
+              default: 0
+            description: The page number for pagination (zero-based)
+          - name: size
+            in: query
+            description: How many items to return at one time (max 200)
+            required: false
+            schema:
+              type: integer
+              format: int32
+              minimum: 1
+              maximum: 200
+              default: 50
+          - in: query
+            name: sortOrder
+            description: Determines direction for resulting sorting.
+            required: false
+            schema:
+              type: string
+              enum:
+                - ASC
+                - DESC
+              default: DESC
+          - in: query
+            name: sortBy
+            description: Field to sort email layouts by. Email is chosen by default.
+            required: false
+            schema:
+              type: string
+              enum:
+                - key
+                - version
+                - status
+                - name
+                - createdTimestamp
+                - lastUpdatedTimestamp
+          - in: query
+            name: name
+            description: Field to filter email layouts by name
+            required: false
+            schema:
+              type: string
+        responses:
+            "200":
+                description: Email layout object returned
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/EmailLayoutPageDTO"
+            "401":
+              description: "You are unauthorized to make this request"
+            "404":
+                description: Email layout not found
 components:
   schemas:
-    Pet:
+    EmailLayoutRequestModel:
+      type: object
+      required:
+        - name
+        - description
+        - content
+        - inputs
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        inputs:
+          type: array
+          items:
+            type: string
+    EmailLayoutResponseModel:
       type: object
       required:
         - id
+        - key
+        - version
+        - status
         - name
+        - description
+        - content
+        - inputs
       properties:
         id:
-          type: integer
-          format: int64
-        name:
           type: string
-        tag:
+          format: uuid
+        key:
           type: string
-    Pets:
-      type: array
-      items:
-        $ref: "#/components/schemas/Pet"
-    Error:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
+        version:
           type: integer
           format: int32
-        message:
+        status:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        inputs:
+          type: array
+          items:
+            type: string
+        createdBy:
+          type: string
+    SortOrder:
+      type: string
+      default: ASC
+      pattern: ^(ASC|DESC)$
+    SortEmailLayoutBy:
+      type: string
+      default: email
+      pattern: ^(id|externalId|email|createdAt|displayName)$
+    EmailLayoutPageDTO:
+      type: object
+      required:
+        - items
+        - pagingMetadata
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailLayoutResponseModel'
+        pagingMetadata:
+          $ref: "#/components/schemas/PagingMetadata"
+    PagingMetadata:
+      description: Paging metadata in accordance with https://datatracker.ietf.org/doc/html/rfc8977
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int64
+          minimum: 0
+        pageSize:
+          type: integer
+          minimum: 0
+          maximum: 200
+        pageNumber:
+          type: integer
+          minimum: 0
+        nextPage:
           type: string
