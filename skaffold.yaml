@@ -55,6 +55,7 @@ profiles:
               net.readinessProbe.initialDelaySeconds: 60
               pullPolicy: IfNotPresent
               postgres.enabled: "true"
+              ingress.enabled: "true"
             setValueTemplates:
               image.repository: notification-service
               image.tag: notification-service
@@ -67,7 +68,7 @@ profiles:
 
     portForward:
       - resourceType: service
-        resourceName: notification-service # Change me
+        resourceName: notification-service
         namespace: dsgov
         port: 80
         localPort: 8080
