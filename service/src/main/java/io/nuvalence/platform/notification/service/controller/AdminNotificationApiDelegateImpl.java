@@ -51,7 +51,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     @Override
     public ResponseEntity<EmailLayoutResponseModel> getEmailLayoutByKey(String key) {
         return emailLayoutService
-                .getEmailLayoutByKey(key)
+                .getEmailLayout(key)
                 .map(
                         emailLayout ->
                                 ResponseEntity.ok(
@@ -89,5 +89,17 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
                         key,
                         templateMapperImpl.templateRequestModelToTemplate(templateRequestModel));
         return ResponseEntity.ok(templateMapperImpl.templateToTemplateResponseModel(template));
+    }
+
+    @Override
+    public ResponseEntity<TemplateResponseModel> getTemplateByKey(String key) {
+        return templateService
+                .getTemplate(key)
+                .map(
+                        template ->
+                                ResponseEntity.ok(
+                                        templateMapperImpl.templateToTemplateResponseModel(
+                                                template)))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -120,6 +120,27 @@ paths:
             "404":
                 description: Email layout not found
   /admin/templates/{key}:
+    get:
+      summary: Get template by key
+      operationId: getTemplateByKey
+      tags:
+        - admin-notification
+      parameters:
+        - name: key
+          in: path
+          description: The key of the template to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Template object returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateResponseModel"
+        "404":
+          description: Template not found
     put:
       summary: Create or update a template
       operationId: createTemplate

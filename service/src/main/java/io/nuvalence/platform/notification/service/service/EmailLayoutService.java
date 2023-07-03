@@ -61,7 +61,7 @@ public class EmailLayoutService {
      * @param key Email Layout key
      * @return Email Layout
      */
-    public Optional<EmailLayout> getEmailLayoutByKey(final String key) {
+    public Optional<EmailLayout> getEmailLayout(final String key) {
         return emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
     }
 

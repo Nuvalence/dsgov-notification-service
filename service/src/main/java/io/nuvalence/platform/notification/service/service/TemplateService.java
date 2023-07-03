@@ -65,6 +65,10 @@ public class TemplateService {
         return templateRepository.findById(createdTemplate.getId()).orElse(null);
     }
 
+    public Optional<Template> getTemplate(final String key) {
+        return templateRepository.findFirstByKeyOrderByVersionDesc(key);
+    }
+
     private Optional<String> getCreatedBy() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String createdByUserId = null;

@@ -14,10 +14,10 @@ public interface TemplateRepository
         extends JpaRepository<Template, UUID>, JpaSpecificationExecutor<Template> {
 
     /**
-     * Obtain the latest version of the email layout by key.
+     * Obtain the latest version of the message template by key.
      *
      * @param key email layout key
-     * @return email layout
+     * @return message template
      */
     Optional<Template> findFirstByKeyOrderByVersionDesc(String key);
 }

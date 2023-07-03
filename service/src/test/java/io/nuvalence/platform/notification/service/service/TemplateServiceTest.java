@@ -2,6 +2,7 @@ package io.nuvalence.platform.notification.service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
 import io.nuvalence.platform.notification.service.domain.Template;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -24,7 +26,7 @@ class TemplateServiceTest {
     @Autowired private EmailLayoutService emailLayoutService;
     @Autowired private TemplateService service;
 
-    private EmailLayout createdEmailLayout;
+    private Template createdTemplate;
 
     @BeforeEach
     void setUp() {
@@ -43,12 +45,8 @@ class TemplateServiceTest {
         emailLayout.setContent("content");
         emailLayout.setInputs(inputs);
 
-        createdEmailLayout = emailLayoutService.createEmailLayout(key, emailLayout);
-    }
+        EmailLayout createdEmailLayout = emailLayoutService.createEmailLayout(key, emailLayout);
 
-    @Test
-    void testCreateOrUpdateTemplate() {
-        String templateKey = "key";
         Map<String, String> templateParameters = new HashMap<>();
         templateParameters.put("parameter1", "parameter-value1");
         templateParameters.put("parameter2", "parameter-value2");
@@ -88,62 +86,30 @@ class TemplateServiceTest {
                         .templateValues(templateValues)
                         .build();
 
-        Template createdTemplate = service.createOrUpdateTemplate(templateKey, template);
+        String templateKey = "key";
+        createdTemplate = service.createOrUpdateTemplate(templateKey, template);
+    }
 
+    @Test
+    void testCreateOrUpdateTemplate() {
         assertNotNull(createdTemplate);
     }
 
     @Test
     void testCreateOrUpdateTemplate_update() {
-        String templateKey = "key";
-        Map<String, String> templateParameters = new HashMap<>();
-        templateParameters.put("parameter1", "parameter-value1");
-        templateParameters.put("parameter2", "parameter-value2");
-        templateParameters.put("parameter3", "parameter-value3");
-
-        TemplateValue templateSubjectValue1 =
-                TemplateValue.builder()
-                        .templateValueType("subject")
-                        .templateValueKey("template-subject-key1")
-                        .templateValueValue("template-subject-value1")
-                        .build();
-
-        TemplateValue templateBodyValue1 =
-                TemplateValue.builder()
-                        .templateValueType("body")
-                        .templateValueKey("template-body-key1")
-                        .templateValueValue("template-body-value1")
-                        .build();
-
-        TemplateValue templateSmsValue1 =
-                TemplateValue.builder()
-                        .templateValueType("sms")
-                        .templateValueKey("template-sms-key1")
-                        .templateValueValue("template-sms-value1")
-                        .build();
-
-        List<TemplateValue> templateValues =
-                new ArrayList<>(
-                        List.of(templateSubjectValue1, templateBodyValue1, templateSmsValue1));
-
-        Template template =
-                Template.builder()
-                        .name("template name")
-                        .description("template description")
-                        .parameters(templateParameters)
-                        .emailLayoutKey(createdEmailLayout.getKey())
-                        .templateValues(templateValues)
-                        .build();
-
-        Template createdTemplate = service.createOrUpdateTemplate(templateKey, template);
-
-        assertNotNull(createdTemplate);
-
         createdTemplate.setDescription("updated description");
 
-        Template updateTemplate = service.createOrUpdateTemplate(templateKey, createdTemplate);
+        Template updateTemplate =
+                service.createOrUpdateTemplate(createdTemplate.getKey(), createdTemplate);
 
         assertNotNull(createdTemplate);
         assertEquals(createdTemplate.getDescription(), updateTemplate.getDescription());
+    }
+
+    @Test
+    void testGetTemplate() {
+        Optional<Template> foundTemplate = service.getTemplate(createdTemplate.getKey());
+
+        assertTrue(foundTemplate.isPresent());
     }
 }

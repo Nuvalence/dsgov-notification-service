@@ -103,7 +103,7 @@ class EmailLayoutServiceTest {
 
         EmailLayout createdEmailLayout = service.createEmailLayout(key, newEmailLayout);
 
-        Optional<EmailLayout> emailLayout = service.getEmailLayoutByKey(key);
+        Optional<EmailLayout> emailLayout = service.getEmailLayout(key);
 
         assertThat(emailLayout).isNotEmpty();
         assertEquals(createdEmailLayout.getId(), emailLayout.get().getId());
