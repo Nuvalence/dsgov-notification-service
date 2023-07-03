@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
 import io.nuvalence.platform.notification.service.domain.Template;
 import io.nuvalence.platform.notification.service.domain.TemplateValue;
+import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
@@ -111,5 +113,25 @@ class TemplateServiceTest {
         Optional<Template> foundTemplate = service.getTemplate(createdTemplate.getKey());
 
         assertTrue(foundTemplate.isPresent());
+    }
+
+    @Test
+    void testGetTemplates() {
+        SearchTemplateFilter filter =
+                SearchTemplateFilter.builder().name(createdTemplate.getName()).build();
+        Page<Template> result = service.getTemplates(filter);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(createdTemplate.getId(), result.getContent().get(0).getId());
+    }
+
+    @Test
+    void testGetTemplates_not_found() {
+        SearchTemplateFilter filter = SearchTemplateFilter.builder().name("unknown").build();
+        Page<Template> result = service.getTemplates(filter);
+
+        assertNotNull(result);
+        assertEquals(0, result.getTotalElements());
     }
 }

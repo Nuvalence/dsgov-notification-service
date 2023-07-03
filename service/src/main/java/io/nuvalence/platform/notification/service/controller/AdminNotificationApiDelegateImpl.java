@@ -6,12 +6,14 @@ import io.nuvalence.platform.notification.service.generated.controllers.AdminNot
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutPageDTO;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutResponseModel;
+import io.nuvalence.platform.notification.service.generated.models.TemplatePageDTO;
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.TemplateResponseModel;
 import io.nuvalence.platform.notification.service.mapper.EmailLayoutMapper;
 import io.nuvalence.platform.notification.service.mapper.PagingMetadataMapper;
 import io.nuvalence.platform.notification.service.mapper.TemplateMapperImpl;
 import io.nuvalence.platform.notification.service.model.SearchEmailLayoutFilter;
+import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
 import io.nuvalence.platform.notification.service.service.EmailLayoutService;
 import io.nuvalence.platform.notification.service.service.TemplateService;
 import lombok.RequiredArgsConstructor;
@@ -101,5 +103,26 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
                                         templateMapperImpl.templateToTemplateResponseModel(
                                                 template)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Override
+    public ResponseEntity<TemplatePageDTO> getTemplates(
+            Integer page, Integer size, String sortOrder, String sortBy, String name) {
+        SearchTemplateFilter filter =
+                SearchTemplateFilter.builder()
+                        .page(page)
+                        .size(size)
+                        .sortOrder(sortOrder)
+                        .sortBy(sortBy)
+                        .name(name)
+                        .build();
+        Page<Template> result = templateService.getTemplates(filter);
+        TemplatePageDTO response =
+                new TemplatePageDTO(
+                        result.getContent().stream()
+                                .map(templateMapperImpl::templateToTemplateResponseModel)
+                                .collect(Collectors.toList()),
+                        pagingMetadataMapper.toPagingMetadata(result));
+        return ResponseEntity.ok(response);
     }
 }

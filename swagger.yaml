@@ -167,6 +167,66 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TemplateResponseModel"
+  /admin/templates:
+    get:
+      summary: Get all templates
+      operationId: getTemplates
+      tags:
+        - admin-notification
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: The page number for pagination (zero-based)
+        - name: size
+          in: query
+          description: How many items to return at one time (max 200)
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 200
+            default: 50
+        - in: query
+          name: sortOrder
+          description: Determines direction for resulting sorting.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: sortBy
+          description: Field to sort templates by. Key is chosen by default.
+          required: false
+          schema:
+            type: string
+            enum:
+              - key
+              - version
+              - status
+              - name
+              - createdTimestamp
+              - lastUpdatedTimestamp
+        - in: query
+          name: name
+          description: Field to filter templates by name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Template object returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplatePageDTO"
+        "401":
+          description: "You are unauthorized to make this request"
+        "404":
+          description: Template not found
 components:
   schemas:
     EmailLayoutRequestModel:
@@ -346,3 +406,15 @@ components:
       type: object
       additionalProperties:
         type: string
+    TemplatePageDTO:
+      type: object
+      required:
+        - items
+        - pagingMetadata
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateResponseModel'
+        pagingMetadata:
+          $ref: "#/components/schemas/PagingMetadata"

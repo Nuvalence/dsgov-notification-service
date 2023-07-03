@@ -3,10 +3,12 @@ package io.nuvalence.platform.notification.service.service;
 import io.nuvalence.auth.token.UserToken;
 import io.nuvalence.platform.notification.service.domain.Template;
 import io.nuvalence.platform.notification.service.domain.TemplateValue;
+import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
 import io.nuvalence.platform.notification.service.repository.TemplateRepository;
 import io.nuvalence.platform.notification.service.repository.TemplateValueRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -65,8 +67,25 @@ public class TemplateService {
         return templateRepository.findById(createdTemplate.getId()).orElse(null);
     }
 
+    /**
+     * Get a template by key.
+     *
+     * @param key the template key
+     * @return the template
+     */
     public Optional<Template> getTemplate(final String key) {
         return templateRepository.findFirstByKeyOrderByVersionDesc(key);
+    }
+
+    /**
+     * Get templates.
+     *
+     * @param filter the filter
+     * @return the templates
+     */
+    public Page<Template> getTemplates(final SearchTemplateFilter filter) {
+        return templateRepository.findAll(
+                filter.getTemplateSpecifications(), filter.getPageRequest());
     }
 
     private Optional<String> getCreatedBy() {

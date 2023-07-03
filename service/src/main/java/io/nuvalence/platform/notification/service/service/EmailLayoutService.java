@@ -65,6 +65,12 @@ public class EmailLayoutService {
         return emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
     }
 
+    /**
+     * Get Email Layouts.
+     *
+     * @param filter SearchEmailLayoutFilter
+     * @return Page of Email Layouts
+     */
     public Page<EmailLayout> getEmailLayouts(final SearchEmailLayoutFilter filter) {
         return emailLayoutRepository.findAll(
                 filter.getEmailLayoutSpecifications(), filter.getPageRequest());
