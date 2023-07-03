@@ -1,33 +1,40 @@
 package io.nuvalence.platform.notification.service.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
- * Base class for all notes.
+ * Template entity.
  */
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @ToString
 @Entity
-@Table(name = "email_layout")
-public class EmailLayout {
+@Table(name = "template")
+public class Template {
 
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -50,16 +57,20 @@ public class EmailLayout {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "content")
-    private String content;
+    @Column(name = "email_layout_key")
+    private String emailLayoutKey;
 
-    @Convert(disableConversion = true)
     @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn(name = "parameter_name")
+    @Column(name = "parameter_value")
     @CollectionTable(
-            name = "email_layout_input",
-            joinColumns = @JoinColumn(name = "email_layout_id", nullable = false))
-    @Column(name = "input")
-    private List<String> inputs = new ArrayList<>();
+            name = "template_parameter",
+            joinColumns = @JoinColumn(name = "template_id", nullable = false))
+    private Map<String, String> parameters;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "template_id", updatable = false, insertable = false)
+    private List<TemplateValue> templateValues;
 
     @Column(name = "createdby", length = 64)
     private String createdBy;

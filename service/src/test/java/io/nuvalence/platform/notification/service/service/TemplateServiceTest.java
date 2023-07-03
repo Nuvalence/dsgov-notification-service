@@ -1,0 +1,149 @@
+package io.nuvalence.platform.notification.service.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import io.nuvalence.platform.notification.service.domain.EmailLayout;
+import io.nuvalence.platform.notification.service.domain.Template;
+import io.nuvalence.platform.notification.service.domain.TemplateValue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@SpringBootTest
+@ActiveProfiles("test")
+class TemplateServiceTest {
+
+    @Autowired private EmailLayoutService emailLayoutService;
+    @Autowired private TemplateService service;
+
+    private EmailLayout createdEmailLayout;
+
+    @BeforeEach
+    void setUp() {
+        final String key = "emailLayoutKey";
+        List<String> inputs =
+                new ArrayList<>() {
+                    {
+                        add("input1");
+                        add("input2");
+                        add("input3");
+                    }
+                };
+        EmailLayout emailLayout = new EmailLayout();
+        emailLayout.setName("name");
+        emailLayout.setDescription("description");
+        emailLayout.setContent("content");
+        emailLayout.setInputs(inputs);
+
+        createdEmailLayout = emailLayoutService.createEmailLayout(key, emailLayout);
+    }
+
+    @Test
+    void testCreateOrUpdateTemplate() {
+        String templateKey = "key";
+        Map<String, String> templateParameters = new HashMap<>();
+        templateParameters.put("parameter1", "parameter-value1");
+        templateParameters.put("parameter2", "parameter-value2");
+        templateParameters.put("parameter3", "parameter-value3");
+
+        TemplateValue templateSubjectValue1 =
+                TemplateValue.builder()
+                        .templateValueType("subject")
+                        .templateValueKey("template-subject-key1")
+                        .templateValueValue("template-subject-value1")
+                        .build();
+
+        TemplateValue templateBodyValue1 =
+                TemplateValue.builder()
+                        .templateValueType("body")
+                        .templateValueKey("template-body-key1")
+                        .templateValueValue("template-body-value1")
+                        .build();
+
+        TemplateValue templateSmsValue1 =
+                TemplateValue.builder()
+                        .templateValueType("sms")
+                        .templateValueKey("template-sms-key1")
+                        .templateValueValue("template-sms-value1")
+                        .build();
+
+        List<TemplateValue> templateValues =
+                new ArrayList<>(
+                        List.of(templateSubjectValue1, templateBodyValue1, templateSmsValue1));
+
+        Template template =
+                Template.builder()
+                        .name("template name")
+                        .description("template description")
+                        .parameters(templateParameters)
+                        .emailLayoutKey(createdEmailLayout.getKey())
+                        .templateValues(templateValues)
+                        .build();
+
+        Template createdTemplate = service.createOrUpdateTemplate(templateKey, template);
+
+        assertNotNull(createdTemplate);
+    }
+
+    @Test
+    void testCreateOrUpdateTemplate_update() {
+        String templateKey = "key";
+        Map<String, String> templateParameters = new HashMap<>();
+        templateParameters.put("parameter1", "parameter-value1");
+        templateParameters.put("parameter2", "parameter-value2");
+        templateParameters.put("parameter3", "parameter-value3");
+
+        TemplateValue templateSubjectValue1 =
+                TemplateValue.builder()
+                        .templateValueType("subject")
+                        .templateValueKey("template-subject-key1")
+                        .templateValueValue("template-subject-value1")
+                        .build();
+
+        TemplateValue templateBodyValue1 =
+                TemplateValue.builder()
+                        .templateValueType("body")
+                        .templateValueKey("template-body-key1")
+                        .templateValueValue("template-body-value1")
+                        .build();
+
+        TemplateValue templateSmsValue1 =
+                TemplateValue.builder()
+                        .templateValueType("sms")
+                        .templateValueKey("template-sms-key1")
+                        .templateValueValue("template-sms-value1")
+                        .build();
+
+        List<TemplateValue> templateValues =
+                new ArrayList<>(
+                        List.of(templateSubjectValue1, templateBodyValue1, templateSmsValue1));
+
+        Template template =
+                Template.builder()
+                        .name("template name")
+                        .description("template description")
+                        .parameters(templateParameters)
+                        .emailLayoutKey(createdEmailLayout.getKey())
+                        .templateValues(templateValues)
+                        .build();
+
+        Template createdTemplate = service.createOrUpdateTemplate(templateKey, template);
+
+        assertNotNull(createdTemplate);
+
+        createdTemplate.setDescription("updated description");
+
+        Template updateTemplate = service.createOrUpdateTemplate(templateKey, createdTemplate);
+
+        assertNotNull(createdTemplate);
+        assertEquals(createdTemplate.getDescription(), updateTemplate.getDescription());
+    }
+}

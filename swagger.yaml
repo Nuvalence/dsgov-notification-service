@@ -119,6 +119,33 @@ paths:
               description: "You are unauthorized to make this request"
             "404":
                 description: Email layout not found
+  /admin/templates/{key}:
+    put:
+      summary: Create or update a template
+      operationId: createTemplate
+      tags:
+        - admin-notification
+      parameters:
+        - name: key
+          in: path
+          description: The key of the template to save
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Template object that needs to be added to the db
+        required: true
+        content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateRequestModel"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateResponseModel"
 components:
   schemas:
     EmailLayoutRequestModel:
@@ -210,3 +237,91 @@ components:
           minimum: 0
         nextPage:
           type: string
+    TemplateRequestModel:
+      type: object
+      required:
+        - name
+        - description
+        - parameters
+        - emailFormat
+        - smsFormat
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        parameters:
+          $ref: "#/components/schemas/MapModel"
+        emailFormat:
+          $ref: "#/components/schemas/EmailFormatModel"
+        smsFormat:
+          type: object
+          properties:
+            message:
+              $ref: "#/components/schemas/TemplateModel"
+    TemplateResponseModel:
+      type: object
+      required:
+        - id
+        - key
+        - version
+        - status
+        - name
+        - description
+        - parameters
+        - emailFormat
+        - smsFormat
+        - createdBy
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        version:
+          type: integer
+          format: int32
+        status:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        parameters:
+          $ref: "#/components/schemas/MapModel"
+        emailFormat:
+          $ref: "#/components/schemas/EmailFormatModel"
+        smsFormat:
+          type: object
+          properties:
+            message:
+              $ref: "#/components/schemas/TemplateModel"
+        createdBy:
+          type: string
+    EmailFormatModel:
+      type: object
+      required:
+        - layoutKey
+        - subject
+        - content
+      properties:
+        layoutKey:
+          type: string
+        subject:
+          $ref: "#/components/schemas/TemplateModel"
+        content:
+          type: object
+          properties:
+            body:
+              $ref: "#/components/schemas/TemplateModel"
+    TemplateModel:
+      type: object
+      required:
+        - templates
+      properties:
+        templates:
+          $ref: "#/components/schemas/MapModel"
+    MapModel:
+      type: object
+      additionalProperties:
+        type: string

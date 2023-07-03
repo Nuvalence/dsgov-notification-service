@@ -1,14 +1,19 @@
 package io.nuvalence.platform.notification.service.controller;
 
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
+import io.nuvalence.platform.notification.service.domain.Template;
 import io.nuvalence.platform.notification.service.generated.controllers.AdminNotificationApiDelegate;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutPageDTO;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutResponseModel;
+import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModel;
+import io.nuvalence.platform.notification.service.generated.models.TemplateResponseModel;
 import io.nuvalence.platform.notification.service.mapper.EmailLayoutMapper;
 import io.nuvalence.platform.notification.service.mapper.PagingMetadataMapper;
+import io.nuvalence.platform.notification.service.mapper.TemplateMapperImpl;
 import io.nuvalence.platform.notification.service.model.SearchEmailLayoutFilter;
 import io.nuvalence.platform.notification.service.service.EmailLayoutService;
+import io.nuvalence.platform.notification.service.service.TemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,6 +32,8 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
 
     private final EmailLayoutService emailLayoutService;
     private final EmailLayoutMapper emailLayoutMapper;
+    private final TemplateService templateService;
+    private final TemplateMapperImpl templateMapperImpl;
     private final PagingMetadataMapper pagingMetadataMapper;
 
     @Override
@@ -72,5 +79,15 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
                                 .collect(Collectors.toList()),
                         pagingMetadataMapper.toPagingMetadata(result));
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<TemplateResponseModel> createTemplate(
+            String key, TemplateRequestModel templateRequestModel) {
+        Template template =
+                templateService.createOrUpdateTemplate(
+                        key,
+                        templateMapperImpl.templateRequestModelToTemplate(templateRequestModel));
+        return ResponseEntity.ok(templateMapperImpl.templateToTemplateResponseModel(template));
     }
 }

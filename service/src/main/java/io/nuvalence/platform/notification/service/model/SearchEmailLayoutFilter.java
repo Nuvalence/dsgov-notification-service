@@ -1,7 +1,6 @@
 package io.nuvalence.platform.notification.service.model;
 
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
-import lombok.Data;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -15,7 +14,6 @@ import javax.persistence.criteria.Predicate;
  * Filter for searching email layouts.
  */
 @SuperBuilder
-@Data
 public class SearchEmailLayoutFilter extends BaseFilter {
     private String name;
 

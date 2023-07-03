@@ -36,7 +36,7 @@ public class EmailLayoutService {
 
         Optional<EmailLayout> emailLayoutFound =
                 emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
-        if (emailLayoutFound.isPresent() && emailLayoutFound.get().isSameVersion(emailLayout)) {
+        if (emailLayoutFound.isPresent()) {
             EmailLayout existingEmailLayout = emailLayoutFound.get();
             existingEmailLayout.setName(emailLayout.getName());
             existingEmailLayout.setDescription(emailLayout.getDescription());
@@ -46,14 +46,9 @@ public class EmailLayoutService {
             return emailLayoutRepository.save(existingEmailLayout);
         }
 
-        int version = 0;
-        if (emailLayoutFound.isPresent() && !emailLayoutFound.get().isSameVersion(emailLayout)) {
-            version = emailLayoutFound.get().getVersion() + 1;
-        }
-
         emailLayout.setKey(key);
         emailLayout.setStatus("DRAFT");
-        emailLayout.setVersion(version);
+        emailLayout.setVersion(0);
         emailLayout.setCreatedBy(getCreatedBy().orElse(null));
         emailLayout.setCreatedTimestamp(now);
         emailLayout.setLastUpdatedTimestamp(now);

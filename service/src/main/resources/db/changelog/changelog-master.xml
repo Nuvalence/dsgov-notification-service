@@ -52,4 +52,71 @@
                        tableName="email_layout_input"
                        validate="true" />
     </changeSet>
+    <changeSet id="templates" author="deibys.quintero">
+        <createTable tableName="template">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="key" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="version" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="varchar(55)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="email_layout_key" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="createdby" type="VARCHAR(64)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_timestamp" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_updated_timestamp" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="template_parameter">
+            <column name="template_id" type="uuid"  >
+                <constraints nullable="false" foreignKeyName="fk_template_parameter_template_id" references="template(id)"/>
+            </column>
+            <column name="parameter_name" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="parameter_value" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="template_id, parameter_name"
+                       constraintName="pk_template_parameter"
+                       tableName="template_parameter"
+                       validate="true" />
+        <createTable tableName="template_value">
+            <column name="template_id" type="uuid"  >
+                <constraints nullable="false" foreignKeyName="fk_template_value_template_id" references="template(id)"/>
+            </column>
+            <column name="template_value_type" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="template_value_key" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="template_value_value" type="TEXT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="template_id, template_value_type, template_value_key"
+                       constraintName="pk_template_value"
+                       tableName="template_value"
+                       validate="true" />
+    </changeSet>
 </databaseChangeLog>
