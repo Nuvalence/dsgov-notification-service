@@ -85,9 +85,7 @@ paths:
             required: false
             schema:
               type: string
-              enum:
-                - ASC
-                - DESC
+              $ref: "#/components/schemas/SortOrder"
               default: DESC
           - in: query
             name: sortBy
@@ -197,6 +195,7 @@ paths:
           required: false
           schema:
             type: string
+            $ref: "#/components/schemas/SortOrder"
         - in: query
           name: sortBy
           description: Field to sort templates by. Key is chosen by default.
@@ -285,7 +284,7 @@ components:
       type: string
       default: ASC
       pattern: ^(ASC|DESC)$
-    SortEmailLayoutBy:
+    SortBy:
       type: string
       default: email
       pattern: ^(id|externalId|email|createdAt|displayName)$
