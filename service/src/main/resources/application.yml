@@ -1,6 +1,7 @@
 server:
   servlet:
     context-path: /ns
+  forward-headers-strategy: framework
 
 spring:
   datasource:

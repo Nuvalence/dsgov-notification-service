@@ -76,7 +76,6 @@ public class PagingMetadataMapper {
             return UriComponentsBuilder.fromUriString(request.getRequestURI())
                     .host(request.getServerName())
                     .scheme(request.getScheme())
-                    .port(request.getServerPort())
                     .queryParams(new MultiValueMapAdapter<>(queryParams))
                     .replaceQueryParam("page", List.of(nextPage.getPageNumber()))
                     .build()
