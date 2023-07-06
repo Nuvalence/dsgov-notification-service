@@ -13,7 +13,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -76,9 +75,8 @@ public class PagingMetadataMapper {
             return UriComponentsBuilder.fromUriString(request.getRequestURI())
                     .host(request.getServerName())
                     .scheme(request.getScheme())
-                    .port(request.getServerPort())
                     .queryParams(new MultiValueMapAdapter<>(queryParams))
-                    .replaceQueryParam("page", List.of(nextPage.getPageNumber()))
+                    .replaceQueryParam("page", nextPage.getPageNumber())
                     .build()
                     .toUri();
         } else {
