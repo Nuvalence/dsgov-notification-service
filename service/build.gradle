@@ -65,6 +65,27 @@ test {
 	useJUnitPlatform()
 }
 
+jacocoTestReport {
+	reports {
+		xml.enabled true
+		html.enabled true
+	}
+}
+
+sonarqube {
+	properties {
+		property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+		property 'sonar.dependencyCheck.jsonReportPath', 'build/reports/dependency-check-report.json'
+		property 'sonar.dependencyCheck.summarize', true
+		property 'sonar.host.url', 'https://sonarqube.dsgov.demo.nuvalence.io/'
+	}
+}
+
+test.finalizedBy jacocoTestReport
+tasks.named('sonarqube').configure {
+	dependsOn test
+}
+
 tasks.withType(JavaCompile) {
 	options.compilerArgs = [
 			'-Amapstruct.suppressGeneratorTimestamp=true'
