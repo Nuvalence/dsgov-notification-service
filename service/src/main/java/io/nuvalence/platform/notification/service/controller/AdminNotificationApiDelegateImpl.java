@@ -1,7 +1,7 @@
 package io.nuvalence.platform.notification.service.controller;
 
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
-import io.nuvalence.platform.notification.service.domain.Template;
+import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.generated.controllers.AdminNotificationApiDelegate;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutPageDTO;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutRequestModel;
@@ -86,7 +86,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     @Override
     public ResponseEntity<TemplateResponseModel> createTemplate(
             String key, TemplateRequestModel templateRequestModel) {
-        Template template =
+        MessageTemplate template =
                 templateService.createOrUpdateTemplate(
                         key,
                         templateMapperImpl.templateRequestModelToTemplate(templateRequestModel));
@@ -116,7 +116,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
                         .sortBy(sortBy)
                         .name(name)
                         .build();
-        Page<Template> result = templateService.getTemplates(filter);
+        Page<MessageTemplate> result = templateService.getTemplates(filter);
         TemplatePageDTO response =
                 new TemplatePageDTO(
                         result.getContent().stream()

@@ -8,10 +8,10 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -21,7 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -33,8 +33,8 @@ import javax.persistence.Table;
 @Data
 @ToString
 @Entity
-@Table(name = "template")
-public class Template {
+@Table(name = "message_template")
+public class MessageTemplate {
 
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -62,15 +62,19 @@ public class Template {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "parameter_name")
-    @Column(name = "parameter_value")
+    @Column(name = "parameter_type")
     @CollectionTable(
-            name = "template_parameter",
-            joinColumns = @JoinColumn(name = "template_id", nullable = false))
+            name = "message_template_parameter",
+            joinColumns = @JoinColumn(name = "message_template_id", nullable = false))
     private Map<String, String> parameters;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "template_id", updatable = false, insertable = false)
-    private List<TemplateValue> templateValues;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "sms_format_id", referencedColumnName = "id")
+    private SmsFormat smsFormat;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "email_format_id", referencedColumnName = "id")
+    private EmailFormat emailFormat;
 
     @Column(name = "createdby", length = 64)
     private String createdBy;
@@ -80,4 +84,33 @@ public class Template {
 
     @Column(name = "last_updated_timestamp")
     private OffsetDateTime lastUpdatedTimestamp;
+
+    /**
+     * Constructor for creating a new template.
+     *
+     * @param key      the template key
+     * @param that  the template to base on
+     * @param status   the template status
+     * @param createdBy the user who created the template
+     * @param time the time the template was created
+     */
+    public MessageTemplate(
+            String key,
+            MessageTemplate that,
+            String status,
+            String createdBy,
+            OffsetDateTime time) {
+        this.name = that.getName();
+        this.description = that.getDescription();
+        this.key = key;
+        this.status = status;
+        this.version = 0;
+        this.parameters = that.getParameters();
+        this.emailLayoutKey = that.getEmailLayoutKey();
+        this.smsFormat = that.getSmsFormat();
+        this.emailFormat = that.getEmailFormat();
+        this.createdBy = createdBy;
+        this.createdTimestamp = time;
+        this.lastUpdatedTimestamp = time;
+    }
 }

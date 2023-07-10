@@ -4,12 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.nuvalence.platform.notification.service.domain.EmailFormat;
+import io.nuvalence.platform.notification.service.domain.EmailFormatContent;
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
-import io.nuvalence.platform.notification.service.domain.Template;
-import io.nuvalence.platform.notification.service.domain.TemplateValue;
+import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplate;
+import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
+import io.nuvalence.platform.notification.service.domain.MessageTemplate;
+import io.nuvalence.platform.notification.service.domain.SmsFormat;
 import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -23,18 +28,21 @@ import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TemplateServiceTest {
 
     @Autowired private EmailLayoutService emailLayoutService;
     @Autowired private TemplateService service;
 
-    private Template createdTemplate;
+    private MessageTemplate createdTemplate;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        final String key = "emailLayoutKey";
+        final String emailLayoutKeykey = "emailLayoutKey";
         List<String> inputs =
                 new ArrayList<>() {
+                    private static final long serialVersionUID = 4861793309100343408L;
+
                     {
                         add("input1");
                         add("input2");
@@ -47,48 +55,111 @@ class TemplateServiceTest {
         emailLayout.setContent("content");
         emailLayout.setInputs(inputs);
 
-        EmailLayout createdEmailLayout = emailLayoutService.createEmailLayout(key, emailLayout);
-
+        final String templateKey = "key";
         Map<String, String> templateParameters = new HashMap<>();
         templateParameters.put("parameter1", "parameter-value1");
         templateParameters.put("parameter2", "parameter-value2");
         templateParameters.put("parameter3", "parameter-value3");
 
-        TemplateValue templateSubjectValue1 =
-                TemplateValue.builder()
-                        .templateValueType("subject")
-                        .templateValueKey("template-subject-key1")
-                        .templateValueValue("template-subject-value1")
+        LocalizedStringTemplateLanguage localizedSmsStringTemplateLanguage1 =
+                LocalizedStringTemplateLanguage.builder()
+                        .language("en")
+                        .template("template-sms-value1")
                         .build();
 
-        TemplateValue templateBodyValue1 =
-                TemplateValue.builder()
-                        .templateValueType("body")
-                        .templateValueKey("template-body-key1")
-                        .templateValueValue("template-body-value1")
+        LocalizedStringTemplateLanguage localizedSmsStringTemplateLanguage2 =
+                LocalizedStringTemplateLanguage.builder()
+                        .language("es")
+                        .template("template-sms-value2")
                         .build();
 
-        TemplateValue templateSmsValue1 =
-                TemplateValue.builder()
-                        .templateValueType("sms")
-                        .templateValueKey("template-sms-key1")
-                        .templateValueValue("template-sms-value1")
+        LocalizedStringTemplateLanguage localizedContentStringTemplateLanguage1 =
+                LocalizedStringTemplateLanguage.builder()
+                        .language("en")
+                        .template("template-content-value1")
                         .build();
 
-        List<TemplateValue> templateValues =
-                new ArrayList<>(
-                        List.of(templateSubjectValue1, templateBodyValue1, templateSmsValue1));
+        LocalizedStringTemplateLanguage localizedContentStringTemplateLanguage2 =
+                LocalizedStringTemplateLanguage.builder()
+                        .language("es")
+                        .template("template-content-value2")
+                        .build();
 
-        Template template =
-                Template.builder()
+        LocalizedStringTemplate localizedContentStringTemplate =
+                LocalizedStringTemplate.builder()
+                        .localizedTemplateStrings(
+                                List.of(
+                                        localizedContentStringTemplateLanguage1,
+                                        localizedContentStringTemplateLanguage2))
+                        .build();
+        localizedContentStringTemplateLanguage1.setLocalizedStringTemplate(
+                localizedContentStringTemplate);
+        localizedContentStringTemplateLanguage2.setLocalizedStringTemplate(
+                localizedContentStringTemplate);
+        EmailFormatContent emailFormatContent =
+                EmailFormatContent.builder()
+                        .emailLayoutInput("body")
+                        .localizedStringTemplate(localizedContentStringTemplate)
+                        .build();
+
+        SmsFormat smsFormat =
+                SmsFormat.builder()
+                        .localizedStringTemplate(
+                                LocalizedStringTemplate.builder()
+                                        .localizedTemplateStrings(
+                                                List.of(
+                                                        localizedSmsStringTemplateLanguage1,
+                                                        localizedSmsStringTemplateLanguage2))
+                                        .build())
+                        .build();
+        localizedSmsStringTemplateLanguage1.setLocalizedStringTemplate(
+                smsFormat.getLocalizedStringTemplate());
+        localizedSmsStringTemplateLanguage2.setLocalizedStringTemplate(
+                smsFormat.getLocalizedStringTemplate());
+
+        LocalizedStringTemplateLanguage localizedSubjectStringTemplateLanguage1 =
+                LocalizedStringTemplateLanguage.builder()
+                        .language("en")
+                        .template("template-subject-value1")
+                        .build();
+
+        LocalizedStringTemplateLanguage localizedSubjectStringTemplateLanguage2 =
+                LocalizedStringTemplateLanguage.builder()
+                        .language("es")
+                        .template("template-subject-value2")
+                        .build();
+
+        EmailFormat emailFormat =
+                EmailFormat.builder()
+                        .localizedSubjectStringTemplate(
+                                LocalizedStringTemplate.builder()
+                                        .localizedTemplateStrings(
+                                                List.of(
+                                                        localizedSubjectStringTemplateLanguage1,
+                                                        localizedSubjectStringTemplateLanguage2))
+                                        .build())
+                        .emailFormatContents(List.of(emailFormatContent))
+                        .build();
+        localizedSubjectStringTemplateLanguage1.setLocalizedStringTemplate(
+                emailFormat.getLocalizedSubjectStringTemplate());
+        localizedSubjectStringTemplateLanguage2.setLocalizedStringTemplate(
+                emailFormat.getLocalizedSubjectStringTemplate());
+        emailFormatContent.setEmailFormat(emailFormat);
+
+        EmailLayout createdEmailLayout =
+                emailLayoutService.createEmailLayout(emailLayoutKeykey, emailLayout);
+
+        MessageTemplate template =
+                MessageTemplate.builder()
+                        .key(templateKey)
                         .name("template name")
                         .description("template description")
                         .parameters(templateParameters)
                         .emailLayoutKey(createdEmailLayout.getKey())
-                        .templateValues(templateValues)
+                        .smsFormat(smsFormat)
+                        .emailFormat(emailFormat)
                         .build();
 
-        String templateKey = "key";
         createdTemplate = service.createOrUpdateTemplate(templateKey, template);
     }
 
@@ -99,18 +170,21 @@ class TemplateServiceTest {
 
     @Test
     void testCreateOrUpdateTemplate_update() {
-        createdTemplate.setDescription("updated description");
+        String updatedDescription = "updated description";
+        createdTemplate.setDescription(updatedDescription);
 
-        Template updateTemplate =
+        // entityManager.detach(createdTemplate);
+
+        MessageTemplate updateTemplate =
                 service.createOrUpdateTemplate(createdTemplate.getKey(), createdTemplate);
 
         assertNotNull(createdTemplate);
-        assertEquals(createdTemplate.getDescription(), updateTemplate.getDescription());
+        assertEquals(updatedDescription, updateTemplate.getDescription());
     }
 
     @Test
     void testGetTemplate() {
-        Optional<Template> foundTemplate = service.getTemplate(createdTemplate.getKey());
+        Optional<MessageTemplate> foundTemplate = service.getTemplate(createdTemplate.getKey());
 
         assertTrue(foundTemplate.isPresent());
     }
@@ -119,7 +193,7 @@ class TemplateServiceTest {
     void testGetTemplates() {
         SearchTemplateFilter filter =
                 SearchTemplateFilter.builder().name(createdTemplate.getName()).build();
-        Page<Template> result = service.getTemplates(filter);
+        Page<MessageTemplate> result = service.getTemplates(filter);
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
@@ -129,7 +203,7 @@ class TemplateServiceTest {
     @Test
     void testGetTemplates_not_found() {
         SearchTemplateFilter filter = SearchTemplateFilter.builder().name("unknown").build();
-        Page<Template> result = service.getTemplates(filter);
+        Page<MessageTemplate> result = service.getTemplates(filter);
 
         assertNotNull(result);
         assertEquals(0, result.getTotalElements());

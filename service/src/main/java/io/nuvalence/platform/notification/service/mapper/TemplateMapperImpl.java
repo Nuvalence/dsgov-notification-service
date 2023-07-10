@@ -1,10 +1,13 @@
 package io.nuvalence.platform.notification.service.mapper;
 
-import io.nuvalence.platform.notification.service.domain.Template;
-import io.nuvalence.platform.notification.service.domain.TemplateValue;
+import io.nuvalence.platform.notification.service.domain.EmailFormat;
+import io.nuvalence.platform.notification.service.domain.EmailFormatContent;
+import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplate;
+import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
+import io.nuvalence.platform.notification.service.domain.MessageTemplate;
+import io.nuvalence.platform.notification.service.domain.SmsFormat;
 import io.nuvalence.platform.notification.service.generated.models.EmailFormatModel;
-import io.nuvalence.platform.notification.service.generated.models.EmailFormatModelContent;
-import io.nuvalence.platform.notification.service.generated.models.TemplateModel;
+import io.nuvalence.platform.notification.service.generated.models.LocalizedTemplateModel;
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModelSmsFormat;
 import io.nuvalence.platform.notification.service.generated.models.TemplateResponseModel;
@@ -22,48 +25,67 @@ import java.util.Map;
 public class TemplateMapperImpl {
 
     /**
-     * Map a template to a template response model.
+     * Maps a template request model to a message response model.
      *
-     * @param template template
-     * @return template response model
+     * @param template template request model
+     * @return message template response model
      */
-    public TemplateResponseModel templateToTemplateResponseModel(Template template) {
-        Map<String, String> subjectTemplates = new HashMap<>();
-        Map<String, String> bodyTemplates = new HashMap<>();
+    public TemplateResponseModel templateToTemplateResponseModel(MessageTemplate template) {
+        Map<String, String> emailSubjectTemplates = new HashMap<>();
+        Map<String, Map<String, String>> emailContentTemplates = new HashMap<>();
         Map<String, String> smsTemplates = new HashMap<>();
 
-        template.getTemplateValues()
+        template.getSmsFormat()
+                .getLocalizedStringTemplate()
+                .getLocalizedTemplateStrings()
                 .forEach(
-                        templateValue -> {
-                            switch (templateValue.getTemplateValueType()) {
-                                case "subject":
-                                    subjectTemplates.put(
-                                            templateValue.getTemplateValueKey(),
-                                            templateValue.getTemplateValueValue());
-                                    break;
-                                case "body":
-                                    bodyTemplates.put(
-                                            templateValue.getTemplateValueKey(),
-                                            templateValue.getTemplateValueValue());
-                                    break;
-                                case "sms":
-                                    smsTemplates.put(
-                                            templateValue.getTemplateValueKey(),
-                                            templateValue.getTemplateValueValue());
-                                    break;
-                                default:
-                                    break;
+                        localizedStringTemplateLanguage ->
+                                smsTemplates.put(
+                                        localizedStringTemplateLanguage.getLanguage(),
+                                        localizedStringTemplateLanguage.getTemplate()));
+
+        template.getEmailFormat()
+                .getLocalizedSubjectStringTemplate()
+                .getLocalizedTemplateStrings()
+                .forEach(
+                        localizedStringTemplateLanguage ->
+                                emailSubjectTemplates.put(
+                                        localizedStringTemplateLanguage.getLanguage(),
+                                        localizedStringTemplateLanguage.getTemplate()));
+
+        template.getEmailFormat()
+                .getEmailFormatContents()
+                .forEach(
+                        emailFormatContent -> {
+                            Map<String, String> localizedStringTemplates = new HashMap<>();
+                            for (LocalizedStringTemplateLanguage localizedStringTemplate :
+                                    emailFormatContent
+                                            .getLocalizedStringTemplate()
+                                            .getLocalizedTemplateStrings()) {
+                                localizedStringTemplates.put(
+                                        localizedStringTemplate.getLanguage(),
+                                        localizedStringTemplate.getTemplate());
+                            }
+                            if (emailContentTemplates.containsKey(
+                                    emailFormatContent.getEmailLayoutInput())) {
+                                emailContentTemplates
+                                        .get(emailFormatContent.getEmailLayoutInput())
+                                        .putAll(localizedStringTemplates);
+                            } else {
+                                emailContentTemplates.put(
+                                        emailFormatContent.getEmailLayoutInput(),
+                                        localizedStringTemplates);
                             }
                         });
 
-        TemplateModel subject = new TemplateModel(subjectTemplates);
-        TemplateModel smsMessage = new TemplateModel(smsTemplates);
+        LocalizedTemplateModel subject = new LocalizedTemplateModel(emailSubjectTemplates);
+        Map<String, LocalizedTemplateModel> content = new HashMap<>();
+        emailContentTemplates.forEach(
+                (key, value) -> content.put(key, new LocalizedTemplateModel(value)));
 
-        TemplateRequestModelSmsFormat smsTemplate = new TemplateRequestModelSmsFormat();
-        smsTemplate.setMessage(smsMessage);
-
-        EmailFormatModelContent contentTemplate =
-                new EmailFormatModelContent().body(new TemplateModel(bodyTemplates));
+        LocalizedTemplateModel message = new LocalizedTemplateModel(smsTemplates);
+        TemplateRequestModelSmsFormat smsFormat = new TemplateRequestModelSmsFormat();
+        smsFormat.setMessage(message);
 
         return new TemplateResponseModel(
                 template.getId(),
@@ -73,19 +95,22 @@ public class TemplateMapperImpl {
                 template.getName(),
                 template.getDescription(),
                 template.getParameters(),
-                new EmailFormatModel(template.getEmailLayoutKey(), subject, contentTemplate),
-                smsTemplate,
+                new EmailFormatModel(template.getEmailLayoutKey(), subject, content),
+                smsFormat,
                 template.getCreatedBy());
     }
 
     /**
-     * Map a template request model to a template.
+     * Maps a template request model to a message template.
      *
      * @param templateRequestModel template request model
-     * @return template
+     * @return message template
      */
-    public Template templateRequestModelToTemplate(TemplateRequestModel templateRequestModel) {
-        List<TemplateValue> templateValues = new ArrayList<>();
+    public MessageTemplate templateRequestModelToTemplate(
+            TemplateRequestModel templateRequestModel) {
+        Map<String, LocalizedStringTemplateLanguage> emailSubjectLocalized = new HashMap<>();
+        Map<String, LocalizedStringTemplateLanguage> smsMessageLocalized = new HashMap<>();
+        Map<String, EmailFormatContent> contentLocalized = new HashMap<>();
 
         if (templateRequestModel.getEmailFormat() != null) {
             templateRequestModel
@@ -93,26 +118,15 @@ public class TemplateMapperImpl {
                     .getSubject()
                     .getTemplates()
                     .forEach(
-                            (key, value) ->
-                                    templateValues.add(
-                                            TemplateValue.builder()
-                                                    .templateValueType("subject")
-                                                    .templateValueKey(key)
-                                                    .templateValueValue(value)
+                            (locale, localizedValue) ->
+                                    emailSubjectLocalized.put(
+                                            locale,
+                                            LocalizedStringTemplateLanguage.builder()
+                                                    .language(locale)
+                                                    .template(localizedValue)
                                                     .build()));
-            templateRequestModel
-                    .getEmailFormat()
-                    .getContent()
-                    .getBody()
-                    .getTemplates()
-                    .forEach(
-                            (key, value) ->
-                                    templateValues.add(
-                                            TemplateValue.builder()
-                                                    .templateValueType("body")
-                                                    .templateValueKey(key)
-                                                    .templateValueValue(value)
-                                                    .build()));
+
+            contentLocalized = buildContentLocalized(templateRequestModel);
         }
 
         if (templateRequestModel.getSmsFormat() != null) {
@@ -121,21 +135,136 @@ public class TemplateMapperImpl {
                     .getMessage()
                     .getTemplates()
                     .forEach(
-                            (key, value) ->
-                                    templateValues.add(
-                                            TemplateValue.builder()
-                                                    .templateValueType("sms")
-                                                    .templateValueKey(key)
-                                                    .templateValueValue(value)
+                            (locale, localizedValue) ->
+                                    smsMessageLocalized.put(
+                                            locale,
+                                            LocalizedStringTemplateLanguage.builder()
+                                                    .language(locale)
+                                                    .template(localizedValue)
                                                     .build()));
         }
 
-        return Template.builder()
-                .name(templateRequestModel.getName())
-                .description(templateRequestModel.getDescription())
-                .parameters(templateRequestModel.getParameters())
-                .emailLayoutKey(templateRequestModel.getEmailFormat().getLayoutKey())
-                .templateValues(templateValues)
+        MessageTemplate messageTemplate =
+                MessageTemplate.builder()
+                        .name(templateRequestModel.getName())
+                        .description(templateRequestModel.getDescription())
+                        .parameters(templateRequestModel.getParameters())
+                        .emailLayoutKey(templateRequestModel.getEmailFormat().getLayoutKey())
+                        .build();
+
+        SmsFormat smsFormat = buildSmsFormat(smsMessageLocalized);
+
+        EmailFormat emailFormat =
+                buildEmailFormat(emailSubjectLocalized, new ArrayList<>(contentLocalized.values()));
+
+        messageTemplate.setSmsFormat(smsFormat);
+        messageTemplate.setEmailFormat(emailFormat);
+        return messageTemplate;
+    }
+
+    private SmsFormat buildSmsFormat(
+            Map<String, LocalizedStringTemplateLanguage> smsMessageLocalized) {
+        LocalizedStringTemplate smslocalizedStringTemplate =
+                LocalizedStringTemplate.builder()
+                        .localizedTemplateStrings(new ArrayList<>(smsMessageLocalized.values()))
+                        .build();
+        smslocalizedStringTemplate
+                .getLocalizedTemplateStrings()
+                .forEach(l -> l.setLocalizedStringTemplate(smslocalizedStringTemplate));
+        return SmsFormat.builder()
+                // .messageTemplate()
+                .localizedStringTemplate(smslocalizedStringTemplate)
+                .build();
+    }
+
+    private EmailFormat buildEmailFormat(
+            Map<String, LocalizedStringTemplateLanguage> emailSubjectLocalized,
+            List<EmailFormatContent> contentLocalized) {
+        LocalizedStringTemplate emailSubjectlocalizedStringTemplate =
+                LocalizedStringTemplate.builder()
+                        .localizedTemplateStrings(new ArrayList<>(emailSubjectLocalized.values()))
+                        .build();
+        emailSubjectlocalizedStringTemplate
+                .getLocalizedTemplateStrings()
+                .forEach(l -> l.setLocalizedStringTemplate(emailSubjectlocalizedStringTemplate));
+        EmailFormat emailFormat =
+                EmailFormat.builder()
+                        // .messageTemplate()
+                        .localizedSubjectStringTemplate(emailSubjectlocalizedStringTemplate)
+                        .build();
+        contentLocalized.forEach(
+                c -> {
+                    c.setEmailFormat(emailFormat);
+                    c.getLocalizedStringTemplate()
+                            .getLocalizedTemplateStrings()
+                            .forEach(
+                                    l ->
+                                            l.setLocalizedStringTemplate(
+                                                    c.getLocalizedStringTemplate()));
+                });
+        emailFormat.setEmailFormatContents(contentLocalized);
+
+        return emailFormat;
+    }
+
+    private Map<String, EmailFormatContent> buildContentLocalized(
+            TemplateRequestModel templateRequestModel) {
+        Map<String, EmailFormatContent> contentLocalized = new HashMap<>();
+
+        templateRequestModel
+                .getEmailFormat()
+                .getContent()
+                .forEach(
+                        (emailLayoutInput, templates) ->
+                                templates
+                                        .getTemplates()
+                                        .forEach(
+                                                (locale, localizedValue) -> {
+                                                    if (contentLocalized.containsKey(
+                                                            emailLayoutInput)) {
+                                                        contentLocalized
+                                                                .get(emailLayoutInput)
+                                                                .getLocalizedStringTemplate()
+                                                                .getLocalizedTemplateStrings()
+                                                                .add(
+                                                                        LocalizedStringTemplateLanguage
+                                                                                .builder()
+                                                                                .language(locale)
+                                                                                .template(
+                                                                                        localizedValue)
+                                                                                .build());
+                                                    } else {
+                                                        List<LocalizedStringTemplateLanguage>
+                                                                localizedStringTemplateLanguages =
+                                                                        new ArrayList<>();
+                                                        localizedStringTemplateLanguages.add(
+                                                                LocalizedStringTemplateLanguage
+                                                                        .builder()
+                                                                        .language(locale)
+                                                                        .template(localizedValue)
+                                                                        .build());
+                                                        EmailFormatContent emailFormatContent =
+                                                                buildEmailFormatContent(
+                                                                        emailLayoutInput,
+                                                                        localizedStringTemplateLanguages);
+                                                        contentLocalized.put(
+                                                                emailLayoutInput,
+                                                                emailFormatContent);
+                                                    }
+                                                }));
+
+        return contentLocalized;
+    }
+
+    private EmailFormatContent buildEmailFormatContent(
+            String emailLayoutInput,
+            List<LocalizedStringTemplateLanguage> localizedStringTemplateLanguages) {
+        return EmailFormatContent.builder()
+                .emailLayoutInput(emailLayoutInput)
+                .localizedStringTemplate(
+                        LocalizedStringTemplate.builder()
+                                .localizedTemplateStrings(localizedStringTemplateLanguages)
+                                .build())
                 .build();
     }
 }

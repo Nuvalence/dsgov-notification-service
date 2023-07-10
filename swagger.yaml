@@ -338,7 +338,7 @@ components:
           type: object
           properties:
             message:
-              $ref: "#/components/schemas/TemplateModel"
+              $ref: "#/components/schemas/LocalizedTemplateModel"
     TemplateResponseModel:
       type: object
       required:
@@ -375,7 +375,7 @@ components:
           type: object
           properties:
             message:
-              $ref: "#/components/schemas/TemplateModel"
+              $ref: "#/components/schemas/LocalizedTemplateModel"
         createdBy:
           type: string
     EmailFormatModel:
@@ -388,13 +388,12 @@ components:
         layoutKey:
           type: string
         subject:
-          $ref: "#/components/schemas/TemplateModel"
+          $ref: "#/components/schemas/LocalizedTemplateModel"
         content:
           type: object
-          properties:
-            body:
-              $ref: "#/components/schemas/TemplateModel"
-    TemplateModel:
+          additionalProperties:
+            $ref: "#/components/schemas/LocalizedTemplateModel"
+    LocalizedTemplateModel:
       type: object
       required:
         - templates
