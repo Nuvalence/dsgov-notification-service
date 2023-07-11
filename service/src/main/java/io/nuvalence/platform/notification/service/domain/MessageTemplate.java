@@ -1,5 +1,6 @@
 package io.nuvalence.platform.notification.service.domain;
 
+import io.nuvalence.auth.access.AccessResource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +33,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Data
 @ToString
+@AccessResource("message_template")
 @Entity
 @Table(name = "message_template")
 public class MessageTemplate {

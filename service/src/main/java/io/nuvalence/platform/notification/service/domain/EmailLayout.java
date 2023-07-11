@@ -1,5 +1,6 @@
 package io.nuvalence.platform.notification.service.domain;
 
+import io.nuvalence.auth.access.AccessResource;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
@@ -25,6 +26,7 @@ import javax.persistence.Table;
  */
 @Data
 @ToString
+@AccessResource("email_layout")
 @Entity
 @Table(name = "email_layout")
 public class EmailLayout {
