@@ -1,5 +1,6 @@
 package io.nuvalence.platform.notification.service.controller;
 
+import io.nuvalence.auth.access.AuthorizationHandler;
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.generated.controllers.AdminNotificationApiDelegate;
@@ -24,6 +25,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
+import javax.ws.rs.ForbiddenException;
+
 /**
  * Implementation of AdminNotificationApiDelegate.
  */
@@ -37,10 +40,15 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     private final TemplateService templateService;
     private final TemplateMapperImpl templateMapperImpl;
     private final PagingMetadataMapper pagingMetadataMapper;
+    private final AuthorizationHandler authorizationHandler;
 
     @Override
     public ResponseEntity<EmailLayoutResponseModel> createEmailLayout(
             String key, EmailLayoutRequestModel emailLayoutRequestModel) {
+        if (!authorizationHandler.isAllowed("create", EmailLayout.class)) {
+            throw new ForbiddenException();
+        }
+
         EmailLayout emailLayout =
                 emailLayoutService.createEmailLayout(
                         key,
@@ -54,6 +62,9 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     public ResponseEntity<EmailLayoutResponseModel> getEmailLayoutByKey(String key) {
         return emailLayoutService
                 .getEmailLayout(key)
+                .filter(
+                        emailLayout ->
+                                authorizationHandler.isAllowedForInstance("view", emailLayout))
                 .map(
                         emailLayout ->
                                 ResponseEntity.ok(
@@ -77,6 +88,10 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
         EmailLayoutPageDTO response =
                 new EmailLayoutPageDTO(
                         result.getContent().stream()
+                                .filter(
+                                        emailLayout ->
+                                                authorizationHandler.isAllowedForInstance(
+                                                        "view", emailLayout))
                                 .map(emailLayoutMapper::emailLayoutToEmailLayoutResponseModel)
                                 .collect(Collectors.toList()),
                         pagingMetadataMapper.toPagingMetadata(result));
@@ -86,6 +101,9 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     @Override
     public ResponseEntity<TemplateResponseModel> createTemplate(
             String key, TemplateRequestModel templateRequestModel) {
+        if (!authorizationHandler.isAllowed("create", MessageTemplate.class)) {
+            throw new ForbiddenException();
+        }
         MessageTemplate template =
                 templateService.createOrUpdateTemplate(
                         key,
@@ -97,6 +115,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     public ResponseEntity<TemplateResponseModel> getTemplateByKey(String key) {
         return templateService
                 .getTemplate(key)
+                .filter(template -> authorizationHandler.isAllowedForInstance("view", template))
                 .map(
                         template ->
                                 ResponseEntity.ok(
@@ -120,6 +139,10 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
         TemplatePageDTO response =
                 new TemplatePageDTO(
                         result.getContent().stream()
+                                .filter(
+                                        template ->
+                                                authorizationHandler.isAllowedForInstance(
+                                                        "view", template))
                                 .map(templateMapperImpl::templateToTemplateResponseModel)
                                 .collect(Collectors.toList()),
                         pagingMetadataMapper.toPagingMetadata(result));

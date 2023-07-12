@@ -57,4 +57,10 @@ auth:
         -----END RSA PRIVATE KEY-----
       
 
-      roles: "as:event-reporter, um:reader"
+      roles: "as:event-reporter, um:reader, um:application-client"
+
+userManagement:
+  baseUrl: "http://localhost/um"
+
+cerbos:
+  uri: 127.0.0.1:3592

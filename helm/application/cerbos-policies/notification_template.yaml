@@ -5,9 +5,9 @@ resourcePolicy:
   rules:
     - actions: ["view"]
       roles:
-        - admin
+        - notification-admin
       effect: EFFECT_ALLOW
     - actions: ["create"]
       roles:
-        - admin
+        - notification-admin
       effect: EFFECT_ALLOW

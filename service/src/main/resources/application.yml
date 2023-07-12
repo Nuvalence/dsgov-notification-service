@@ -49,3 +49,6 @@ auth:
 
 cerbos:
   uri: ${CERBOS_URI}
+
+userManagement:
+  baseUrl: ${USER_MANAGEMENT_BASE_URL}
