@@ -3,6 +3,7 @@ package io.nuvalence.platform.notification.service.domain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
@@ -27,7 +28,8 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ToString
+@EqualsAndHashCode(exclude = "messageTemplate")
+@ToString(exclude = "messageTemplate")
 @Entity
 @Table(name = "email_format")
 public class EmailFormat {

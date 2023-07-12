@@ -3,6 +3,7 @@ package io.nuvalence.platform.notification.service.domain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
@@ -24,7 +25,8 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ToString
+@EqualsAndHashCode(exclude = "localizedStringTemplate")
+@ToString(exclude = "localizedStringTemplate")
 @Entity
 @Table(name = "localized_string_template_language")
 public class LocalizedStringTemplateLanguage {
