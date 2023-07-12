@@ -1,5 +1,6 @@
 package io.nuvalence.platform.notification.service.domain;
 
+import io.nuvalence.auth.access.AccessResource;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
@@ -25,6 +26,7 @@ import javax.persistence.Table;
  */
 @Data
 @ToString
+@AccessResource("email_layout")
 @Entity
 @Table(name = "email_layout")
 public class EmailLayout {
@@ -69,16 +71,4 @@ public class EmailLayout {
 
     @Column(name = "last_updated_timestamp")
     private OffsetDateTime lastUpdatedTimestamp;
-
-    /**
-     * Determine if the given email layout is the same version as this one.
-     *
-     * @param emailLayout email layout to compare
-     * @return true if the email layout is the same version
-     */
-    public boolean isSameVersion(EmailLayout emailLayout) {
-        return this.content.equals(emailLayout.getContent())
-                && this.inputs.size() == emailLayout.getInputs().size()
-                && this.inputs.containsAll(emailLayout.getInputs());
-    }
 }

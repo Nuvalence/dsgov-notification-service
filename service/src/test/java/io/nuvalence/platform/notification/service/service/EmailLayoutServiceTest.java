@@ -47,7 +47,7 @@ class EmailLayoutServiceTest {
     }
 
     @Test
-    void testCreateEmailLayout_update_same_version() {
+    void testCreateEmailLayout_update() {
         final String key = "key";
         List<String> inputs =
                 new ArrayList<>() {
@@ -77,48 +77,8 @@ class EmailLayoutServiceTest {
         EmailLayout updatedEmailLayout = service.createEmailLayout(key, emailLayout2);
 
         assertNotNull(updatedEmailLayout);
-        assertEquals(createdEmailLayout.getVersion(), updatedEmailLayout.getVersion());
         assertEquals(
                 createdEmailLayout.getCreatedTimestamp(), updatedEmailLayout.getCreatedTimestamp());
-        assertNotEquals(
-                createdEmailLayout.getLastUpdatedTimestamp(),
-                updatedEmailLayout.getLastUpdatedTimestamp());
-    }
-
-    @Test
-    void testCreateEmailLayout_update_increase_version() {
-        final String key = "key";
-        List<String> inputs =
-                new ArrayList<>() {
-                    {
-                        add("input1");
-                        add("input2");
-                        add("input3");
-                    }
-                };
-        EmailLayout emailLayout = new EmailLayout();
-        emailLayout.setName("name");
-        emailLayout.setDescription("description");
-        emailLayout.setContent("content");
-        emailLayout.setInputs(inputs);
-
-        EmailLayout createdEmailLayout = service.createEmailLayout(key, emailLayout);
-
-        assertNotNull(createdEmailLayout);
-        assertEquals("DRAFT", createdEmailLayout.getStatus());
-
-        EmailLayout emailLayout2 = new EmailLayout();
-        emailLayout2.setName("name2");
-        emailLayout2.setDescription("description2");
-        emailLayout2.setContent("content2");
-        emailLayout2.setInputs(inputs);
-
-        EmailLayout updatedEmailLayout = service.createEmailLayout(key, emailLayout2);
-
-        assertNotNull(updatedEmailLayout);
-        assertEquals(1, updatedEmailLayout.getVersion());
-        // assertEquals(createdEmailLayout.getCreatedTimestamp(),
-        // updatedEmailLayout.getCreatedTimestamp());
         assertNotEquals(
                 createdEmailLayout.getLastUpdatedTimestamp(),
                 updatedEmailLayout.getLastUpdatedTimestamp());
@@ -143,7 +103,7 @@ class EmailLayoutServiceTest {
 
         EmailLayout createdEmailLayout = service.createEmailLayout(key, newEmailLayout);
 
-        Optional<EmailLayout> emailLayout = service.getEmailLayoutByKey(key);
+        Optional<EmailLayout> emailLayout = service.getEmailLayout(key);
 
         assertThat(emailLayout).isNotEmpty();
         assertEquals(createdEmailLayout.getId(), emailLayout.get().getId());

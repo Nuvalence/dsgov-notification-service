@@ -85,9 +85,7 @@ paths:
             required: false
             schema:
               type: string
-              enum:
-                - ASC
-                - DESC
+              $ref: "#/components/schemas/SortOrder"
               default: DESC
           - in: query
             name: sortBy
@@ -119,6 +117,115 @@ paths:
               description: "You are unauthorized to make this request"
             "404":
                 description: Email layout not found
+  /admin/templates/{key}:
+    get:
+      summary: Get template by key
+      operationId: getTemplateByKey
+      tags:
+        - admin-notification
+      parameters:
+        - name: key
+          in: path
+          description: The key of the template to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Template object returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateResponseModel"
+        "404":
+          description: Template not found
+    put:
+      summary: Create or update a template
+      operationId: createTemplate
+      tags:
+        - admin-notification
+      parameters:
+        - name: key
+          in: path
+          description: The key of the template to save
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Template object that needs to be added to the db
+        required: true
+        content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateRequestModel"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateResponseModel"
+  /admin/templates:
+    get:
+      summary: Get all templates
+      operationId: getTemplates
+      tags:
+        - admin-notification
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: The page number for pagination (zero-based)
+        - name: size
+          in: query
+          description: How many items to return at one time (max 200)
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 200
+            default: 50
+        - in: query
+          name: sortOrder
+          description: Determines direction for resulting sorting.
+          required: false
+          schema:
+            type: string
+            $ref: "#/components/schemas/SortOrder"
+        - in: query
+          name: sortBy
+          description: Field to sort templates by. Key is chosen by default.
+          required: false
+          schema:
+            type: string
+            enum:
+              - key
+              - version
+              - status
+              - name
+              - createdTimestamp
+              - lastUpdatedTimestamp
+        - in: query
+          name: name
+          description: Field to filter templates by name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Template object returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplatePageDTO"
+        "401":
+          description: "You are unauthorized to make this request"
+        "404":
+          description: Template not found
 components:
   schemas:
     EmailLayoutRequestModel:
@@ -177,7 +284,7 @@ components:
       type: string
       default: ASC
       pattern: ^(ASC|DESC)$
-    SortEmailLayoutBy:
+    SortBy:
       type: string
       default: email
       pattern: ^(id|externalId|email|createdAt|displayName)$
@@ -210,3 +317,102 @@ components:
           minimum: 0
         nextPage:
           type: string
+    TemplateRequestModel:
+      type: object
+      required:
+        - name
+        - description
+        - parameters
+        - emailFormat
+        - smsFormat
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        parameters:
+          $ref: "#/components/schemas/MapModel"
+        emailFormat:
+          $ref: "#/components/schemas/EmailFormatModel"
+        smsFormat:
+          type: object
+          properties:
+            message:
+              $ref: "#/components/schemas/LocalizedTemplateModel"
+    TemplateResponseModel:
+      type: object
+      required:
+        - id
+        - key
+        - version
+        - status
+        - name
+        - description
+        - parameters
+        - emailFormat
+        - smsFormat
+        - createdBy
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        version:
+          type: integer
+          format: int32
+        status:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        parameters:
+          $ref: "#/components/schemas/MapModel"
+        emailFormat:
+          $ref: "#/components/schemas/EmailFormatModel"
+        smsFormat:
+          type: object
+          properties:
+            message:
+              $ref: "#/components/schemas/LocalizedTemplateModel"
+        createdBy:
+          type: string
+    EmailFormatModel:
+      type: object
+      required:
+        - layoutKey
+        - subject
+        - content
+      properties:
+        layoutKey:
+          type: string
+        subject:
+          $ref: "#/components/schemas/LocalizedTemplateModel"
+        content:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/LocalizedTemplateModel"
+    LocalizedTemplateModel:
+      type: object
+      required:
+        - templates
+      properties:
+        templates:
+          $ref: "#/components/schemas/MapModel"
+    MapModel:
+      type: object
+      additionalProperties:
+        type: string
+    TemplatePageDTO:
+      type: object
+      required:
+        - items
+        - pagingMetadata
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateResponseModel'
+        pagingMetadata:
+          $ref: "#/components/schemas/PagingMetadata"

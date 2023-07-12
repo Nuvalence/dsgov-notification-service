@@ -52,4 +52,108 @@
                        tableName="email_layout_input"
                        validate="true" />
     </changeSet>
+    <changeSet id="templates" author="deibys.quintero">
+        <createTable tableName="localized_string_template">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="localized_string_template_language">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="localized_string_template_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_localized_string_template_language_localized_string_template_id" references="localized_string_template(id)"/>
+            </column>
+            <column name="language" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="template" type="text">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <createTable tableName="sms_format">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="message" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_sms_format_localized_string_template_id" references="localized_string_template(id)"/>
+            </column>
+        </createTable>
+        <createTable tableName="email_format">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="subject" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_email_format_localized_string_template_id" references="localized_string_template(id)"/>
+            </column>
+        </createTable>
+        <createTable tableName="email_format_content">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email_format_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_email_format_content_email_format_id" references="email_format(id)"/>
+            </column>
+            <column name="email_layout_input" type="varchar(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="localized_string_template_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_email_format_content_localized_string_template_id" references="localized_string_template(id)"/>
+            </column>
+        </createTable>
+        <createTable tableName="message_template">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="key" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="version" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="varchar(55)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="email_layout_key" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="sms_format_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_message_template_sms_format_id" references="sms_format(id)"/>
+            </column>
+            <column name="email_format_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_message_template_email_format_id" references="email_format(id)"/>
+            </column>
+            <column name="createdby" type="VARCHAR(64)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_timestamp" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_updated_timestamp" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="message_template_parameter">
+            <column name="message_template_id" type="uuid"  >
+                <constraints nullable="false" foreignKeyName="fk_message_template_parameter_message_template_id" references="message_template(id)"/>
+            </column>
+            <column name="parameter_name" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="parameter_type" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="message_template_id, parameter_name"
+                       constraintName="message_template_parameter_pk"
+                       tableName="message_template_parameter"
+                       validate="true" />
+    </changeSet>
 </databaseChangeLog>

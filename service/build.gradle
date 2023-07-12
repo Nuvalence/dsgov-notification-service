@@ -46,7 +46,7 @@ dependencies {
 
 	implementation 'io.hypersistence:hypersistence-utils-hibernate-55:3.5.0'
 
-	implementation 'io.nuvalence.dsgov:dsgov-auth:0.1.5'
+	implementation 'io.nuvalence.dsgov:dsgov-auth:0.1.11'
 	implementation 'io.nuvalence.dsgov:dsgov-logging:0.0.11'
 	implementation 'org.liquibase:liquibase-core'
 
@@ -57,12 +57,22 @@ dependencies {
 
 	testRuntimeOnly 'com.h2database:h2:2.1.214'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
-	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
 }
 
 test {
 	useJUnitPlatform()
+	testLogging {
+		exceptionFormat = 'full'
+	}
+}
+
+sonarqube {
+	properties {
+		property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+		property 'sonar.dependencyCheck.jsonReportPath', 'build/reports/dependency-check-report.json'
+		property 'sonar.dependencyCheck.summarize', true
+		property 'sonar.host.url', 'https://sonarqube.dsgov.demo.nuvalence.io/'
+	}
 }
 
 jacocoTestReport {

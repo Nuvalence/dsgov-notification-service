@@ -36,7 +36,7 @@ public class EmailLayoutService {
 
         Optional<EmailLayout> emailLayoutFound =
                 emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
-        if (emailLayoutFound.isPresent() && emailLayoutFound.get().isSameVersion(emailLayout)) {
+        if (emailLayoutFound.isPresent()) {
             EmailLayout existingEmailLayout = emailLayoutFound.get();
             existingEmailLayout.setName(emailLayout.getName());
             existingEmailLayout.setDescription(emailLayout.getDescription());
@@ -46,14 +46,9 @@ public class EmailLayoutService {
             return emailLayoutRepository.save(existingEmailLayout);
         }
 
-        int version = 0;
-        if (emailLayoutFound.isPresent() && !emailLayoutFound.get().isSameVersion(emailLayout)) {
-            version = emailLayoutFound.get().getVersion() + 1;
-        }
-
         emailLayout.setKey(key);
         emailLayout.setStatus("DRAFT");
-        emailLayout.setVersion(version);
+        emailLayout.setVersion(0);
         emailLayout.setCreatedBy(getCreatedBy().orElse(null));
         emailLayout.setCreatedTimestamp(now);
         emailLayout.setLastUpdatedTimestamp(now);
@@ -66,10 +61,16 @@ public class EmailLayoutService {
      * @param key Email Layout key
      * @return Email Layout
      */
-    public Optional<EmailLayout> getEmailLayoutByKey(final String key) {
+    public Optional<EmailLayout> getEmailLayout(final String key) {
         return emailLayoutRepository.findFirstByKeyOrderByVersionDesc(key);
     }
 
+    /**
+     * Get Email Layouts.
+     *
+     * @param filter SearchEmailLayoutFilter
+     * @return Page of Email Layouts
+     */
     public Page<EmailLayout> getEmailLayouts(final SearchEmailLayoutFilter filter) {
         return emailLayoutRepository.findAll(
                 filter.getEmailLayoutSpecifications(), filter.getPageRequest());

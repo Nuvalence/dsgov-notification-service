@@ -1,6 +1,6 @@
 package io.nuvalence.platform.notification.service.model;
 
-import io.nuvalence.platform.notification.service.domain.EmailLayout;
+import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -11,10 +11,10 @@ import java.util.Locale;
 import javax.persistence.criteria.Predicate;
 
 /**
- * Filter for searching email layouts.
+ * Filter for searching templates.
  */
 @SuperBuilder
-public class SearchEmailLayoutFilter extends BaseFilter {
+public class SearchTemplateFilter extends BaseFilter {
     private String name;
 
     /**
@@ -22,7 +22,7 @@ public class SearchEmailLayoutFilter extends BaseFilter {
      *
      * @return Specification object
      */
-    public Specification<EmailLayout> getEmailLayoutSpecifications() {
+    public Specification<MessageTemplate> getTemplateSpecifications() {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (name != null) {

@@ -1,7 +1,8 @@
+
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_UPPER=false
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE
     username: sa
     password: sa
   h2:
@@ -17,7 +18,7 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_UPPER=false
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE
     user: sa
     password: sa
 
@@ -56,4 +57,10 @@ auth:
         -----END RSA PRIVATE KEY-----
       
 
-      roles: "as:event-reporter, um:reader"
+      roles: "as:event-reporter, um:reader, um:application-client"
+
+userManagement:
+  baseUrl: "http://localhost/um"
+
+cerbos:
+  uri: 127.0.0.1:3592

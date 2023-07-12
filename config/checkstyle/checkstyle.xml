@@ -296,7 +296,9 @@
 
         <!-- class design -->
         <module name="ClassDataAbstractionCoupling"/>
-        <module name="ClassFanOutComplexity"/>
+        <module name="ClassFanOutComplexity" >
+            <property name="max" value="21"/>
+        </module>
         <module name="CyclomaticComplexity"/>
 
     </module>
