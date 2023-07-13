@@ -109,7 +109,8 @@ public class WebSecurityConfig {
                                 new FirebaseAuthenticationProvider(gcpProjectId, NAMESPACE),
                                 new SelfSignedTokenAuthenticationProvider(
                                         selfSignIssuer,
-                                        RsaKeyUtility.getPublicKeyFromString(selfSignPublicKey))),
+                                        RsaKeyUtility.getPublicKeyFromString(selfSignPublicKey),
+                                        NAMESPACE)),
                         LoggingContextFilter.class)
                 .build();
     }
