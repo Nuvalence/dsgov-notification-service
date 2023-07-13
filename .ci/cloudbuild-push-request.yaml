@@ -17,7 +17,7 @@ steps:
           -Dsonar.login="$$SONARQUBE_TOKEN" \
           -Dsonar.projectKey=${REPO_NAME} \
           -Dsonar.projectName=${REPO_NAME} \
-          clean build jacocoTestReport
+          clean build jacocoTestReport sonarqube
     secretEnv: ['SONARQUBE_TOKEN']
   - id: 'build'
     name: "${_GAR_BUILDER_URL}/helm"
