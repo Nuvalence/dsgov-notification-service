@@ -156,4 +156,41 @@
                        tableName="message_template_parameter"
                        validate="true" />
     </changeSet>
+    <changeSet id="message" author="deibys.quintero">
+        <createTable tableName="message">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false" />
+            </column>
+            <column name="message_template_key" type="varchar(1024)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="varchar(55)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="requested_timestamp" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sent_timestamp" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="message_parameter">
+            <column name="message_id" type="uuid"  >
+                <constraints nullable="false" foreignKeyName="fk_message_parameter_message_id" references="message(id)"/>
+            </column>
+            <column name="parameter_name" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="parameter_value" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="message_id, parameter_name"
+                       constraintName="message_parameter_pk"
+                       tableName="message_parameter"
+                       validate="true" />
+    </changeSet>
 </databaseChangeLog>
