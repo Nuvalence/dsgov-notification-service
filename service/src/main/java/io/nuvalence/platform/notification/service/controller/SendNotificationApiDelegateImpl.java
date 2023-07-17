@@ -5,11 +5,15 @@ import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.generated.controllers.SendNotificationApiDelegate;
 import io.nuvalence.platform.notification.service.generated.models.MessageRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.MessageResponseModel;
+import io.nuvalence.platform.notification.service.mapper.MessageMapperImpl;
 import io.nuvalence.platform.notification.service.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.ws.rs.ForbiddenException;
 
@@ -21,7 +25,8 @@ import javax.ws.rs.ForbiddenException;
 @Service
 public class SendNotificationApiDelegateImpl implements SendNotificationApiDelegate {
 
-    private MessageService messageService;
+    private final MessageMapperImpl messageMapperImpl;
+    private final MessageService messageService;
     private final AuthorizationHandler authorizationHandler;
 
     @Override
@@ -30,11 +35,22 @@ public class SendNotificationApiDelegateImpl implements SendNotificationApiDeleg
         if (!authorizationHandler.isAllowed("send", Message.class)) {
             throw new ForbiddenException();
         }
-        return null;
+        Message message =
+                messageService.save(
+                        messageMapperImpl.messageRequestModelToMessage(messageRequestModel));
+        return ResponseEntity.ok(messageMapperImpl.messageToMessageResponseModel(message));
     }
 
     @Override
     public ResponseEntity<MessageResponseModel> getMessageById(String id) {
-        return null;
+        if (!authorizationHandler.isAllowed("view", Message.class)) {
+            throw new ForbiddenException();
+        }
+        Optional<Message> message = messageService.findBy(UUID.fromString(id));
+        return message.map(
+                        value ->
+                                ResponseEntity.ok(
+                                        messageMapperImpl.messageToMessageResponseModel(value)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
