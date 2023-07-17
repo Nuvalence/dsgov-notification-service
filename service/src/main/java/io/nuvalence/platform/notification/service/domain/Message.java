@@ -41,7 +41,7 @@ public class Message {
     @Column(name = "id", length = 36, updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "user_id",  length = 64)
+    @Column(name = "user_id", length = 64)
     private String userId;
 
     @Column(name = "message_template_key")

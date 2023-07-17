@@ -1,7 +1,5 @@
 package io.nuvalence.platform.notification.service;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import io.nuvalence.auth.access.AuthorizationHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +13,5 @@ class NotificationServiceTest {
     @MockBean AuthorizationHandler authorizationHandler;
 
     @Test
-    void testSpringBootContext() {
-        assertTrue(true);
-    }
+    void testSpringBootContext() {}
 }
