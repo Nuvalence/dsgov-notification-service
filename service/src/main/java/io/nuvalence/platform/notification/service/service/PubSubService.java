@@ -1,10 +1,10 @@
 package io.nuvalence.platform.notification.service.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nuvalence.platform.notification.service.config.PubSubConfig;
 import io.nuvalence.platform.notification.service.domain.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.support.MessageBuilder;
@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class PubSubService {
-    private final MessageChannel pubsubOutputChannel;
+    private final PubSubConfig.PubSubOutboundGateway messagingGateway;
     private final ObjectMapper objectMapper;
 
     /**
@@ -37,7 +37,7 @@ public class PubSubService {
 
             org.springframework.messaging.Message<String> msg =
                     MessageBuilder.createMessage(str, messageHeaders);
-            pubsubOutputChannel.send(msg);
+            messagingGateway.sendToPubSub(msg);
         } catch (IOException | MessagingException ex) {
             log.warn("PubSub message could not be written", ex);
         }

@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.ws.rs.ForbiddenException;
@@ -46,11 +45,13 @@ public class SendNotificationApiDelegateImpl implements SendNotificationApiDeleg
         if (!authorizationHandler.isAllowed("view", Message.class)) {
             throw new ForbiddenException();
         }
-        Optional<Message> message = messageService.findBy(UUID.fromString(id));
-        return message.map(
-                        value ->
+        return messageService
+                .findBy(UUID.fromString(id))
+                .filter(message -> authorizationHandler.isAllowedForInstance("view", message))
+                .map(
+                        message ->
                                 ResponseEntity.ok(
-                                        messageMapperImpl.messageToMessageResponseModel(value)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                                        messageMapperImpl.messageToMessageResponseModel(message)))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

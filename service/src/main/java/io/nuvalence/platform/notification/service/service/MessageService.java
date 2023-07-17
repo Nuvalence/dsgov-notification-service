@@ -2,12 +2,17 @@ package io.nuvalence.platform.notification.service.service;
 
 import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
+import io.nuvalence.platform.notification.service.exception.BadDataException;
+import io.nuvalence.platform.notification.service.exception.NotFoundException;
 import io.nuvalence.platform.notification.service.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,30 +51,29 @@ public class MessageService {
         MessageTemplate messageTemplate =
                 templateService
                         .getTemplate(message.getMessageTemplateKey())
-                        .orElseThrow(() -> new RuntimeException("Template not found"));
+                        .orElseThrow(() -> new NotFoundException("Template not found"));
         // verify all parameters in message are in template, ignore those which are not
         messageTemplate
                 .getParameters()
                 .forEach(
-                        (key, value) -> {
+                        (key, parameterType) -> {
                             if (!message.getParameters().containsKey(key)) {
                                 log.warn(
                                         "Parameter {} not found in template {}",
                                         key,
                                         messageTemplate.getKey());
-                                throw new RuntimeException("Parameter not found in template");
+                                throw new BadDataException("Parameter not found in template");
                             } else {
-                                // validate the type of the parameters matches with the one
-                                // specified in template
-                                // if
-                                // (!message.getParameters().get(key).getClass().equals(value.getClass())) {
-                                //    log.warn("Parameter {} type {} does not match template type
-                                // {}",
-                                //            key, message.getParameters().get(key).getClass(),
-                                // value.getClass());
-                                //    throw new RuntimeException("Parameter type does not match
-                                // template type");
-                                // }
+                                String parameterValue = message.getParameters().get(key);
+                                if (!isCorrectType(parameterValue, parameterType)) {
+                                    log.warn(
+                                            "Parameter {} value {} does not correspond to"
+                                                    + " type {}",
+                                            key,
+                                            parameterValue,
+                                            parameterType);
+                                    throw new BadDataException("Parameter not correct type");
+                                }
                             }
                         });
         // queue message for sending
@@ -82,5 +86,45 @@ public class MessageService {
         pubSubService.publish(savedMessaged);
 
         return savedMessaged;
+    }
+
+    private boolean isCorrectType(String parameterValue, String parameterType) {
+        switch (parameterType) {
+            case "Number":
+                return isNumber(parameterValue);
+            case "DateTime":
+                return isDateTime(parameterValue);
+            case "Date":
+                return isDate(parameterValue);
+            default:
+                return true;
+        }
+    }
+
+    private boolean isNumber(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private boolean isDate(String str) {
+        try {
+            LocalDate.parse(str, DateTimeFormatter.ISO_DATE);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isDateTime(String str) {
+        try {
+            LocalDateTime.parse(str, DateTimeFormatter.ISO_DATE_TIME);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

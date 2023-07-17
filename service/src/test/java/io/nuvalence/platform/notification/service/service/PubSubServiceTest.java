@@ -2,8 +2,8 @@ package io.nuvalence.platform.notification.service.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nuvalence.platform.notification.service.config.PubSubConfig;
 import io.nuvalence.platform.notification.service.domain.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.MessageChannel;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -21,18 +21,18 @@ import java.util.UUID;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class PubSubServiceTest {
 
-    @Mock private MessageChannel pubsubOutputChannel;
+    @Mock private PubSubConfig.PubSubOutboundGateway messagingGateway;
     @Mock private ObjectMapper mockMapper;
 
     private PubSubService service;
 
     @BeforeEach
     public void beforeEach() {
-        service = new PubSubService(pubsubOutputChannel, mockMapper);
+        service = new PubSubService(messagingGateway, mockMapper);
     }
 
     @Test
-    public void testPublish() throws JsonProcessingException {
+    public void testPublish() throws IOException {
         Message message = new Message();
         message.setId(UUID.randomUUID());
         message.setUserId(UUID.randomUUID().toString());
@@ -46,6 +46,6 @@ public class PubSubServiceTest {
 
         service.publish(message);
 
-        Mockito.verify(pubsubOutputChannel).send(any());
+        Mockito.verify(messagingGateway).sendToPubSub(any());
     }
 }
