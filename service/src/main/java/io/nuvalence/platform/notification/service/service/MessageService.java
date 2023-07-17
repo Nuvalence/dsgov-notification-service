@@ -46,7 +46,6 @@ public class MessageService {
      * @return the saved message
      */
     public Message save(Message message) {
-        // TODO: verify user exists
         // verify template exists
         MessageTemplate messageTemplate =
                 templateService
