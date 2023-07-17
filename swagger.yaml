@@ -379,7 +379,10 @@ components:
         description:
           type: string
         parameters:
-          $ref: "#/components/schemas/MapModel"
+          type: object
+          additionalProperties:
+            type: string
+            pattern: ^(String|Number|Date|DateTime)$
         emailFormat:
           $ref: "#/components/schemas/EmailFormatModel"
         smsFormat:

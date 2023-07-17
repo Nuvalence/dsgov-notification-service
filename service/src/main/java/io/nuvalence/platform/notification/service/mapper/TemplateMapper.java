@@ -22,7 +22,7 @@ import java.util.Map;
  * Mapper for template models.
  */
 @Component
-public class TemplateMapperImpl {
+public class TemplateMapper {
 
     /**
      * Maps a template request model to a message response model.

@@ -8,5 +8,4 @@ import java.util.UUID;
 /**
  * Message repository.
  */
-public interface MessageRepository extends CrudRepository<Message, UUID> {
-}
+public interface MessageRepository extends CrudRepository<Message, UUID> {}

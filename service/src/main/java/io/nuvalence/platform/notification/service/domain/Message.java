@@ -11,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
+
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -22,6 +23,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
+/**
+ * Represents a message to be sent to a user.
+ */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,7 +52,7 @@ public class Message {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "parameter_name")
-    @Column(name = "parameter_type")
+    @Column(name = "parameter_value")
     @CollectionTable(
             name = "message_parameter",
             joinColumns = @JoinColumn(name = "message_id", nullable = false))

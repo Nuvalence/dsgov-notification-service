@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-class TemplateMapperImplTest {
+class TemplateMapperTest {
 
-    private final TemplateMapperImpl templateMapper = new TemplateMapperImpl();
+    private final TemplateMapper templateMapper = new TemplateMapper();
 
     @Test
     void testTemplateToTemplateResponseModel() {

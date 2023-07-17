@@ -1,7 +1,6 @@
 package io.nuvalence.platform.notification.service.controller;
 
 import io.nuvalence.auth.access.AuthorizationHandler;
-import io.nuvalence.platform.notification.service.domain.EmailLayout;
 import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.generated.controllers.SendNotificationApiDelegate;
 import io.nuvalence.platform.notification.service.generated.models.MessageRequestModel;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 import javax.ws.rs.ForbiddenException;
 
 /**
@@ -37,9 +35,6 @@ public class SendNotificationApiDelegateImpl implements SendNotificationApiDeleg
 
     @Override
     public ResponseEntity<MessageResponseModel> getMessageById(String id) {
-        return messageService.findBy(UUID.fromString(id))
-                .filter(message -> authorizationHandler.isAllowedForInstance("view", message))
-                .orElse(ResponseEntity.notFound().build());
-
+        return null;
     }
 }
