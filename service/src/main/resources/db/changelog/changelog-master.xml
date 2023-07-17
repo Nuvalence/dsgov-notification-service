@@ -161,8 +161,8 @@
             <column name="id" type="uuid">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_id" type="uuid">
-                <constraints nullable="false" />
+            <column name="user_id" type="VARCHAR(64)">
+                <constraints nullable="true"/>
             </column>
             <column name="message_template_key" type="varchar(1024)">
                 <constraints nullable="true"/>
