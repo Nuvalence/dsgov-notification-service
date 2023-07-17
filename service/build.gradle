@@ -45,8 +45,6 @@ dependencies {
 	implementation 'org.springframework.integration:spring-integration-core'
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-pubsub:3.5.4'
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-secretmanager:3.5.4'
-	//implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-	//implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
 
 	implementation 'io.hypersistence:hypersistence-utils-hibernate-55:3.5.0'
 
