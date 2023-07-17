@@ -42,7 +42,7 @@ import java.util.UUID;
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-public class SendNotificationApiDelegateImplTest {
+class SendNotificationApiDelegateImplTest {
 
     @Autowired private MockMvc mockMvc;
 

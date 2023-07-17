@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
-public class PubSubServiceTest {
+class PubSubServiceTest {
 
     @Mock private PubSubConfig.PubSubOutboundGateway messagingGateway;
     @Mock private ObjectMapper mockMapper;
@@ -32,7 +32,7 @@ public class PubSubServiceTest {
     }
 
     @Test
-    public void testPublish() throws IOException {
+    void testPublish() throws IOException {
         Message message = new Message();
         message.setId(UUID.randomUUID());
         message.setUserId(UUID.randomUUID().toString());

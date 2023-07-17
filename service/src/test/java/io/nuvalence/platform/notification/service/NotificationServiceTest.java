@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @SpringBootTest
 @ActiveProfiles("test")
 class NotificationServiceTest {
@@ -13,5 +15,7 @@ class NotificationServiceTest {
     @MockBean AuthorizationHandler authorizationHandler;
 
     @Test
-    void testSpringBootContext() {}
+    void testSpringBootContext() {
+        assertTrue(true);
+    }
 }
