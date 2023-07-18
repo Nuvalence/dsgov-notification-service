@@ -5,8 +5,4 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../acceptance-tests/build/generated/sources/annotationProcessor/java/functionalTest" isTestSource="false" generated="true" />
     </content>
   </component>
-  <component name="AppEngineStandardGradleModuleComponent">
-    <option name="gradleBuildDir" value="$MODULE_DIR$/../../../acceptance-tests/build" />
-    <option name="gradleModuleDir" value="$MODULE_DIR$/../../../acceptance-tests" />
-  </component>
 </module>
