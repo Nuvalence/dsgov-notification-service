@@ -17,8 +17,8 @@ public abstract class BaseFilter {
 
     protected String sortBy;
     protected String sortOrder;
-    protected Integer page;
-    protected Integer size;
+    protected Integer pageNumber;
+    protected Integer pageSize;
 
     /**
      * Returns a PageRequest object based on the filter's page, size, sort by, and sort order.
@@ -29,8 +29,8 @@ public abstract class BaseFilter {
         String resolvedSortBy = sortBy == null ? DEFAULT_SORT_BY : sortBy;
 
         return PageRequest.of(
-                page == null ? DEFAULT_PAGE : page,
-                size == null ? DEFAULT_SIZE : size,
+                pageNumber == null ? DEFAULT_PAGE : pageNumber,
+                pageSize == null ? DEFAULT_SIZE : pageSize,
                 resolveSort(resolvedSortBy));
     }
 

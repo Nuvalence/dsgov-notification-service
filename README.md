@@ -12,7 +12,7 @@ Make sure you have the following installed:
 ## Run Locally
 
 1. To just spin up the service in `minikube`, run this command: `skaffold run`
-2. [view docs](http://api.dsgov.test/wm/swagger-ui/index.html)
+2. [view docs](http://api.dsgov.test/ns/swagger-ui/index.html)
 
 The app can be brought down via: `skaffold delete`
 
