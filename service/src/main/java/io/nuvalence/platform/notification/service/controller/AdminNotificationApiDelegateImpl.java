@@ -12,7 +12,7 @@ import io.nuvalence.platform.notification.service.generated.models.TemplateReque
 import io.nuvalence.platform.notification.service.generated.models.TemplateResponseModel;
 import io.nuvalence.platform.notification.service.mapper.EmailLayoutMapper;
 import io.nuvalence.platform.notification.service.mapper.PagingMetadataMapper;
-import io.nuvalence.platform.notification.service.mapper.TemplateMapperImpl;
+import io.nuvalence.platform.notification.service.mapper.TemplateMapper;
 import io.nuvalence.platform.notification.service.model.SearchEmailLayoutFilter;
 import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
 import io.nuvalence.platform.notification.service.service.EmailLayoutService;
@@ -38,7 +38,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     private final EmailLayoutService emailLayoutService;
     private final EmailLayoutMapper emailLayoutMapper;
     private final TemplateService templateService;
-    private final TemplateMapperImpl templateMapperImpl;
+    private final TemplateMapper templateMapperImpl;
     private final PagingMetadataMapper pagingMetadataMapper;
     private final AuthorizationHandler authorizationHandler;
 

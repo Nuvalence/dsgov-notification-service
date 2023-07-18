@@ -13,5 +13,5 @@ class NotificationServiceTest {
     @MockBean AuthorizationHandler authorizationHandler;
 
     @Test
-    void testSpringBoootContext() {}
+    void testSpringBootContext() {}
 }

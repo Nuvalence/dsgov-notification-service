@@ -226,6 +226,54 @@ paths:
           description: "You are unauthorized to make this request"
         "404":
           description: Template not found
+  /messages:
+    post:
+      summary: Send a message
+      operationId: sendMessage
+      tags:
+        - send-notification
+      requestBody:
+        description: Message object that needs to be sent
+        required: true
+        content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageRequestModel"
+      responses:
+        "200":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponseModel"
+        "400":
+          description: Invalid message
+        "401":
+          description: "You are unauthorized to make this request"
+        "404":
+          description: Template Message not found
+  /messages/{id}:
+    get:
+      summary: Get message by id
+      operationId: getMessageById
+      tags:
+        - send-notification
+      parameters:
+        - name: id
+          in: path
+          description: The id of the message to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Message object returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponseModel"
+        "404":
+          description: Message not found
 components:
   schemas:
     EmailLayoutRequestModel:
@@ -331,7 +379,10 @@ components:
         description:
           type: string
         parameters:
-          $ref: "#/components/schemas/MapModel"
+          type: object
+          additionalProperties:
+            type: string
+            pattern: ^(String|Number|Date|DateTime)$
         emailFormat:
           $ref: "#/components/schemas/EmailFormatModel"
         smsFormat:
@@ -416,3 +467,46 @@ components:
             $ref: '#/components/schemas/TemplateResponseModel'
         pagingMetadata:
           $ref: "#/components/schemas/PagingMetadata"
+    MessageRequestModel:
+      type: object
+      required:
+        - userId
+        - templateKey
+        - parameters
+      properties:
+        userId:
+          type: string
+          format: uuid
+        templateKey:
+          type: string
+        parameters:
+          $ref: "#/components/schemas/MapModel"
+    MessageResponseModel:
+      type: object
+      required:
+        - id
+        - userId
+        - templateKey
+        - parameters
+        - status
+        - requestedTimestamp
+        - sentTimestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        templateKey:
+          type: string
+        parameters:
+          $ref: "#/components/schemas/MapModel"
+        status:
+          type: string
+        requestedTimestamp:
+          type: string
+          format: date-time
+        sentTimestamp:
+          type: string
+          format: date-time
