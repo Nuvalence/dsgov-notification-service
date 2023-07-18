@@ -9,5 +9,5 @@ resourcePolicy:
       effect: EFFECT_ALLOW
     - actions: ["send"]
       roles:
-        - notification-admin
+        - notification-send
       effect: EFFECT_ALLOW
