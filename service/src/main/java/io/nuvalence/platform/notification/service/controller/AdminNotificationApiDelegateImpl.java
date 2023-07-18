@@ -78,8 +78,8 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
             Integer pageNumber, Integer pageSize, String sortOrder, String sortBy, String name) {
         SearchEmailLayoutFilter filter =
                 SearchEmailLayoutFilter.builder()
-                        .page(pageNumber)
-                        .size(pageSize)
+                        .pageNumber(pageNumber)
+                        .pageSize(pageSize)
                         .sortOrder(sortOrder)
                         .sortBy(sortBy)
                         .name(name)
@@ -129,8 +129,8 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
             Integer pageNumber, Integer pageSize, String sortOrder, String sortBy, String name) {
         SearchTemplateFilter filter =
                 SearchTemplateFilter.builder()
-                        .page(pageNumber)
-                        .size(pageSize)
+                        .pageNumber(pageNumber)
+                        .pageSize(pageSize)
                         .sortOrder(sortOrder)
                         .sortBy(sortBy)
                         .name(name)
