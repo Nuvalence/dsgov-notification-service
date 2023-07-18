@@ -75,11 +75,11 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
 
     @Override
     public ResponseEntity<EmailLayoutPageDTO> getEmailLayouts(
-            Integer page, Integer size, String sortOrder, String sortBy, String name) {
+            Integer pageNumber, Integer pageSize, String sortOrder, String sortBy, String name) {
         SearchEmailLayoutFilter filter =
                 SearchEmailLayoutFilter.builder()
-                        .page(page)
-                        .size(size)
+                        .page(pageNumber)
+                        .size(pageSize)
                         .sortOrder(sortOrder)
                         .sortBy(sortBy)
                         .name(name)
@@ -126,11 +126,11 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
 
     @Override
     public ResponseEntity<TemplatePageDTO> getTemplates(
-            Integer page, Integer size, String sortOrder, String sortBy, String name) {
+            Integer pageNumber, Integer pageSize, String sortOrder, String sortBy, String name) {
         SearchTemplateFilter filter =
                 SearchTemplateFilter.builder()
-                        .page(page)
-                        .size(size)
+                        .page(pageNumber)
+                        .size(pageSize)
                         .sortOrder(sortOrder)
                         .sortBy(sortBy)
                         .name(name)
