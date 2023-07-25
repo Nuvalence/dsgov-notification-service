@@ -15,7 +15,7 @@ import java.util.Optional;
 @Setter
 public class ScenarioContext {
     private static final String baseUri =
-            Optional.ofNullable(System.getenv("SERVICE_URI")).orElse("http://localhost:8080");
+            Optional.ofNullable(System.getenv("SERVICE_URI")).orElse("http://api.dsgov.test/ns");
 
     private InputStream loadedResource;
 
