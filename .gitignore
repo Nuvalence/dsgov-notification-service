@@ -582,3 +582,5 @@ FodyWeavers.xsd
 
 # vscode
 .vscode
+
+service/libs/
