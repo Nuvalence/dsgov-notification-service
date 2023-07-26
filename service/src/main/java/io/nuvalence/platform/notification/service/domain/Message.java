@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -34,7 +35,10 @@ import javax.persistence.Table;
 @AccessResource("message")
 @Entity
 @Table(name = "message")
-public class Message {
+public class Message implements Serializable {
+
+    private static final long serialVersionUID = -1428351642619871288L;
+
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")

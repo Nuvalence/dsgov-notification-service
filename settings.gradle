@@ -10,5 +10,7 @@
 rootProject.name = 'Notification Service'
 
 include 'service'
-include 'client'
-include 'acceptance-tests'
+//include 'client'
+//include 'acceptance-tests'
+include 'user-management-client'
+

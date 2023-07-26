@@ -39,6 +39,12 @@ resources:
       memory: 512Mi
     limits:
       memory: 1024Mi
+  pubSubEmulator:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
 
 image:
   pullPolicy: "IfNotPresent"
@@ -70,6 +76,8 @@ env:
   SELF_SIGN_PUBLIC_KEY: "${sm://projects/dsgov-dev/secrets/dsgov-self-signed-token-public-key/versions/latest}"
   SELF_SIGN_PRIVATE_KEY: "${sm://projects/dsgov-dev/secrets/dsgov-self-signed-token-private-key/versions/latest}"
   USER_MANAGEMENT_BASE_URL: "http://user-management/um"
-  ENABLE_PUB_SUB: false
-  PUB_SUB_TOPIC: topic-audit-events
-  PUB_SUB_TOPIC_SUBSCRIPTION: sub-audit-events
+  PUB_SUB_TOPIC: "NOTIFICATION_MSG_QUEUE"
+  PUB_SUB_TOPIC_SUBSCRIPTION: "NOTIFICATION_MSG_QUEUE_SUBSCRIPTION"
+  PUBSUB_EMULATOR_HOST: "pubsub-emulator-service:8085"
+  PUBSUB_ENABLED: true
+  PUBSUB_CREATE_TOPIC: true
