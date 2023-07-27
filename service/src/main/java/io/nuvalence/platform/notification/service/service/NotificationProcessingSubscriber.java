@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import javax.transaction.Transactional;
 
 /**
  * Service to handle messages from the PubSub subscription, for notification processing.
@@ -18,8 +19,9 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class NotificationProcessingSubscriber implements MessageHandler {
 
+    private static final String SENT_STATUS = "SENT";
     private final ObjectMapper mapper;
-
+    private final MessageService messageService;
     private final SendMessageService sendMessageService;
 
     /**
@@ -29,12 +31,16 @@ public class NotificationProcessingSubscriber implements MessageHandler {
      * @param sendMessageService service to process notifications.
      */
     public NotificationProcessingSubscriber(
-            ObjectMapper mapper, SendMessageService sendMessageService) {
+            ObjectMapper mapper,
+            MessageService messageService,
+            SendMessageService sendMessageService) {
         this.mapper = mapper;
+        this.messageService = messageService;
         this.sendMessageService = sendMessageService;
     }
 
     @Override
+    @Transactional
     public void handleMessage(org.springframework.messaging.Message<?> message) {
 
         log.trace("Received message for notification processing.");
@@ -43,22 +49,32 @@ public class NotificationProcessingSubscriber implements MessageHandler {
 
         try {
             sendMessageService.sendMessage(messageToSend);
+            acknowledgeMessage(message);
+            messageService.updateMessageStatus(messageToSend.getId(), SENT_STATUS);
         } catch (Exception e) {
             log.error("An error occurred processing request", e);
+            acknowledgeMessage(message, false);
         }
-
-        acknowledgeMessage(message);
     }
 
     private void acknowledgeMessage(org.springframework.messaging.Message<?> message) {
+        acknowledgeMessage(message, true);
+    }
+
+    private void acknowledgeMessage(org.springframework.messaging.Message<?> message, boolean acknowledge) {
         BasicAcknowledgeablePubsubMessage originalMessage =
                 message.getHeaders()
                         .get(
                                 GcpPubSubHeaders.ORIGINAL_MESSAGE,
                                 BasicAcknowledgeablePubsubMessage.class);
         if (originalMessage != null) {
-            log.debug("Acknowledging pubsub message");
-            originalMessage.ack();
+            if (acknowledge) {
+                log.debug("Acknowledging pubsub message");
+                originalMessage.ack();
+            } else {
+                log.debug("N-Acknowledging pubsub message");
+                originalMessage.nack();
+            }
         }
     }
 

@@ -1,7 +1,7 @@
 package io.nuvalence.platform.notification.service.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.nuvalence.platform.notification.service.config.PubSubConfig;
+import io.nuvalence.platform.notification.service.config.PubSubOutboundConfig;
 import io.nuvalence.platform.notification.service.domain.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class PubSubService {
-    private final PubSubConfig.PubSubOutboundGateway messagingGateway;
+    private final PubSubOutboundConfig.PubSubOutboundGateway messagingGateway;
     private final ObjectMapper objectMapper;
 
     /**

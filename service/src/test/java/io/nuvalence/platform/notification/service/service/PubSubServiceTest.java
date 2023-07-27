@@ -3,7 +3,7 @@ package io.nuvalence.platform.notification.service.service;
 import static org.mockito.ArgumentMatchers.any;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.nuvalence.platform.notification.service.config.PubSubConfig;
+import io.nuvalence.platform.notification.service.config.PubSubOutboundConfig;
 import io.nuvalence.platform.notification.service.domain.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import java.util.UUID;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 class PubSubServiceTest {
 
-    @Mock private PubSubConfig.PubSubOutboundGateway messagingGateway;
+    @Mock private PubSubOutboundConfig.PubSubOutboundGateway messagingGateway;
     @Mock private ObjectMapper mockMapper;
 
     private PubSubService service;

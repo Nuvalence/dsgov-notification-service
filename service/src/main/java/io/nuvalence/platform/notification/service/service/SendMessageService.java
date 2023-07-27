@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import javax.transaction.Transactional;
 
 /**
  * Service for sending messages.
@@ -29,6 +30,10 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class SendMessageService {
+
+    private static final String EMAIL_PREFERRED_METHOD = "EMAIL";
+
+    private static final String SMS_PREFERRED_METHOD = "SMS";
 
     private final TemplateService templateService;
 
@@ -55,7 +60,7 @@ public class SendMessageService {
 
         Optional<MessageTemplate> template =
                 templateService.getTemplate(message.getMessageTemplateKey());
-        if ("EMAIL".equals(userPreferences.getPreferredCommunicationMethod())) {
+        if (EMAIL_PREFERRED_METHOD.equalsIgnoreCase(userPreferences.getPreferredCommunicationMethod())) {
             EmailFormat emailFormat = template.get().getEmailFormat();
             Optional<LocalizedStringTemplateLanguage> emailSubjectTemplate =
                     getLocalizedTemplate(
@@ -79,7 +84,7 @@ public class SendMessageService {
                             });
             // send mock email
 
-        } else if ("SMS".equals(userPreferences.getPreferredCommunicationMethod())) {
+        } else if (SMS_PREFERRED_METHOD.equalsIgnoreCase(userPreferences.getPreferredCommunicationMethod())) {
             // send sms
             SmsFormat smsFormat = template.get().getSmsFormat();
             Optional<LocalizedStringTemplateLanguage> smsTemplate =
@@ -97,7 +102,11 @@ public class SendMessageService {
                     replaceParameterInTemplate(
                             smsTemplate.get().getTemplate(), message.getParameters());
             // send mock sms
-            log.info("Sending sms to {} with message {}", user.getPhoneNumber(), smsToSend);
+
+            log.info("Processing Message Id: {}. Sending sms to {} with message {}",
+                    message.getId(),
+                    user.getPhoneNumber(),
+                    smsToSend);
         }
     }
 
