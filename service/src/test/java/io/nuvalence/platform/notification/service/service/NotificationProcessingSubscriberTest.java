@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @SpringBootTest
@@ -319,7 +320,7 @@ class NotificationProcessingSubscriberTest {
         return objectMapper.writeValueAsString(message).getBytes(StandardCharsets.UTF_8);
     }
 
-    private UserDTO createUser(
+    private Optional<UserDTO> createUser(
             UUID id,
             String preferredLanguage,
             String preferredCommunicationMethod,
@@ -337,6 +338,6 @@ class NotificationProcessingSubscriberTest {
         user.setPhoneNumber("1234567890");
         user.setPreferences(userPreferences);
 
-        return user;
+        return Optional.of(user);
     }
 }

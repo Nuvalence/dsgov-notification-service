@@ -52,7 +52,12 @@ public class SendMessageService {
         UUID userId = UUID.fromString(message.getUserId());
 
         // Query user management service for user preferences
-        UserDTO user = userManagementClientService.getUser(userId);
+        Optional<UserDTO> user = userManagementClientService.getUser(userId);
+        if (user.isEmpty()) {
+            log.error("Message could not be sent. User not found for user {}", userId);
+            return;
+        }
+
         UserPreferenceDTO userPreferences = user.getPreferences();
 
         if (userPreferences == null) {

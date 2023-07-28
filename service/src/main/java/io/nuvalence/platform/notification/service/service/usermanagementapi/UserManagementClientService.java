@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -41,8 +42,13 @@ public class UserManagementClientService {
      * @return User.
      * @throws ApiException for possible errors reaching user management service.
      */
-    public UserDTO getUser(UUID userId) throws ApiException {
+    public Optional<UserDTO> getUser(UUID userId) throws ApiException {
         UsersApi api = createUsersApi();
-        return api.getUserById(userId);
+        try {
+            return Optional.of(api.getUserById(userId));
+        } catch (ApiException e) {
+            log.error("Error getting user from user management service", e);
+             return Optional.empty();
+        }
     }
 }
