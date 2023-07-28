@@ -15,5 +15,4 @@ public interface MessageRepository extends CrudRepository<Message, UUID> {
     @Modifying
     @Query("UPDATE Message m SET m.status = :status WHERE m.id = :id")
     void updateMessageStatus(@Param("id") UUID id, @Param("status") String status);
-
 }

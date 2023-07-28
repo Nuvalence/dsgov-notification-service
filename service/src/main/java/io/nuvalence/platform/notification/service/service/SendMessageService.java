@@ -3,6 +3,7 @@ package io.nuvalence.platform.notification.service.service;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import io.nuvalence.platform.notification.service.domain.EmailFormat;
+import io.nuvalence.platform.notification.service.domain.EmailLayout;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplate;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
 import io.nuvalence.platform.notification.service.domain.Message;
@@ -21,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import javax.transaction.Transactional;
 
 /**
  * Service for sending messages.
@@ -35,6 +35,8 @@ public class SendMessageService {
 
     private static final String SMS_PREFERRED_METHOD = "SMS";
 
+    private final EmailLayoutService emailLayoutService;
+
     private final TemplateService templateService;
 
     private final UserManagementClientService userManagementClientService;
@@ -46,7 +48,7 @@ public class SendMessageService {
      * @throws IOException   if an error occurs while sending the message
      * @throws ApiException if an error occurs while querying user management service
      */
-    public void sendMessage(Message message) throws IOException, ApiException {
+    public void sendMessage(Message message) throws ApiException {
         UUID userId = UUID.fromString(message.getUserId());
 
         // Query user management service for user preferences
@@ -58,17 +60,30 @@ public class SendMessageService {
             return;
         }
 
+        Handlebars handlebars = new Handlebars();
         Optional<MessageTemplate> template =
                 templateService.getTemplate(message.getMessageTemplateKey());
-        if (EMAIL_PREFERRED_METHOD.equalsIgnoreCase(userPreferences.getPreferredCommunicationMethod())) {
+        if (EMAIL_PREFERRED_METHOD.equalsIgnoreCase(
+                userPreferences.getPreferredCommunicationMethod())) {
+            Optional<EmailLayout> emailLayout =
+                    emailLayoutService.getEmailLayout(template.get().getEmailLayoutKey());
+            if (emailLayout.isEmpty()) {
+                log.error(
+                        "Message could not be sent. Email layout not found {}",
+                        template.get().getEmailLayoutKey());
+                return;
+            }
+
             EmailFormat emailFormat = template.get().getEmailFormat();
             Optional<LocalizedStringTemplateLanguage> emailSubjectTemplate =
                     getLocalizedTemplate(
                             emailFormat.getLocalizedSubjectStringTemplate(),
                             userPreferences.getPreferredLanguage());
-            String handleBarSubjectTemplateString =
+            String subjectEmail =
                     replaceParameterInTemplate(
-                            emailSubjectTemplate.get().getTemplate(), message.getParameters());
+                            emailSubjectTemplate.get().getTemplate(),
+                            message.getParameters(),
+                            handlebars);
             Map<String, String> emailLayoutInputToTemplate = new HashMap<>();
             emailFormat
                     .getEmailFormatContents()
@@ -80,12 +95,25 @@ public class SendMessageService {
                                                 userPreferences.getPreferredLanguage());
                                 emailLayoutInputToTemplate.put(
                                         emailFormatContent.getEmailLayoutInput(),
-                                        emailContentTemplate.get().getTemplate());
+                                        replaceParameterInTemplate(
+                                                emailContentTemplate.get().getTemplate(),
+                                                message.getParameters(),
+                                                handlebars));
                             });
-            // send mock email
+            String emailBodyToSend =
+                    replaceParameterInTemplate(
+                            emailLayout.get().getContent(), emailLayoutInputToTemplate, handlebars);
 
-        } else if (SMS_PREFERRED_METHOD.equalsIgnoreCase(userPreferences.getPreferredCommunicationMethod())) {
-            // send sms
+            // send mock email
+            log.info(
+                    "Processing Message Id: {}. Sending email to {} with subject {} and message {}",
+                    message.getId(),
+                    user.getEmail(),
+                    subjectEmail,
+                    emailBodyToSend);
+
+        } else if (SMS_PREFERRED_METHOD.equalsIgnoreCase(
+                userPreferences.getPreferredCommunicationMethod())) {
             SmsFormat smsFormat = template.get().getSmsFormat();
             Optional<LocalizedStringTemplateLanguage> smsTemplate =
                     getLocalizedTemplate(
@@ -100,10 +128,10 @@ public class SendMessageService {
             }
             String smsToSend =
                     replaceParameterInTemplate(
-                            smsTemplate.get().getTemplate(), message.getParameters());
+                            smsTemplate.get().getTemplate(), message.getParameters(), handlebars);
             // send mock sms
-
-            log.info("Processing Message Id: {}. Sending sms to {} with message {}",
+            log.info(
+                    "Processing Message Id: {}. Sending sms to {} with message {}",
                     message.getId(),
                     user.getPhoneNumber(),
                     smsToSend);
@@ -119,10 +147,14 @@ public class SendMessageService {
                 .findFirst();
     }
 
-    private String replaceParameterInTemplate(String template, Map<String, String> parameters)
-            throws IOException {
-        Handlebars handlebars = new Handlebars();
-        Template handleBarTemplate = handlebars.compileInline(template);
-        return handleBarTemplate.apply(parameters);
+    private String replaceParameterInTemplate(
+            String template, Map<String, String> parameters, Handlebars handlebars) {
+        try {
+            Template handleBarTemplate = handlebars.compileInline(template);
+            return handleBarTemplate.apply(parameters);
+        } catch (Exception e) {
+            log.error("Error compiling template: {}", template, e);
+            throw new RuntimeException(e);
+        }
     }
 }

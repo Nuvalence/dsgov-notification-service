@@ -2,6 +2,8 @@ package io.nuvalence.platform.notification.service.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
+import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
 import io.nuvalence.platform.notification.service.domain.EmailFormat;
 import io.nuvalence.platform.notification.service.domain.EmailFormatContent;
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
@@ -24,6 +26,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,23 +38,17 @@ import java.util.UUID;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NotificationProcessingSubscriberTest {
 
-    @Autowired
-    private  ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-    @Autowired
-    private EmailLayoutService emailLayoutService;
+    @Autowired private EmailLayoutService emailLayoutService;
 
-    @Autowired
-    private TemplateService templateService;
+    @Autowired private TemplateService templateService;
 
-    @Autowired
-    private MessageService messageService;
+    @Autowired private MessageService messageService;
 
-    @Autowired
-    private NotificationProcessingSubscriber service;
+    @Autowired private NotificationProcessingSubscriber service;
 
-    @MockBean
-    private UserManagementClientService userManagementClientService;
+    @MockBean private UserManagementClientService userManagementClientService;
 
     private MessageTemplate createdTemplate;
 
@@ -71,22 +68,23 @@ class NotificationProcessingSubscriberTest {
         EmailLayout emailLayout = new EmailLayout();
         emailLayout.setName("name");
         emailLayout.setDescription("description");
-        emailLayout.setContent("<html>\n" +
-                "  <head>\n" +
-                "    <title>Application Submission Confirmation</title>\n" +
-                "  </head>\n" +
-                "  <body>\n" +
-                "    <div id=\\\"greeting\\\">\n" +
-                "           <p>{{greeting}}</p>\n" +
-                "           </div>\n" +
-                "           <div id=\\\"body\\\">\n" +
-                "           <p>{{body}}</p>\n" +
-                "           </div>\n" +
-                "           <div id=\\\"footer\\\">\n" +
-                "           <p>{{footer}}</p>\n" +
-                "           </div>\n" +
-                "           </body>\n" +
-                "  </html>");
+        emailLayout.setContent(
+                "<html>\n"
+                        + "  <head>\n"
+                        + "    <title>Application Submission Confirmation</title>\n"
+                        + "  </head>\n"
+                        + "  <body>\n"
+                        + "    <div id=\\\"greeting\\\">\n"
+                        + "           <p>{{greeting}}</p>\n"
+                        + "           </div>\n"
+                        + "           <div id=\\\"body\\\">\n"
+                        + "           <p>{{body}}</p>\n"
+                        + "           </div>\n"
+                        + "           <div id=\\\"footer\\\">\n"
+                        + "           <p>{{footer}}</p>\n"
+                        + "           </div>\n"
+                        + "           </body>\n"
+                        + "  </html>");
         emailLayout.setInputs(inputs);
 
         final String templateKey = "key";
@@ -94,16 +92,20 @@ class NotificationProcessingSubscriberTest {
         templateParameters.put("transactionId", "String");
         templateParameters.put("name", "String");
 
-        LocalizedStringTemplateLanguage localizedSmsStringTemplateLanguage1 =
+        final LocalizedStringTemplateLanguage localizedSmsStringTemplateLanguage1 =
                 LocalizedStringTemplateLanguage.builder()
                         .language("en")
-                        .template("Your financial benefits application, {{transactionId}}, has been approved")
+                        .template(
+                                "Your financial benefits application, {{transactionId}}, has been"
+                                        + " approved")
                         .build();
 
-        LocalizedStringTemplateLanguage localizedSmsStringTemplateLanguage2 =
+        final LocalizedStringTemplateLanguage localizedSmsStringTemplateLanguage2 =
                 LocalizedStringTemplateLanguage.builder()
                         .language("es")
-                        .template("Su solicitud de beneficios financieros, {{transactionId}}, ha sido aprobada.")
+                        .template(
+                                "Su solicitud de beneficios financieros, {{transactionId}}, ha"
+                                        + " sido aprobada.")
                         .build();
 
         LocalizedStringTemplateLanguage localizedGreetingStringTemplateLanguage1 =
@@ -130,7 +132,7 @@ class NotificationProcessingSubscriberTest {
         localizedGreetingStringTemplateLanguage2.setLocalizedStringTemplate(
                 localizedGreetingStringTemplate);
 
-        EmailFormatContent emailFormatGreeting1 =
+        final EmailFormatContent emailFormatGreeting1 =
                 EmailFormatContent.builder()
                         .emailLayoutInput("greeting")
                         .localizedStringTemplate(localizedGreetingStringTemplate)
@@ -139,13 +141,17 @@ class NotificationProcessingSubscriberTest {
         LocalizedStringTemplateLanguage localizedContentStringTemplateLanguage1 =
                 LocalizedStringTemplateLanguage.builder()
                         .language("en")
-                        .template("Your financial benefits application, {{transactionId}}, has been approved.")
+                        .template(
+                                "Your financial benefits application, {{transactionId}}, has been"
+                                        + " approved.")
                         .build();
 
         LocalizedStringTemplateLanguage localizedContentStringTemplateLanguage2 =
                 LocalizedStringTemplateLanguage.builder()
                         .language("es")
-                        .template("Su solicitud de beneficios financieros, {{transactionId}}, ha sido aprobada.")
+                        .template(
+                                "Su solicitud de beneficios financieros, {{transactionId}}, ha"
+                                        + " sido aprobada.")
                         .build();
 
         LocalizedStringTemplate localizedContentStringTemplate =
@@ -160,7 +166,7 @@ class NotificationProcessingSubscriberTest {
         localizedContentStringTemplateLanguage2.setLocalizedStringTemplate(
                 localizedContentStringTemplate);
 
-        EmailFormatContent emailFormatContent1 =
+        final EmailFormatContent emailFormatContent1 =
                 EmailFormatContent.builder()
                         .emailLayoutInput("body")
                         .localizedStringTemplate(localizedContentStringTemplate)
@@ -232,7 +238,11 @@ class NotificationProcessingSubscriberTest {
                                                         localizedSubjectStringTemplateLanguage1,
                                                         localizedSubjectStringTemplateLanguage2))
                                         .build())
-                        .emailFormatContents(List.of(emailFormatGreeting1, emailFormatContent1, emailFormatFooter1))
+                        .emailFormatContents(
+                                List.of(
+                                        emailFormatGreeting1,
+                                        emailFormatContent1,
+                                        emailFormatFooter1))
                         .build();
         localizedSubjectStringTemplateLanguage1.setLocalizedStringTemplate(
                 emailFormat.getLocalizedSubjectStringTemplate());
@@ -262,39 +272,63 @@ class NotificationProcessingSubscriberTest {
     @Test
     void testHandleMessage_sms() throws JsonProcessingException, ApiException {
         UUID userId = UUID.randomUUID();
-        Message<?> message = MessageBuilder.withPayload(generateJsonMessage(userId))
-               // .setHeader(SOME_HEADER_KEY, SOME_HEADER_VALUE)
-                .build();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
         Mockito.when(userManagementClientService.getUser(Mockito.any()))
-                .thenReturn(createUser(userId, "en",false));
+                .thenReturn(createUser(userId, "en", "sms", false));
 
         service.handleMessage(message);
 
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void testHandleMessage_email() throws JsonProcessingException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+        Mockito.when(userManagementClientService.getUser(Mockito.any()))
+                .thenReturn(createUser(userId, "en", "email", false));
+
+        service.handleMessage(message);
+
+        Mockito.verify(ack).ack();
     }
 
     private byte[] generateJsonMessage(UUID userId) throws JsonProcessingException {
-        Map<String, String> parameters = Map.of(
-                "name", "Deibys Parra",
-                "transactionId", "38dh38"
-        );
+        Map<String, String> parameters =
+                Map.of(
+                        "name", "Deibys Parra",
+                        "transactionId", "38dh38");
         io.nuvalence.platform.notification.service.domain.Message message =
-                io.nuvalence.platform.notification.service.domain.Message
-                        .builder()
+                io.nuvalence.platform.notification.service.domain.Message.builder()
                         .messageTemplateKey(createdTemplate.getKey())
                         .userId(userId.toString())
                         .status("DRAFT")
                         .parameters(parameters)
                         .build();
         messageService.save(message);
-        return objectMapper.writeValueAsString(message).getBytes();
+        return objectMapper.writeValueAsString(message).getBytes(StandardCharsets.UTF_8);
     }
 
-    private UserDTO createUser(UUID id, String preferredLanguage, boolean nullUserPreferences) {
+    private UserDTO createUser(
+            UUID id,
+            String preferredLanguage,
+            String preferredCommunicationMethod,
+            boolean nullUserPreferences) {
         UserPreferenceDTO userPreferences = null;
-        if  (!nullUserPreferences) {
+        if (!nullUserPreferences) {
             userPreferences = new UserPreferenceDTO();
             userPreferences.setPreferredLanguage(preferredLanguage);
-            userPreferences.setPreferredCommunicationMethod("sms");
+            userPreferences.setPreferredCommunicationMethod(preferredCommunicationMethod);
         }
 
         UserDTO user = new UserDTO();
@@ -305,5 +339,4 @@ class NotificationProcessingSubscriberTest {
 
         return user;
     }
-
 }

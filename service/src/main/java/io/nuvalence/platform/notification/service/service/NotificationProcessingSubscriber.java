@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
 import javax.transaction.Transactional;
 
 /**
@@ -27,7 +28,8 @@ public class NotificationProcessingSubscriber implements MessageHandler {
     /**
      * Subscriber constructor.
      *
-     * @param mapper                    the object mapper bean
+     * @param mapper the object mapper bean
+     * @param messageService service to update message status
      * @param sendMessageService service to process notifications.
      */
     public NotificationProcessingSubscriber(
@@ -61,7 +63,8 @@ public class NotificationProcessingSubscriber implements MessageHandler {
         acknowledgeMessage(message, true);
     }
 
-    private void acknowledgeMessage(org.springframework.messaging.Message<?> message, boolean acknowledge) {
+    private void acknowledgeMessage(
+            org.springframework.messaging.Message<?> message, boolean acknowledge) {
         BasicAcknowledgeablePubsubMessage originalMessage =
                 message.getHeaders()
                         .get(
