@@ -17,6 +17,7 @@ profiles:
       helm:
         releases:
           - name: dsgov-notification-service
+            createNamespace: true
             chartPath: helm/application
             # Ref: https://skaffold.dev/docs/deployers/helm/#image-configuration
             setValueTemplates:
@@ -40,6 +41,7 @@ profiles:
       helm:
         releases:
           - name: dsgov-notification-service
+            createNamespace: true
             chartPath: helm/application
             # Ref: https://skaffold.dev/docs/deployers/helm/#image-configuration
             setValueTemplates:
@@ -62,6 +64,7 @@ profiles:
       helm:
         releases:
           - name: notification-service
+            createNamespace: true
             chartPath: helm/application
             valuesFiles:
               - helm/application/values.local.yaml
