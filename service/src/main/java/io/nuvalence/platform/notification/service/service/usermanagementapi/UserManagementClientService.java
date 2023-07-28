@@ -48,7 +48,7 @@ public class UserManagementClientService {
             return Optional.of(api.getUserById(userId));
         } catch (ApiException e) {
             log.error("Error getting user from user management service", e);
-             return Optional.empty();
+            return Optional.empty();
         }
     }
 }

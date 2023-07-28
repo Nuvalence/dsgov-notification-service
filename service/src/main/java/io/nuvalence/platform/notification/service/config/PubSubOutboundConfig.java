@@ -13,8 +13,6 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 
-import java.io.IOException;
-
 /**
  * Configures PubSub Outbound.
  */
@@ -45,7 +43,7 @@ public class PubSubOutboundConfig {
      */
     @MessagingGateway(defaultRequestChannel = OUTPUT_CHANNEL)
     public interface PubSubOutboundGateway {
-        void sendToPubSub(Message<String> message) throws IOException;
+        void publish(Message<String> message);
     }
 
     /**
@@ -63,6 +61,7 @@ public class PubSubOutboundConfig {
     @ServiceActivator(inputChannel = OUTPUT_CHANNEL)
     public MessageHandler messageSender(PubSubTemplate pubsubTemplate, PubSubAdmin admin) {
         if (createTopicAndSubs && admin.getTopic(topic) == null) {
+            log.info("Creating topic: {}", topic);
             admin.createTopic(topic);
         }
         return new PubSubMessageHandler(pubsubTemplate, topic);

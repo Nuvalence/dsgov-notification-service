@@ -37,7 +37,7 @@ public class PubSubService {
 
             org.springframework.messaging.Message<String> msg =
                     MessageBuilder.createMessage(str, messageHeaders);
-            messagingGateway.sendToPubSub(msg);
+            messagingGateway.publish(msg);
         } catch (IOException | MessagingException ex) {
             log.warn("PubSub message could not be written", ex);
         }

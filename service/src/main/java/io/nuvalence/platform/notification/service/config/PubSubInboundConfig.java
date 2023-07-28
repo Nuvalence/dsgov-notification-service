@@ -80,9 +80,11 @@ public class PubSubInboundConfig {
             PubSubTemplate pubSubTemplate,
             PubSubAdmin admin) {
         if (createTopicAndSubs && admin.getTopic(topic) == null) {
+            log.info("Creating topic: {}", topic);
             admin.createTopic(topic);
         }
-        if (admin.getSubscription(subscription) == null) {
+        if (createTopicAndSubs && admin.getSubscription(subscription) == null) {
+            log.info("Creating subscription: {}, topic: {}", subscription, topic);
             admin.createSubscription(subscription, topic);
         }
 
@@ -100,7 +102,7 @@ public class PubSubInboundConfig {
      * @return Message Handler
      */
     @ServiceActivator(inputChannel = INPUT_CHANNEL)
-    public MessageHandler messageReceiverDocumentProcessing() {
+    public MessageHandler messageReceiverNotificationProcessing() {
         return subscriber;
     }
 }

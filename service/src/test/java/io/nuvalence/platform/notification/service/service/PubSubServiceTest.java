@@ -46,6 +46,6 @@ class PubSubServiceTest {
 
         service.publish(message);
 
-        Mockito.verify(messagingGateway).sendToPubSub(any());
+        Mockito.verify(messagingGateway).publish(any());
     }
 }

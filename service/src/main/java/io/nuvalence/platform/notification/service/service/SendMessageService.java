@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +44,6 @@ public class SendMessageService {
      * Send a message.
      *
      * @param message message
-     * @throws IOException   if an error occurs while sending the message
      * @throws ApiException if an error occurs while querying user management service
      */
     public void sendMessage(Message message) throws ApiException {
@@ -58,7 +56,7 @@ public class SendMessageService {
             return;
         }
 
-        UserPreferenceDTO userPreferences = user.getPreferences();
+        UserPreferenceDTO userPreferences = user.get().getPreferences();
 
         if (userPreferences == null) {
             log.error("Message could not be sent. User preferences not found for user {}", userId);
@@ -113,7 +111,7 @@ public class SendMessageService {
             log.info(
                     "Processing Message Id: {}. Sending email to {} with subject {} and message {}",
                     message.getId(),
-                    user.getEmail(),
+                    user.get().getEmail(),
                     subjectEmail,
                     emailBodyToSend);
 
@@ -138,7 +136,7 @@ public class SendMessageService {
             log.info(
                     "Processing Message Id: {}. Sending sms to {} with message {}",
                     message.getId(),
-                    user.getPhoneNumber(),
+                    user.get().getPhoneNumber(),
                     smsToSend);
         }
     }
