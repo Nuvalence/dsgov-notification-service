@@ -76,7 +76,7 @@ public class PagingMetadataMapper {
                     .host(request.getServerName())
                     .scheme(request.getScheme())
                     .queryParams(new MultiValueMapAdapter<>(queryParams))
-                    .replaceQueryParam("page", nextPage.getPageNumber())
+                    .replaceQueryParam("pageNumber", nextPage.getPageNumber())
                     .build()
                     .toUri();
         } else {

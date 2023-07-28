@@ -81,3 +81,6 @@ env:
   PUBSUB_EMULATOR_HOST: "pubsub-emulator-service:8085"
   PUBSUB_ENABLED: true
   PUBSUB_CREATE_TOPIC: true
+  TOKEN_PRIVATE_KEY_SECRET: "dsgov-self-signed-token-private-key"
+  TOKEN_ISSUER: "dsgov"
+  TOKEN_PRIVATE_KEY_VERSION: "latest"

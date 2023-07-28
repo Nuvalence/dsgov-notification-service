@@ -46,11 +46,11 @@ management:
 auth:
   token-filter:
     self-signed:
-      issuer: dsgov
+      issuer: ${TOKEN_ISSUER}
       public-key: ${SELF_SIGN_PUBLIC_KEY}
   token-client:
     self-signed:
-      issuer: dsgov
+      issuer: ${TOKEN_ISSUER}
       private-key: ${SELF_SIGN_PRIVATE_KEY}
       roles: "um:reader, um:application-client"
 
