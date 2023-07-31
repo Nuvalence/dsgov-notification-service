@@ -12,6 +12,7 @@ import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,19 +22,25 @@ import java.util.Optional;
  * Message provider for email messages.
  */
 @Slf4j
+@Service
 public class EmailMessageProvider implements SendMessageProvider {
 
     private static final String SUPPORTED_METHOD = "email";
 
     private final EmailLayoutService emailLayoutService;
 
+    private final EmailProvider emailProvider;
+
     /**
      * Constructor.
      *
      * @param emailLayoutService email layout service
+     * @param emailProvider      email provider
      */
-    public EmailMessageProvider(EmailLayoutService emailLayoutService) {
+    public EmailMessageProvider(
+            EmailLayoutService emailLayoutService, EmailProvider emailProvider) {
         this.emailLayoutService = emailLayoutService;
+        this.emailProvider = emailProvider;
     }
 
     @Override
@@ -88,6 +95,8 @@ public class EmailMessageProvider implements SendMessageProvider {
                 user.getEmail(),
                 subjectEmail,
                 emailBodyToSend);
+
+        emailProvider.sendEmail(user.getEmail(), subjectEmail, emailBodyToSend);
     }
 
     @Override

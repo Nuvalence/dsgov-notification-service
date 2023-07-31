@@ -11,6 +11,7 @@ import io.nuvalence.platform.notification.service.domain.SmsFormat;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
@@ -18,9 +19,16 @@ import java.util.Optional;
  * Message provider for SMS messages.
  */
 @Slf4j
+@Service
 public class SmsMessageProvider implements SendMessageProvider {
 
     private static final String SUPPORTED_METHOD = "sms";
+
+    private final SmsProvider smsProvider;
+
+    public SmsMessageProvider(SmsProvider smsProvider) {
+        this.smsProvider = smsProvider;
+    }
 
     @Override
     public void sendMessage(UserDTO user, Message message, MessageTemplate template) {
@@ -49,6 +57,8 @@ public class SmsMessageProvider implements SendMessageProvider {
                 message.getId(),
                 user.getPhoneNumber(),
                 smsToSend);
+
+        smsProvider.sendSms(user.getPhoneNumber(), smsToSend);
     }
 
     @Override
