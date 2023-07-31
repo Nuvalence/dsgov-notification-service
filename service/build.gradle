@@ -29,8 +29,8 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
-	//implementation project(':user-management-client')
-	implementation files('libs/user-management-client-0.0.1-SNAPSHOT.jar')
+	implementation project(':user-management-client')
+	//implementation files('libs/user-management-client-0.0.1-SNAPSHOT.jar')
 
 	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 
