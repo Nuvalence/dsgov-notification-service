@@ -73,15 +73,6 @@ test {
 	}
 }
 
-sonarqube {
-	properties {
-		property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
-		property 'sonar.dependencyCheck.jsonReportPath', 'build/reports/dependency-check-report.json'
-		property 'sonar.dependencyCheck.summarize', true
-		property 'sonar.host.url', 'https://sonarqube.dsgov.demo.nuvalence.io/'
-	}
-}
-
 jacocoTestReport {
 	reports {
 		xml.enabled true
@@ -94,7 +85,6 @@ sonarqube {
 		property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
 		property 'sonar.dependencyCheck.jsonReportPath', 'build/reports/dependency-check-report.json'
 		property 'sonar.dependencyCheck.summarize', true
-		property 'sonar.host.url', 'https://sonarqube.dsgov.demo.nuvalence.io/'
 	}
 }
 

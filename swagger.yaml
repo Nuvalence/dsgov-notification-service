@@ -63,13 +63,13 @@ paths:
             - admin-notification
         parameters:
           - in: query
-            name: page
+            name: pageNumber
             required: false
             schema:
               type: integer
               default: 0
             description: The page number for pagination (zero-based)
-          - name: size
+          - name: pageSize
             in: query
             description: How many items to return at one time (max 200)
             required: false
@@ -173,13 +173,13 @@ paths:
         - admin-notification
       parameters:
         - in: query
-          name: page
+          name: pageNumber
           required: false
           schema:
             type: integer
             default: 0
           description: The page number for pagination (zero-based)
-        - name: size
+        - name: pageSize
           in: query
           description: How many items to return at one time (max 200)
           required: false

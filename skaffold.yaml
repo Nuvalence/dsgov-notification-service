@@ -2,11 +2,31 @@ apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
   name: notification-service
-
-#
-# PROFILES
-#
 profiles:
+  - name: demo
+    build:
+      googleCloudBuild:
+        projectId: dsgov-services
+        gradleImage: gradle:7.6-jdk11-alpine
+      artifacts:
+        - image: us-east4-docker.pkg.dev/dsgov-services/application/dsgov-notification-service
+          jib:
+            type: gradle
+            project: service
+    deploy:
+      helm:
+        releases:
+          - name: dsgov-notification-service
+            createNamespace: true
+            chartPath: helm/application
+            # Ref: https://skaffold.dev/docs/deployers/helm/#image-configuration
+            setValueTemplates:
+              image.repository: "{{.IMAGE_REPO_us_east4_docker_pkg_dev_dsgov_services_application_dsgov_notification_service}}"
+              image.tag: "{{.IMAGE_TAG_us_east4_docker_pkg_dev_dsgov_services_application_dsgov_notification_service}}@{{.IMAGE_DIGEST_us_east4_docker_pkg_dev_dsgov_services_application_dsgov_notification_service}}"
+            setValues:
+              environment: demo
+            valuesFiles:
+              - helm/application/values.demo.yaml
   - name: dev
     build:
       googleCloudBuild:
@@ -17,11 +37,11 @@ profiles:
           jib:
             type: gradle
             project: service
-
     deploy:
       helm:
         releases:
           - name: dsgov-notification-service
+            createNamespace: true
             chartPath: helm/application
             # Ref: https://skaffold.dev/docs/deployers/helm/#image-configuration
             setValueTemplates:
@@ -31,8 +51,6 @@ profiles:
               environment: dev
             valuesFiles:
               - helm/application/values.dev.yaml
-
-
   - name: minikube
     activation:
       - kubeContext: minikube
@@ -42,11 +60,11 @@ profiles:
           jib:
             type: gradle
             project: service
-
     manifests:
       helm:
         releases:
           - name: notification-service
+            createNamespace: true
             chartPath: helm/application
             valuesFiles:
               - helm/application/values.local.yaml
@@ -59,13 +77,10 @@ profiles:
             setValueTemplates:
               image.repository: notification-service
               image.tag: notification-service
-
-
     deploy:
       statusCheckDeadlineSeconds: 60
       tolerateFailuresUntilDeadline: true
       helm: {}
-
     portForward:
       - resourceType: service
         resourceName: notification-service

@@ -39,7 +39,7 @@ image:
   tag: "latest"
 
 net:
-  host: "api-dev.dsgov.demo.nuvalence.io"
+  host: "api.dsgov.demo.nuvalence.io"
   applicationPort: 8080
   servicePort: 80
   contextPath: "/ns"
@@ -52,22 +52,21 @@ net:
     failureThreshold: 10
 
 env:
-  ALLOWED_ORIGINS: "https://api-dev.dsgov.demo.nuvalence.io https://agency-dev.dsgov.demo.nuvalence.io https://public-dev.dsgov.demo.nuvalence.io"
+  ALLOWED_ORIGINS: "https://api.dsgov.demo.nuvalence.io https://agency.dsgov.demo.nuvalence.io https://public.dsgov.demo.nuvalence.io"
   CERBOS_URI: "127.0.0.1:3592"
-  DB_CONNECTION_URL: "jdbc:postgresql://127.0.0.1:5432/dsgov-dev-notification-service-db"
-  DB_USERNAME: "${sm://projects/dsgov-dev/secrets/dsgov-dev-db-user/versions/latest}"
-  DB_PASSWORD: "${sm://projects/dsgov-dev/secrets/dsgov-dev-db-pass/versions/latest}"
+  DB_CONNECTION_URL: "jdbc:postgresql://127.0.0.1:5432/notification-service"
+  DB_USERNAME: "${sm://projects/dsgov-demo/secrets/dsgov-demo-db-user/versions/latest}"
+  DB_PASSWORD: "${sm://projects/dsgov-demo/secrets/dsgov-demo-db-pass/versions/latest}"
   EMAIL_ACCOUNT_SENDER: ""
   EMAIL_NAME_SENDER: ""
-  GCP_PROJECT_ID: "dsgov-dev"
+  GCP_PROJECT_ID: "dsgov-demo"
   SENDGRID_API_KEY: "TODO"
-  SELF_SIGN_PUBLIC_KEY: "${sm://projects/dsgov-dev/secrets/dsgov-self-signed-token-public-key/versions/latest}"
-  SELF_SIGN_PRIVATE_KEY: "${sm://projects/dsgov-dev/secrets/dsgov-self-signed-token-private-key/versions/latest}"
+  SELF_SIGN_PUBLIC_KEY: "${sm://projects/dsgov-demo/secrets/dsgov-self-signed-token-public-key/versions/latest}"
+  SELF_SIGN_PRIVATE_KEY: "${sm://projects/dsgov-demo/secrets/dsgov-self-signed-token-private-key/versions/latest}"
   USER_MANAGEMENT_BASE_URL: "http://dsgov-user-management/um"
-  PUB_SUB_TOPIC: "projects/dsgov-dev/topics/NOTIFICATION_MSG_QUEUE"
-  PUB_SUB_TOPIC_SUBSCRIPTION: "projects/dsgov-dev/subscriptions/NOTIFICATION_MSG_QUEUE_SUBSCRIPTION"
-  PUBSUB_EMULATOR_HOST: false # set actual "host:port" to enable or false to disable
-  PUBSUB_ENABLED: true
-  PUBSUB_CREATE_TOPIC: false
+  ENABLE_PUB_SUB: "true"
+  PUB_SUB_TOPIC: "NOTIFICATION_MSG_QUEUE"
+  PUB_SUB_TOPIC_SUBSCRIPTION: "NOTIFICATION_MSG_QUEUE_SUBSCRIPTION"
+  TOKEN_PRIVATE_KEY_SECRET: "dsgov-self-signed-token-private-key"
   TOKEN_ISSUER: "dsgov"
   TOKEN_PRIVATE_KEY_VERSION: "latest"
