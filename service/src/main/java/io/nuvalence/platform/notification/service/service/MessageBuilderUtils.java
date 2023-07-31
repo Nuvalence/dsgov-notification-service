@@ -10,12 +10,23 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Base class for message providers.
+ * Utility class for message builders.
  */
 @Slf4j
-public abstract class MessageProvider {
+public class MessageBuilderUtils {
 
-    protected Optional<LocalizedStringTemplateLanguage> getLocalizedTemplate(
+    private MessageBuilderUtils() {
+        // private constructor
+    }
+
+    /**
+     * Get the localized template for a given language.
+     *
+     * @param localizedStringTemplate localized string template
+     * @param language                language
+     * @return localized template
+     */
+    public static Optional<LocalizedStringTemplateLanguage> getLocalizedTemplate(
             LocalizedStringTemplate localizedStringTemplate, String language) {
         return localizedStringTemplate.getLocalizedTemplateStrings().stream()
                 .filter(
@@ -24,7 +35,15 @@ public abstract class MessageProvider {
                 .findFirst();
     }
 
-    protected String replaceParameterInTemplate(
+    /**
+     * Replace parameters in a template.
+     *
+     * @param template    template
+     * @param parameters  parameters
+     * @param handlebars  handlebars
+     * @return template with parameters replaced
+     */
+    public static String replaceParameterInTemplate(
             String template, Map<String, String> parameters, Handlebars handlebars) {
         try {
             Template handleBarTemplate = handlebars.compileInline(template);

@@ -1,5 +1,8 @@
 package io.nuvalence.platform.notification.service.service;
 
+import static io.nuvalence.platform.notification.service.service.MessageBuilderUtils.getLocalizedTemplate;
+import static io.nuvalence.platform.notification.service.service.MessageBuilderUtils.replaceParameterInTemplate;
+
 import com.github.jknack.handlebars.Handlebars;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
 import io.nuvalence.platform.notification.service.domain.Message;
@@ -8,7 +11,6 @@ import io.nuvalence.platform.notification.service.domain.SmsFormat;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
@@ -16,8 +18,7 @@ import java.util.Optional;
  * Message provider for SMS messages.
  */
 @Slf4j
-@Service
-public class SmsMessageProvider extends MessageProvider implements SendMessageProvider {
+public class SmsMessageProvider implements SendMessageProvider {
 
     private static final String SUPPORTED_METHOD = "sms";
 

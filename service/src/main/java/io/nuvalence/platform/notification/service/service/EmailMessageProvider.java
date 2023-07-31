@@ -1,5 +1,8 @@
 package io.nuvalence.platform.notification.service.service;
 
+import static io.nuvalence.platform.notification.service.service.MessageBuilderUtils.getLocalizedTemplate;
+import static io.nuvalence.platform.notification.service.service.MessageBuilderUtils.replaceParameterInTemplate;
+
 import com.github.jknack.handlebars.Handlebars;
 import io.nuvalence.platform.notification.service.domain.EmailFormat;
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
@@ -9,7 +12,6 @@ import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +21,7 @@ import java.util.Optional;
  * Message provider for email messages.
  */
 @Slf4j
-@Service
-public class EmailMessageProvider extends MessageProvider implements SendMessageProvider {
+public class EmailMessageProvider implements SendMessageProvider {
 
     private static final String SUPPORTED_METHOD = "email";
 
