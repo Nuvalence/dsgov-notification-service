@@ -30,6 +30,7 @@ spring:
         enabled: ${PUBSUB_ENABLED}
         subscription2: ${PUB_SUB_TOPIC_SUBSCRIPTION}
         enableTopicCreation: ${PUBSUB_CREATE_TOPIC}
+        emulator-host: ${PUBSUB_EMULATOR_HOST:false}
 
 
 management:

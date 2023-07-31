@@ -65,7 +65,7 @@ public class PubSubInboundConfig {
     /**
      * Creates a message adapter that receives messages from PubSub.
      *
-     * @param messageChannel Message Channel
+     * @param inputChannel Message Channel
      * @param pubSubTemplate PubSub Message Template
      * @param admin PubSub Admin
      * @return Message Adapter
@@ -76,7 +76,7 @@ public class PubSubInboundConfig {
             havingValue = "true",
             matchIfMissing = true)
     public PubSubInboundChannelAdapter inboundChannelAdapter(
-            @Qualifier(INPUT_CHANNEL) MessageChannel messageChannel,
+            @Qualifier(INPUT_CHANNEL) MessageChannel inputChannel,
             PubSubTemplate pubSubTemplate,
             PubSubAdmin admin) {
         if (createTopicAndSubs && admin.getTopic(topic) == null) {
@@ -90,9 +90,9 @@ public class PubSubInboundConfig {
 
         PubSubInboundChannelAdapter adapter =
                 new PubSubInboundChannelAdapter(pubSubTemplate, subscription);
-        adapter.setOutputChannel(messageChannel);
+        adapter.setOutputChannel(inputChannel);
         adapter.setAckMode(AckMode.MANUAL);
-        adapter.setPayloadType(String.class);
+        // adapter.setPayloadType(String.class);
         return adapter;
     }
 
@@ -101,6 +101,7 @@ public class PubSubInboundConfig {
      *
      * @return Message Handler
      */
+    @Bean
     @ServiceActivator(inputChannel = INPUT_CHANNEL)
     public MessageHandler messageReceiverNotificationProcessing() {
         return subscriber;

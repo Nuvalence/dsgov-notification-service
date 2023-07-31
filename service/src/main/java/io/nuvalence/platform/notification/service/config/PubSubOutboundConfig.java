@@ -38,15 +38,6 @@ public class PubSubOutboundConfig {
     }
 
     /**
-     * Creates a message channel for PubSub.
-     *
-     */
-    @MessagingGateway(defaultRequestChannel = OUTPUT_CHANNEL)
-    public interface PubSubOutboundGateway {
-        void publish(Message<String> message);
-    }
-
-    /**
      * Creates a message handler that sends messages to PubSub.
      *
      * @param pubsubTemplate PubSub Message Template
@@ -83,5 +74,14 @@ public class PubSubOutboundConfig {
             String payload = (String) message.getPayload();
             log.info("Message sent to local channel: {}", payload);
         };
+    }
+
+    /**
+     * Creates a message channel for PubSub.
+     *
+     */
+    @MessagingGateway(defaultRequestChannel = OUTPUT_CHANNEL)
+    public interface PubSubOutboundGateway {
+        void publish(Message<String> message);
     }
 }

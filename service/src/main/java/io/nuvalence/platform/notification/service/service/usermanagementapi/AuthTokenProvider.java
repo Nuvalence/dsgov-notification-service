@@ -67,7 +67,7 @@ public class AuthTokenProvider {
         }
         token =
                 generator.generateToken(
-                        "notification-service", List.of("um:reader, um:application-client"));
+                        "notification-service", List.of("um:reader", "um:application-client"));
         tokenLastGenerated = Instant.now();
     }
 }
