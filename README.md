@@ -51,6 +51,57 @@ To exit `skaffold dev`, in the terminal where you executed the command, hit `Ctr
 
 - [tools and frameworks](./docs/tools.md)
 
+## Configuration Parameters
+
+Here are the key configuration parameters for the application:
+### Helm
+
+#### Postgres
+- POSTGRES_HOST: `<db-host-instance-name>`
+- POSTGRES_DB: `<db-name>`
+- POSTGRES_PASSWORD: `<db-password>`
+- POSTGRES_PORT: `<db-port>`
+- POSTGRES_USER: `<db-user>`
+
+#### Network
+- host: `<api-domain-name>`
+- applicationPort: `<k8s-application-container-port>`
+- servicePort: `<k8s-service-port>`
+- contextPath: `<k8s-ingress-context-path>`
+- readinessProbe.path: `<k8s-readiness-probe-path>`
+
+#### Environment Variables
+- ENABLE_PUB_SUB: `<bool>`
+- PUB_SUB_TOPIC: `<pubsub-topic-name>`
+- PUB_SUB_TOPIC_SUBSCRIPTION: `<pubsub-topic-subscription-name>`
+- ALLOWED_ORIGINS: `<allowed-origins>`
+- CERBOS_URI: `<cerbos-uri>`
+- DB_CONNECTION_URL: `<db-connection-url>`
+- DB_USERNAME: `<db-username>`
+- DB_PASSWORD: `<db-password>`
+- EMAIL_ACCOUNT_SENDER: `<email-account-sender>`
+- EMAIL_NAME_SENDER: `<email-name-sender>`
+- SENDGRID_API_KEY: `<send-grid-api-key>`
+- USER_MANAGEMENT_BASE_URL: `<user-management-base-url>`
+- GCP_PROJECT_ID: `<gcp-project-id>`
+- SELF_SIGN_PUBLIC_KEY: `<secret-manager-path-to-rsa-public-key>`
+- SELF_SIGN_PRIVATE_KEY: `<secret-manager-path-to-rsa-private-key>`
+- TOKEN_PRIVATE_KEY_SECRET: `<token-private-key-secret-name>`
+- TOKEN_PRIVATE_KEY_VERSION: `<token-private-key-secret-version>`
+- TOKEN_ISSUER: `<token-issuer-name>`
+
+### Gradle
+
+#### settings.gradle
+- rootProject.name = `<project-name>`
+
+#### gradle-wrapper.properties
+- distributionBase=`<distribution-base>`
+- distributionPath=`<distribution-path>`
+- distributionUrl=`<distribution-url>`
+- zipStoreBase=`<zip-store-base>`
+- zipStorePath=`<zip-store-path>`
+
 ## Contributors
 
 The Nuvalence Work Manager was originally a private project with contributions from:
