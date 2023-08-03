@@ -51,12 +51,6 @@ public class SmsMessageProvider implements SendMessageProvider {
         String smsToSend =
                 replaceParameterInTemplate(
                         smsTemplate.get().getTemplate(), message.getParameters(), handlebars);
-        // send mock sms
-        log.info(
-                "Processing Message Id: {}. Sending sms to {} with message {}",
-                message.getId(),
-                user.getPhoneNumber(),
-                smsToSend);
 
         smsProvider.sendSms(user.getPhoneNumber(), smsToSend);
     }

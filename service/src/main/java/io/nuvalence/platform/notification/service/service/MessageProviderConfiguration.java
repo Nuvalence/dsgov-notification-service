@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Slf4j
 @Configuration
-public class ConcreteMessageProviderConfiguration {
+public class MessageProviderConfiguration {
 
     /**
      * Create a message provider for email.
@@ -18,7 +18,7 @@ public class ConcreteMessageProviderConfiguration {
      */
     @Bean
     public EmailProvider emailMessageProvider() {
-        return new ConcreteEmailProvider1();
+        return new LoggingStubEmailProvider();
     }
 
     /**
@@ -28,6 +28,6 @@ public class ConcreteMessageProviderConfiguration {
      */
     @Bean
     public SmsProvider smsMessageProvider() {
-        return new ConcreteSmsProvider1();
+        return new LoggingStubSmsProvider();
     }
 }

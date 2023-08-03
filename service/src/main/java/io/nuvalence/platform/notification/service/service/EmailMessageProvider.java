@@ -88,14 +88,6 @@ public class EmailMessageProvider implements SendMessageProvider {
                 replaceParameterInTemplate(
                         emailLayout.get().getContent(), emailLayoutInputToTemplate, handlebars);
 
-        // send mock email
-        log.info(
-                "Processing Message Id: {}. Sending email to {} with subject {} and message {}",
-                message.getId(),
-                user.getEmail(),
-                subjectEmail,
-                emailBodyToSend);
-
         emailProvider.sendEmail(user.getEmail(), subjectEmail, emailBodyToSend);
     }
 
