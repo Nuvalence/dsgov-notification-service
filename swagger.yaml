@@ -295,8 +295,6 @@ paths:
             application/xml:
               schema:
                 type: string
-        "404":
-          description: Localization data not found for requested language
     put:
       summary: Create or update localization data.
       operationId: createOrUpdateLocalizationData
