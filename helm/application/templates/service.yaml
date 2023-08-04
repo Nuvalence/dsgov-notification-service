@@ -17,3 +17,22 @@ spec:
       targetPort: {{ default "8080" .Values.net.applicationPort }}
   sessionAffinity: None
   type: NodePort
+---
+{{- if .Values.env.PUBSUB_ENABLED }}
+{{- if .Values.env.PUBSUB_EMULATOR_HOST }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ (split ":" .Values.env.PUBSUB_EMULATOR_HOST)._0 }}
+  namespace: {{ .Values.namespace | default "dsgov" }}
+spec:
+  selector:
+    app: gcloud-pubsub-emulator
+  ports:
+    - protocol: TCP
+      port: {{ (split ":" .Values.env.PUBSUB_EMULATOR_HOST)._1 }}
+      targetPort: {{ (split ":" .Values.env.PUBSUB_EMULATOR_HOST)._1 }}
+  sessionAffinity: None
+  type: NodePort
+{{- end }}
+{{- end }}

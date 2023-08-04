@@ -29,6 +29,9 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
+	implementation project(':user-management-client')
+	//implementation files('libs/user-management-client-0.0.1-SNAPSHOT.jar')
+
 	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 
 	compileOnly 'com.google.code.findbugs:annotations:3.0.1'
@@ -47,6 +50,8 @@ dependencies {
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-secretmanager:3.5.4'
 
 	implementation 'io.hypersistence:hypersistence-utils-hibernate-55:3.5.0'
+
+	implementation 'com.github.jknack:handlebars:4.3.1'
 
 	implementation 'io.nuvalence.dsgov:dsgov-auth:0.1.11'
 	implementation 'io.nuvalence.dsgov:dsgov-logging:0.0.11'

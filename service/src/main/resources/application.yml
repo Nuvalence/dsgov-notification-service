@@ -27,9 +27,11 @@ spring:
       project-id: ${GCP_PROJECT_ID}
       pubsub:
         topic: ${PUB_SUB_TOPIC}
-        enabled: ${ENABLE_PUB_SUB}
-        subscriber:
-          fully-qualified-name: ${PUB_SUB_TOPIC_SUBSCRIPTION}
+        enabled: ${PUBSUB_ENABLED}
+        subscription2: ${PUB_SUB_TOPIC_SUBSCRIPTION}
+        enableTopicCreation: ${PUBSUB_CREATE_TOPIC}
+        emulator-host: ${PUBSUB_EMULATOR_HOST:false}
+
 
 management:
   endpoints:

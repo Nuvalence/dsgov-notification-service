@@ -87,6 +87,10 @@ public class MessageService {
         return savedMessaged;
     }
 
+    public void updateMessageStatus(UUID id, String status) {
+        messageRepository.updateMessageStatus(id, status);
+    }
+
     private boolean isCorrectType(String parameterValue, String parameterType) {
         switch (parameterType) {
             case "Number":
