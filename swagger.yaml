@@ -276,7 +276,7 @@ paths:
           description: Message not found
   /admin/localization-data:
     get: 
-      summary: Get localization data for provided 'language' query parameter in IETF tag format.
+      summary: Get localization data
       operationId: getLocalizationData
       tags:
         - admin-notification
@@ -284,18 +284,38 @@ paths:
         - in: query
           name: language
           required: true
+          description: Language in IETF tag format
           schema:
             type: string
-            default: en-US
+            example: en-US
       responses:
         '200':
           description: XLIFF document
           content:
             application/xml:
               schema:
-                type: string
+                $ref: '#/components/schemas/Xliff'
         "404":
           description: Localization data not found for requested language
+    put:
+      summary: Create or update localization data.
+      operationId: createOrUpdateLocalizationData
+      tags:
+        - admin-notification
+      requestBody:
+        description: XLIFF document
+        required: true
+        content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Xliff'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Xliff'
 components:
   schemas:
     EmailLayoutRequestModel:
@@ -532,3 +552,15 @@ components:
         sentTimestamp:
           type: string
           format: date-time
+    Xliff:
+      xml:
+        name: xliff
+        namespace: "urn:oasis:names:tc:xliff:document:1.2"
+      properties:
+        file:
+          type: object
+          properties:
+            body:
+              type: string
+              example: '...'
+              
