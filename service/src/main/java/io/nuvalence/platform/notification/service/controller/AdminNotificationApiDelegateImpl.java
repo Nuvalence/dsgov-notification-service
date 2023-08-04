@@ -16,6 +16,7 @@ import io.nuvalence.platform.notification.service.mapper.TemplateMapper;
 import io.nuvalence.platform.notification.service.model.SearchEmailLayoutFilter;
 import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
 import io.nuvalence.platform.notification.service.service.EmailLayoutService;
+import io.nuvalence.platform.notification.service.service.LocalizationService;
 import io.nuvalence.platform.notification.service.service.TemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +35,13 @@ import javax.ws.rs.ForbiddenException;
 @RequiredArgsConstructor
 @Slf4j
 @Service
+@SuppressWarnings("checkstyle:ClassFanOutComplexity")
 public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDelegate {
 
     private final EmailLayoutService emailLayoutService;
     private final EmailLayoutMapper emailLayoutMapper;
     private final TemplateService templateService;
+    private final LocalizationService localizationService;
     private final TemplateMapper templateMapperImpl;
     private final PagingMetadataMapper pagingMetadataMapper;
     private final AuthorizationHandler authorizationHandler;
@@ -155,8 +158,8 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
         if (!authorizationHandler.isAllowed("view", MessageTemplate.class)) {
             throw new ForbiddenException();
         }
-        log.info(language);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+
+        return ResponseEntity.ok(localizationService.getLocalizationData(language));
     }
 
     @Override
