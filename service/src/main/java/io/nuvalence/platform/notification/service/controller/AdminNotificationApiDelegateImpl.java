@@ -152,11 +152,19 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
 
     @Override
     public ResponseEntity<String> getLocalizationData(String language) {
-        return new ResponseEntity<>(HttpStatus.PROCESSING);
+        if (!authorizationHandler.isAllowed("view", MessageTemplate.class)) {
+            throw new ForbiddenException();
+        }
+        log.info(language);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     @Override
     public ResponseEntity<String> createOrUpdateLocalizationData(String body) {
-        return new ResponseEntity<>(HttpStatus.PROCESSING);
+        if (!authorizationHandler.isAllowed("create", MessageTemplate.class)) {
+            throw new ForbiddenException();
+        }
+        log.info(body);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 }
