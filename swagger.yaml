@@ -274,6 +274,28 @@ paths:
                 $ref: "#/components/schemas/MessageResponseModel"
         "404":
           description: Message not found
+  /admin/localization-data:
+    get: 
+      summary: Get localization data for provided 'language' query parameter in IETF tag format.
+      operationId: getLocalizationData
+      tags:
+        - admin-notification
+      parameters:
+        - in: query
+          name: language
+          required: true
+          schema:
+            type: string
+            default: en-US
+      responses:
+        '200':
+          description: XLIFF document
+          content:
+            application/xml:
+              schema:
+                type: string
+        "404":
+          description: Localization data not found for requested language
 components:
   schemas:
     EmailLayoutRequestModel:
