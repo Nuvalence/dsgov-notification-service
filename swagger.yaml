@@ -282,9 +282,9 @@ paths:
         - admin-notification
       parameters:
         - in: query
-          name: language
+          name: locale
           required: true
-          description: Language in IETF tag format
+          description: Locale tag in IETF format
           schema:
             type: string
             example: en-US
