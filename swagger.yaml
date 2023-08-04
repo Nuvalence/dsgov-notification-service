@@ -294,7 +294,7 @@ paths:
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/Xliff'
+                type: string
         "404":
           description: Localization data not found for requested language
     put:
@@ -308,14 +308,14 @@ paths:
         content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/Xliff'
+                type: string
       responses:
         '201':
           description: Created
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/Xliff'
+                type: string
 components:
   schemas:
     EmailLayoutRequestModel:
@@ -552,15 +552,5 @@ components:
         sentTimestamp:
           type: string
           format: date-time
-    Xliff:
-      xml:
-        name: xliff
-        namespace: "urn:oasis:names:tc:xliff:document:1.2"
-      properties:
-        file:
-          type: object
-          properties:
-            body:
-              type: string
-              example: '...'
+
               

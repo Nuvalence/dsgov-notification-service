@@ -20,6 +20,7 @@ import io.nuvalence.platform.notification.service.service.TemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -147,5 +148,15 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
                                 .collect(Collectors.toList()),
                         pagingMetadataMapper.toPagingMetadata(result));
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<String> getLocalizationData(String language) {
+        return new ResponseEntity<>(HttpStatus.PROCESSING);
+    }
+
+    @Override
+    public ResponseEntity<String> createOrUpdateLocalizationData(String body) {
+        return new ResponseEntity<>(HttpStatus.PROCESSING);
     }
 }
