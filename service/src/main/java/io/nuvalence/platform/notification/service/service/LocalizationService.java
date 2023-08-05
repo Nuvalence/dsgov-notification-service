@@ -1,6 +1,7 @@
 package io.nuvalence.platform.notification.service.service;
 
 import io.nuvalence.platform.notification.service.domain.EmailFormat;
+import io.nuvalence.platform.notification.service.domain.EmailFormatContent;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplate;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
@@ -15,17 +16,25 @@ import net.sf.okapi.common.resource.ITextUnit;
 import net.sf.okapi.common.resource.StartGroup;
 import net.sf.okapi.common.resource.TextFragment;
 import net.sf.okapi.common.resource.TextUnit;
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import javax.xml.XMLConstants;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -49,11 +58,12 @@ public class LocalizationService {
 
         List<MessageTemplate> templates = templateRepository.findAll();
 
-        try (XLIFFWriter writer = new XLIFFWriter(); ) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try (XLIFFWriter writer = new XLIFFWriter()) {
+
             LocaleId sourceLocale = LocaleId.fromString(defaultLocale);
             LocaleId targetLocale = LocaleId.fromString(localeTag);
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             writer.setOutput(baos);
 
@@ -67,18 +77,22 @@ public class LocalizationService {
                     " Please use 'resname' attribute on all 'group' and 'trans-unit' elements ");
 
             templates.forEach(template -> writeTemplateGroup(writer, template, targetLocale));
+
+            writer.close();
+
+            return xmlValidateAndMinify(baos.toString(StandardCharsets.UTF_8));
+
+        } catch (Exception e) {
+            // TODO IMPROVE THIS EXCEPTION HANDLING
+            throw new RuntimeException("Error generating localization data" + e.getMessage());
         }
-
-        // TODO parse string and do XML validation
-
-        return null;
     }
 
     private void writeTemplateGroup(
             XLIFFWriter writer, MessageTemplate template, LocaleId targetLocale) {
 
-        var group = new StartGroup(null, template.getName());
-        group.setName(template.getName());
+        var group = new StartGroup(null, template.getKey());
+        group.setName(template.getKey());
         writer.writeStartGroup(group);
 
         writeSmsGroup(writer, template, targetLocale);
@@ -103,30 +117,35 @@ public class LocalizationService {
                         .map(LocalizedStringTemplate::getLocalizedTemplateStrings)
                         .orElse(List.of());
 
-        var pair = getSourceAndTargetValues(langStrings, targetLocale);
+        writeTextUnit(writer, "subject", langStrings, targetLocale);
 
-        var tu = new TextUnit("subject");
-        tu.setName("subject");
-        tu.setSourceContent(new TextFragment(pair.getFirst()));
-        tu.setTargetContent(targetLocale, new TextFragment(pair.getSecond()));
-        writer.writeTextUnit(tu);
+        writeEmailContents(writer, emailFormat, targetLocale);
 
+        writer.writeEndGroup();
+    }
+
+    private void writeEmailContents(
+            XLIFFWriter writer, EmailFormat emailFormat, LocaleId targetLocale) {
         // contents
-        group = new StartGroup(null, "content");
+        var group = new StartGroup(null, "content");
         group.setName("content");
         writer.writeStartGroup(group);
 
-        // TODO DAN CONTINUE HERE. READING CONCLUDES WITH THE REAL IMPLEMENTATION OF THE REST OF THE
-        // LINES IN THIS METHOD
+        var formatContents =
+                Optional.ofNullable(emailFormat)
+                        .map(EmailFormat::getEmailFormatContents)
+                        .orElse(List.of());
 
-        tu = new TextUnit("body");
-        tu.setName("body");
-        tu.setSourceContent(
-                new TextFragment("And this seems to be the {{somethingHere}} content of the body"));
-        tu.setTargetContent(
-                targetLocale, new TextFragment("Ceci est le {{somethingHere}} texte cible"));
-        writer.writeTextUnit(tu);
-        writer.writeEndGroup();
+        for (var formatContent : formatContents) {
+            var resourceName = formatContent.getEmailLayoutInput();
+            var langStrings =
+                    Optional.ofNullable(formatContent)
+                            .map(EmailFormatContent::getLocalizedStringTemplate)
+                            .map(LocalizedStringTemplate::getLocalizedTemplateStrings)
+                            .orElse(List.of());
+            writeTextUnit(writer, resourceName, langStrings, targetLocale);
+        }
+
         writer.writeEndGroup();
     }
 
@@ -143,20 +162,17 @@ public class LocalizationService {
                         .map(LocalizedStringTemplate::getLocalizedTemplateStrings)
                         .orElse(List.of());
 
-        var pair = getSourceAndTargetValues(langStrings, targetLocale);
+        writeTextUnit(writer, "message", langStrings, targetLocale);
 
-        ITextUnit tu = new TextUnit("message");
-        tu.setName("message");
-
-        tu.setSourceContent(new TextFragment(pair.getFirst()));
-        tu.setTargetContent(targetLocale, new TextFragment(pair.getSecond()));
-
-        writer.writeTextUnit(tu);
         writer.writeEndGroup();
     }
 
-    private Pair<String, String> getSourceAndTargetValues(
-            List<LocalizedStringTemplateLanguage> langStrings, LocaleId targetLocale) {
+    private void writeTextUnit(
+            XLIFFWriter writer,
+            String resourceName,
+            List<LocalizedStringTemplateLanguage> langStrings,
+            LocaleId targetLocale) {
+
         String sourceValue = "";
         String targetValue = "";
 
@@ -168,7 +184,37 @@ public class LocalizationService {
                 targetValue = lang.getTemplate();
             }
         }
-        return Pair.of(sourceValue, targetValue);
+
+        ITextUnit tu = new TextUnit(resourceName);
+        tu.setName(resourceName);
+        tu.setSourceContent(new TextFragment(sourceValue));
+        tu.setTargetContent(targetLocale, new TextFragment(targetValue));
+        writer.writeTextUnit(tu);
+    }
+
+    /**
+    * <p>
+    * Verifies the string represents a valid XML file.
+    * And returns it minified for transfer convenience.
+    * </p>
+    * 
+    * @param xmlString the XML string to be parsed
+    * @return valid XML string in pretty format
+    * @throws JDOMException when errors occur in parsing
+    * @throws IOException   when an I/O error prevents a document from being fully
+    *                       parsed
+    */
+    public static String xmlValidateAndMinify(String xmlString) throws JDOMException, IOException {
+
+        SAXBuilder saxBuilder = new SAXBuilder();
+        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+        var reader = new StringReader(xmlString);
+        Document xmlDoc = saxBuilder.build(reader);
+        reader.close();
+
+        return new XMLOutputter(Format.getCompactFormat()).outputString(xmlDoc);
     }
 
     public void validateLocaleTag(String localeTag) throws BadDataException {
