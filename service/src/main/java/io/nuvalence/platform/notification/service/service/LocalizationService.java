@@ -28,6 +28,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Locale;
@@ -136,6 +138,8 @@ public class LocalizationService {
                         .map(EmailFormat::getEmailFormatContents)
                         .orElse(List.of());
 
+        formatContents = formatContentsDeduplicate(formatContents);
+
         for (var formatContent : formatContents) {
             var resourceName = formatContent.getEmailLayoutInput();
             var langStrings =
@@ -147,6 +151,17 @@ public class LocalizationService {
         }
 
         writer.writeEndGroup();
+    }
+
+    private List<EmailFormatContent> formatContentsDeduplicate(
+            List<EmailFormatContent> toDeduplicate) {
+
+        var deduplicaterMap = new HashMap<String, EmailFormatContent>();
+        for (var formatContent : toDeduplicate) {
+            deduplicaterMap.put(formatContent.getEmailLayoutInput(), formatContent);
+        }
+
+        return new ArrayList<>(deduplicaterMap.values());
     }
 
     private void writeSmsGroup(
