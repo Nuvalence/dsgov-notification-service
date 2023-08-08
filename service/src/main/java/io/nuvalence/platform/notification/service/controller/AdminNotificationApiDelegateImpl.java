@@ -163,11 +163,11 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     }
 
     @Override
-    public ResponseEntity<String> createOrUpdateLocalizationData(String body) {
+    public ResponseEntity<String> createOrUpdateLocalizationData(String xliffFileString) {
         if (!authorizationHandler.isAllowed("create", MessageTemplate.class)) {
             throw new ForbiddenException();
         }
-        log.info(body);
+        localizationService.createOrUpdateLocalizationData(xliffFileString);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 }

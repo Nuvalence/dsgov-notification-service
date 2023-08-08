@@ -10,12 +10,15 @@ import io.nuvalence.platform.notification.service.exception.BadDataException;
 import io.nuvalence.platform.notification.service.repository.MessageTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.okapi.common.Event;
 import net.sf.okapi.common.LocaleId;
 import net.sf.okapi.common.filterwriter.XLIFFWriter;
 import net.sf.okapi.common.resource.ITextUnit;
+import net.sf.okapi.common.resource.RawDocument;
 import net.sf.okapi.common.resource.StartGroup;
 import net.sf.okapi.common.resource.TextFragment;
 import net.sf.okapi.common.resource.TextUnit;
+import net.sf.okapi.filters.xliff.XLIFFFilter;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -24,6 +27,7 @@ import org.jdom2.output.XMLOutputter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -85,8 +89,7 @@ public class LocalizationService {
             return xmlValidateAndMinify(baos.toString(StandardCharsets.UTF_8));
 
         } catch (Exception e) {
-            // TODO IMPROVE THIS EXCEPTION HANDLING
-            throw new RuntimeException("Error generating localization data" + e.getMessage());
+            throw new BadDataException("Error generating localization data" + e.getMessage());
         }
     }
 
@@ -207,6 +210,7 @@ public class LocalizationService {
         writer.writeTextUnit(tu);
     }
 
+    // TODO REMOVE THIS CLASS FROM HERE
     /**
     * <p>
     * Verifies the string represents a valid XML file.
@@ -244,5 +248,85 @@ public class LocalizationService {
         } catch (IllformedLocaleException e) {
             throw new BadDataException("Locale tag " + localeTag + " is not IETF valid");
         }
+    }
+
+    public void createOrUpdateLocalizationData(String xliffFileString) {
+
+        try (XLIFFFilter filter = new XLIFFFilter()) {
+
+            xmlValidateAndMinify(xliffFileString);
+
+            ByteArrayInputStream stream = new ByteArrayInputStream(xliffFileString.getBytes());
+
+            var document =
+                    new RawDocument(
+                            stream,
+                            RawDocument.UNKOWN_ENCODING,
+                            LocaleId.AUTODETECT,
+                            LocaleId.AUTODETECT);
+
+            filter.open(document);
+
+            while (filter.hasNext()) {
+                Event event = filter.next();
+                switch (event.getEventType()) {
+                    case DOCUMENT_PART:
+                        var targetLocale = filter.getCurrentTargetLocale().toString();
+
+                        if (targetLocale.equals("und")) {
+                            throw new BadDataException("Target locale is not defined");
+                        }
+
+                        validateLocaleTag(targetLocale);
+
+                        break;
+
+                    case START_GROUP:
+                        parseXliffMainGroup(event, filter.getCurrentTargetLocale());
+                        break;
+
+                    case TEXT_UNIT:
+                        ITextUnit tu = event.getTextUnit();
+                        log.info("RESNAME: {}", tu.getName());
+                        log.info("Source Text: {}", tu.getSource());
+                        if (tu.hasTarget(filter.getCurrentTargetLocale())) {
+                            log.info(
+                                    "Target Text: {}",
+                                    tu.getTarget(filter.getCurrentTargetLocale()));
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadDataException(
+                    "Error parsing provided localization data. No data was saved. "
+                            + e.getMessage());
+        }
+    }
+
+    private void parseXliffMainGroup(Event event, LocaleId targetLocale) {
+
+        StartGroup group = event.getStartGroup();
+        if (group.getName() == null) {
+            throw new BadDataException(
+                    "There is at least one group missing the resname attribute needed for "
+                            + " message template mapping");
+        }
+        var messageTemplate =
+                templateRepository.findFirstByKeyOrderByVersionDesc(group.getName()).orElse(null);
+
+        if (messageTemplate == null) {
+            throw new BadDataException(
+                    "There is no message template with key "
+                            + group.getName()
+                            + " in the database");
+        }
+
+        // TODO continue here
+
     }
 }
