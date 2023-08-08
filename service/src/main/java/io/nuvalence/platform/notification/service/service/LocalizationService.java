@@ -341,9 +341,6 @@ public class LocalizationService {
                         "Unsupported XLIFF structure. Please get a new XLIFF file from this API to"
                                 + " get the proper format.");
         }
-
-        // TODO continue here
-
     }
 
     private void parseXliffMessageFormat(
@@ -367,6 +364,135 @@ public class LocalizationService {
                 throw new BadDataException(
                         "Unsupported XLIFF structure. Please get a new XLIFF file from this API to"
                                 + " get the proper format.");
+        }
+    }
+
+    private void parseXliffEmailFormat(
+            XLIFFFilter filter, Event event, MessageTemplate messageTemplate) {
+        var subEvent = filter.next();
+        switch (subEvent.getEventType()) {
+            case END_GROUP:
+                break;
+            case TEXT_UNIT:
+                tempParseEmailSubject(filter, subEvent, messageTemplate);
+                tempParseEmailContents(filter, subEvent, messageTemplate);
+
+                break;
+
+            case START_GROUP:
+                tempParseEmailContents(filter, subEvent, messageTemplate);
+                tempParseEmailSubject(filter, subEvent, messageTemplate);
+                break;
+
+            default:
+                throw new BadDataException(
+                        "Unsupported XLIFF structure. Please get a new XLIFF file from this API to"
+                                + " get the proper format.");
+        }
+        var nextEvent = filter.next();
+        if (nextEvent.isStartGroup()) {
+            parseXliffMessageFormat(filter, nextEvent, messageTemplate);
+        }
+    }
+
+    private void tempParseEmailContents(
+            XLIFFFilter filter, Event subEvent, MessageTemplate messageTemplate) {
+        // TODO this logic should be modularized
+        StartGroup group = subEvent.getStartGroup();
+        if (group.getName() == null) {
+            throw new BadDataException(
+                    "There is at least one group missing the resname attribute needed for "
+                            + " message template mapping");
+        }
+        var emailSubGroupName = group.getName().trim().toLowerCase();
+        // ... up to here
+
+        if (!emailSubGroupName.equals("content")) {
+            throw new BadDataException(
+                    "Unsupported XLIFF structure. Please get a new XLIFF file from this"
+                            + " API to get the proper format.");
+        }
+
+        var contentTypeEvent = filter.next();
+        while (contentTypeEvent.getEventType() != EventType.END_GROUP) {
+            if (contentTypeEvent.getEventType() != EventType.TEXT_UNIT) {
+                throw new BadDataException(
+                        "Unsupported XLIFF structure. Please get a new XLIFF file from this"
+                                + " API to get the proper format.");
+            }
+
+            var contentAndData = readTextUnitData(filter, contentTypeEvent);
+            if (contentAndData.getFirst().isBlank()) {
+                throw new BadDataException(
+                        "Unsupported XLIFF structure. Please get a new XLIFF file from this"
+                                + " API to get the proper format.");
+            }
+            if (!contentAndData.getSecond().isBlank()) {
+                var formatContents =
+                        Optional.ofNullable(messageTemplate)
+                                .map(MessageTemplate::getEmailFormat)
+                                .map(EmailFormat::getEmailFormatContents)
+                                .orElse(null);
+
+                if (formatContents != null) {
+                    formatContents.stream()
+                            .filter(
+                                    formatContent ->
+                                            formatContent
+                                                    .getEmailLayoutInput()
+                                                    .equals(contentAndData.getFirst()))
+                            .findFirst()
+                            .ifPresent(
+                                    formatContent -> {
+                                        var langStrings =
+                                                Optional.ofNullable(formatContent)
+                                                        .map(
+                                                                EmailFormatContent
+                                                                        ::getLocalizedStringTemplate)
+                                                        .map(
+                                                                LocalizedStringTemplate
+                                                                        ::getLocalizedTemplateStrings)
+                                                        .orElse(null);
+
+                                        if (langStrings != null) {
+                                            langStrings.add(
+                                                    LocalizedStringTemplateLanguage.builder()
+                                                            .language(
+                                                                    filter.getCurrentTargetLocale()
+                                                                            .toBCP47())
+                                                            .template(contentAndData.getSecond())
+                                                            .build());
+                                        }
+                                    });
+                }
+            }
+        }
+    }
+
+    private void tempParseEmailSubject(
+            XLIFFFilter filter, Event subEvent, MessageTemplate messageTemplate) {
+        // TODO see if this **COULD** be modularized
+        var nameAndData = readTextUnitData(filter, subEvent);
+        if (!nameAndData.getFirst().equalsIgnoreCase("subject")) {
+            throw new BadDataException(
+                    "Unsupported XLIFF structure. Please get a new XLIFF file from this"
+                            + " API to get the proper format.");
+        }
+        if (!nameAndData.getSecond().isBlank()) {
+            var langStrings =
+                    Optional.ofNullable(messageTemplate)
+                            .map(MessageTemplate::getEmailFormat)
+                            .map(EmailFormat::getLocalizedSubjectStringTemplate)
+                            .map(LocalizedStringTemplate::getLocalizedTemplateStrings)
+                            .orElse(null);
+
+            if (langStrings != null) {
+                langStrings.add(
+                        LocalizedStringTemplateLanguage.builder()
+                                .language(filter.getCurrentTargetLocale().toBCP47())
+                                .template(nameAndData.getSecond())
+                                .build());
+            }
         }
     }
 
@@ -431,7 +557,4 @@ public class LocalizationService {
         }
         return Pair.of(tu.getName(), targetText);
     }
-
-    private void parseXliffEmailFormat(
-            XLIFFFilter filter, Event event, MessageTemplate messageTemplate) {}
 }
