@@ -177,7 +177,8 @@ public class LocalizationService {
         writer.writeStartGroup(group);
 
         var langStrings =
-                Optional.ofNullable(template.getSmsFormat())
+                Optional.ofNullable(template)
+                        .map(MessageTemplate::getSmsFormat)
                         .map(SmsFormat::getLocalizedStringTemplate)
                         .map(LocalizedStringTemplate::getLocalizedTemplateStrings)
                         .orElse(List.of());
@@ -331,7 +332,8 @@ public class LocalizationService {
         var subEvent = filter.next();
         switch (subEvent.getEventType()) {
             case START_GROUP:
-                parseXliffMessageFormat(filter, event, messageTemplate);
+                parseXliffMessageFormat(filter, subEvent, messageTemplate);
+                break;
             case END_GROUP:
                 break;
             default:
@@ -353,7 +355,7 @@ public class LocalizationService {
                     "There is at least one group missing the resname attribute needed for "
                             + " message template mapping");
         }
-        var formatName = group.getName().toLowerCase();
+        var formatName = group.getName().trim().toLowerCase();
         switch (formatName) {
             case "sms":
                 parseXliffSmsFormat(filter, event, messageTemplate);
@@ -384,7 +386,8 @@ public class LocalizationService {
                 }
                 if (!nameAndData.getSecond().isBlank()) {
                     var langStrings =
-                            Optional.ofNullable(messageTemplate.getSmsFormat())
+                            Optional.ofNullable(messageTemplate)
+                                    .map(MessageTemplate::getSmsFormat)
                                     .map(SmsFormat::getLocalizedStringTemplate)
                                     .map(LocalizedStringTemplate::getLocalizedTemplateStrings)
                                     .orElse(null);
@@ -408,6 +411,10 @@ public class LocalizationService {
                 throw new BadDataException(
                         "Unsupported XLIFF structure. Please get a new XLIFF file from this API to"
                                 + " get the proper format.");
+        }
+        var nextEvent = filter.next();
+        if (nextEvent.isStartGroup()) {
+            parseXliffMessageFormat(filter, nextEvent, messageTemplate);
         }
     }
 
