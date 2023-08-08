@@ -167,7 +167,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
         if (!authorizationHandler.isAllowed("create", MessageTemplate.class)) {
             throw new ForbiddenException();
         }
-        localizationService.createOrUpdateLocalizationData(xliffFileString);
+        localizationService.parseXliffToExistingMsgTemplates(xliffFileString);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 }

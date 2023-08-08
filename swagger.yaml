@@ -296,7 +296,7 @@ paths:
               schema:
                 type: string
     put:
-      summary: Create or update localization data.
+      summary: Update or add new localization data to existing configuration.
       operationId: createOrUpdateLocalizationData
       tags:
         - admin-notification
