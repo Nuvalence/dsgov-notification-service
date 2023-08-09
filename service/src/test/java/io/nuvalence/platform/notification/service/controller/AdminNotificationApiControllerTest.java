@@ -2,6 +2,7 @@ package io.nuvalence.platform.notification.service.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -16,6 +17,7 @@ import io.nuvalence.platform.notification.service.generated.models.EmailLayoutRe
 import io.nuvalence.platform.notification.service.generated.models.LocalizedTemplateModel;
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModelSmsFormat;
+import io.nuvalence.platform.notification.service.utils.XmlUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,6 +83,10 @@ class AdminNotificationApiControllerTest {
 
     @Test
     void testCreateTemplate() throws Exception {
+        reusableCreateTemplateTest();
+    }
+
+    private void reusableCreateTemplateTest() throws Exception {
         String emailLayoutKey = RandomStringUtils.randomAlphanumeric(10);
         createEmailLayout(emailLayoutKey);
 
@@ -158,5 +164,72 @@ class AdminNotificationApiControllerTest {
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.key", is(emailLayoutKey)))
                 .andReturn();
+    }
+
+    @Test
+    void testGetLocalizationData() throws Exception {
+
+        reusableCreateTemplateTest();
+
+        String langTag = "es";
+
+        var responseString =
+                mockMvc.perform(get("/api/v1/admin/localization-data/").param("locale", langTag))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        // validate entire response data
+        var xmlDoc = XmlUtils.getXmlDocument(responseString);
+
+        var root = xmlDoc.getRootElement();
+        assertEquals("xliff", root.getName());
+        assertEquals("1.2", root.getAttributeValue("version"));
+
+        var namespace = root.getNamespace();
+        assertEquals("urn:oasis:names:tc:xliff:document:1.2", namespace.getURI());
+
+        var file = root.getChild("file", namespace);
+        assertEquals("notification-service", file.getAttributeValue("original"));
+        assertEquals("es", file.getAttributeValue("target-language"));
+
+        var mainGroups = file.getChild("body", namespace).getChildren("group", namespace);
+        assertEquals(1, mainGroups.size());
+
+        var group = mainGroups.get(0);
+        assert (!group.getAttributeValue("resname").isBlank());
+
+        var messageFormats = group.getChildren("group", namespace);
+        assertEquals(2, messageFormats.size());
+
+        var smsFormat = messageFormats.get(0);
+        assertEquals("sms", smsFormat.getAttributeValue("resname"));
+
+        var smsMessage = smsFormat.getChild("trans-unit", namespace);
+        assertEquals("message", smsMessage.getAttributeValue("resname"));
+        assertEquals("email-sms-english", smsMessage.getChild("source", namespace).getText());
+        assertEquals("email-sms-spanish", smsMessage.getChild("target", namespace).getText());
+
+        var emailFormat = messageFormats.get(1);
+        assertEquals("email", emailFormat.getAttributeValue("resname"));
+        var emailSubject = emailFormat.getChild("trans-unit", namespace);
+        assertEquals("subject", emailSubject.getAttributeValue("resname"));
+
+        assertEquals("email-subject-english", emailSubject.getChild("source", namespace).getText());
+        assertEquals("email-subject-spanish", emailSubject.getChild("target", namespace).getText());
+
+        var emailContent = emailFormat.getChild("group", namespace);
+        assertEquals("content", emailContent.getAttributeValue("resname"));
+
+        var emailContentTranslation = emailContent.getChild("trans-unit", namespace);
+        assertEquals("body", emailContentTranslation.getAttributeValue("resname"));
+
+        assertEquals(
+                "email-body-english",
+                emailContentTranslation.getChild("source", namespace).getText());
+        assertEquals(
+                "email-body-spanish",
+                emailContentTranslation.getChild("target", namespace).getText());
     }
 }

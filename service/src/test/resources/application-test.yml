@@ -30,6 +30,10 @@ spring:
     user: sa
     password: sa
 
+
+localization:
+  default-locale: en
+
 auth:
   token-filter:
     self-signed:

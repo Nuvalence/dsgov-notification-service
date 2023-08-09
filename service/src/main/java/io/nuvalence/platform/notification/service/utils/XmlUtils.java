@@ -42,4 +42,28 @@ public class XmlUtils {
 
         return new XMLOutputter(Format.getCompactFormat()).outputString(xmlDoc);
     }
+
+    /**
+    * <p>
+    * Verifies the string represents a valid XML file.
+    * And returns its representation as a Jdom2 document.
+    * </p>
+    * @param xmlString the XML string to be parsed
+    * @return valid XML Jdom2 Document
+    * @throws JDOMException when errors occur in parsing
+    * @throws IOException   when an I/O error prevents a document from being fully
+    *                       parsed
+    */
+    public static Document getXmlDocument(String xmlString) throws JDOMException, IOException {
+
+        SAXBuilder saxBuilder = new SAXBuilder();
+        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+        var reader = new StringReader(xmlString);
+        Document xmlDoc = saxBuilder.build(reader);
+        reader.close();
+
+        return xmlDoc;
+    }
 }
