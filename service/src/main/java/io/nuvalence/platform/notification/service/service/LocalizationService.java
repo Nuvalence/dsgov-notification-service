@@ -8,6 +8,7 @@ import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.domain.SmsFormat;
 import io.nuvalence.platform.notification.service.exception.BadDataException;
 import io.nuvalence.platform.notification.service.repository.MessageTemplateRepository;
+import io.nuvalence.platform.notification.service.utils.XmlUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.okapi.common.Event;
@@ -20,19 +21,12 @@ import net.sf.okapi.common.resource.StartGroup;
 import net.sf.okapi.common.resource.TextFragment;
 import net.sf.okapi.common.resource.TextUnit;
 import net.sf.okapi.filters.xliff.XLIFFFilter;
-import org.jdom2.Document;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,11 +36,14 @@ import java.util.Locale;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
-import javax.xml.XMLConstants;
 
+/**
+ * Service to handle localization data.
+ */
 @RequiredArgsConstructor
 @Slf4j
 @Service
+@SuppressWarnings({"checkstyle:ClassFanOutComplexity", "checkstyle:ClassDataAbstractionCoupling"})
 public class LocalizationService {
 
     private final MessageTemplateRepository templateRepository;
@@ -58,32 +55,6 @@ public class LocalizationService {
     public void init() {
         // validate defaultLocale on startup
         validateLocaleTag(defaultLocale);
-    }
-
-    // TODO REMOVE THIS METHOD FROM HERE
-    /**
-    * <p>
-    * Verifies the string represents a valid XML file.
-    * And returns it minified for transfer convenience.
-    * </p>
-    * 
-    * @param xmlString the XML string to be parsed
-    * @return valid XML string in pretty format
-    * @throws JDOMException when errors occur in parsing
-    * @throws IOException   when an I/O error prevents a document from being fully
-    *                       parsed
-    */
-    public static String xmlValidateAndMinify(String xmlString) throws JDOMException, IOException {
-
-        SAXBuilder saxBuilder = new SAXBuilder();
-        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-        var reader = new StringReader(xmlString);
-        Document xmlDoc = saxBuilder.build(reader);
-        reader.close();
-
-        return new XMLOutputter(Format.getCompactFormat()).outputString(xmlDoc);
     }
 
     /**
@@ -138,7 +109,7 @@ public class LocalizationService {
 
             writer.close();
 
-            return xmlValidateAndMinify(baos.toString(StandardCharsets.UTF_8));
+            return XmlUtils.xmlValidateAndMinify(baos.toString(StandardCharsets.UTF_8));
 
         } catch (Exception e) {
             throw new BadDataException("Error generating localization data" + e.getMessage());
@@ -280,7 +251,7 @@ public class LocalizationService {
 
         try (XLIFFFilter filter = new XLIFFFilter()) {
 
-            xmlValidateAndMinify(xliffFileString);
+            XmlUtils.xmlValidateAndMinify(xliffFileString);
 
             ByteArrayInputStream stream = new ByteArrayInputStream(xliffFileString.getBytes());
 
@@ -352,7 +323,7 @@ public class LocalizationService {
         var subEvent = filter.next();
         switch (subEvent.getEventType()) {
             case START_GROUP:
-                parseXliffMessageFormat(filter, subEvent, messageTemplate);
+                parseXliffMessageFormats(filter, subEvent, messageTemplate);
                 break;
             case END_GROUP:
                 break;
@@ -366,7 +337,7 @@ public class LocalizationService {
     /**
      * Parse the XLIFF structure for a message format, such as SMS or Email.
      */
-    private void parseXliffMessageFormat(
+    private void parseXliffMessageFormats(
             XLIFFFilter filter, Event event, MessageTemplate messageTemplate) {
 
         String formatName = getGroupName(event).toLowerCase();
