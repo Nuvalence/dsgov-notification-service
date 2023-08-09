@@ -60,6 +60,51 @@ public class LocalizationService {
         validateLocaleTag(defaultLocale);
     }
 
+    // TODO REMOVE THIS CLASS FROM HERE
+    /**
+    * <p>
+    * Verifies the string represents a valid XML file.
+    * And returns it minified for transfer convenience.
+    * </p>
+    * 
+    * @param xmlString the XML string to be parsed
+    * @return valid XML string in pretty format
+    * @throws JDOMException when errors occur in parsing
+    * @throws IOException   when an I/O error prevents a document from being fully
+    *                       parsed
+    */
+    public static String xmlValidateAndMinify(String xmlString) throws JDOMException, IOException {
+
+        SAXBuilder saxBuilder = new SAXBuilder();
+        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+        var reader = new StringReader(xmlString);
+        Document xmlDoc = saxBuilder.build(reader);
+        reader.close();
+
+        return new XMLOutputter(Format.getCompactFormat()).outputString(xmlDoc);
+    }
+
+    /**
+     * Validates a locale tag against IETF BCP 47 format.
+     * @param localeTag a locale tag to be validated
+     * @throws BadDataException when the locale tag is not valid
+     */
+    public void validateLocaleTag(String localeTag) throws BadDataException {
+
+        if (localeTag == null) {
+            throw new BadDataException("Locale tag should not be null");
+        }
+
+        try {
+            // validating locale tag
+            (new Locale.Builder()).setLanguageTag(localeTag).build();
+        } catch (IllformedLocaleException e) {
+            throw new BadDataException("Locale tag " + localeTag + " is not IETF valid");
+        }
+    }
+
     public String getLocalizationData(String localeTag) {
 
         validateLocaleTag(localeTag);
@@ -111,8 +156,9 @@ public class LocalizationService {
 
     private void writeEmailGroup(
             XLIFFWriter writer, MessageTemplate template, LocaleId targetLocale) {
-        var group = new StartGroup(null, "email");
-        group.setName("email");
+        String emailResname = "email";
+        var group = new StartGroup(null, emailResname);
+        group.setName(emailResname);
         writer.writeStartGroup(group);
 
         var emailFormat = template.getEmailFormat();
@@ -134,8 +180,9 @@ public class LocalizationService {
     private void writeEmailContents(
             XLIFFWriter writer, EmailFormat emailFormat, LocaleId targetLocale) {
         // contents
-        var group = new StartGroup(null, "content");
-        group.setName("content");
+        String contentResname = "content";
+        var group = new StartGroup(null, contentResname);
+        group.setName(contentResname);
         writer.writeStartGroup(group);
 
         var formatContents =
@@ -172,8 +219,9 @@ public class LocalizationService {
     private void writeSmsGroup(
             XLIFFWriter writer, MessageTemplate template, LocaleId targetLocale) {
 
-        var group = new StartGroup(null, "sms");
-        group.setName("sms");
+        String smsResname = "sms";
+        var group = new StartGroup(null, smsResname);
+        group.setName(smsResname);
         writer.writeStartGroup(group);
 
         var langStrings =
@@ -211,46 +259,6 @@ public class LocalizationService {
         tu.setSourceContent(new TextFragment(sourceValue));
         tu.setTargetContent(targetLocale, new TextFragment(targetValue));
         writer.writeTextUnit(tu);
-    }
-
-    // TODO REMOVE THIS CLASS FROM HERE
-    /**
-    * <p>
-    * Verifies the string represents a valid XML file.
-    * And returns it minified for transfer convenience.
-    * </p>
-    * 
-    * @param xmlString the XML string to be parsed
-    * @return valid XML string in pretty format
-    * @throws JDOMException when errors occur in parsing
-    * @throws IOException   when an I/O error prevents a document from being fully
-    *                       parsed
-    */
-    public static String xmlValidateAndMinify(String xmlString) throws JDOMException, IOException {
-
-        SAXBuilder saxBuilder = new SAXBuilder();
-        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-        var reader = new StringReader(xmlString);
-        Document xmlDoc = saxBuilder.build(reader);
-        reader.close();
-
-        return new XMLOutputter(Format.getCompactFormat()).outputString(xmlDoc);
-    }
-
-    public void validateLocaleTag(String localeTag) throws BadDataException {
-
-        if (localeTag == null) {
-            throw new BadDataException("Locale tag should not be null");
-        }
-
-        try {
-            // validating locale tag
-            (new Locale.Builder()).setLanguageTag(localeTag).build();
-        } catch (IllformedLocaleException e) {
-            throw new BadDataException("Locale tag " + localeTag + " is not IETF valid");
-        }
     }
 
     public void parseXliffToExistingMsgTemplates(String xliffFileString) {
@@ -295,17 +303,6 @@ public class LocalizationService {
                         parseXliffMainGroup(filter, event);
                         break;
 
-                    case TEXT_UNIT:
-                        ITextUnit tu = event.getTextUnit();
-                        log.info("RESNAME: {}", tu.getName());
-                        log.info("Source Text: {}", tu.getSource());
-                        if (tu.hasTarget(filter.getCurrentTargetLocale())) {
-                            log.info(
-                                    "Target Text: {}",
-                                    tu.getTarget(filter.getCurrentTargetLocale()));
-                        }
-                        break;
-
                     default:
                         break;
                 }
@@ -320,14 +317,9 @@ public class LocalizationService {
 
     private void parseXliffMainGroup(XLIFFFilter filter, Event event) {
 
-        StartGroup group = event.getStartGroup();
-        if (group.getName() == null) {
-            throw new BadDataException(
-                    "There is at least one group missing the resname attribute needed for "
-                            + " message template mapping");
-        }
+        String groupName = getGroupName(event);
         var messageTemplate =
-                templateRepository.findFirstByKeyOrderByVersionDesc(group.getName()).orElse(null);
+                templateRepository.findFirstByKeyOrderByVersionDesc(groupName).orElse(null);
 
         var subEvent = filter.next();
         switch (subEvent.getEventType()) {
@@ -343,22 +335,32 @@ public class LocalizationService {
         }
     }
 
-    private void parseXliffMessageFormat(
-            XLIFFFilter filter, Event event, MessageTemplate messageTemplate) {
-
+    /**
+     * Get the group resname of an event previously checked as a START_GROUP.
+     */
+    private String getGroupName(Event event) {
         StartGroup group = event.getStartGroup();
         if (group.getName() == null) {
             throw new BadDataException(
                     "There is at least one group missing the resname attribute needed for "
                             + " message template mapping");
         }
-        var formatName = group.getName().trim().toLowerCase();
+        return group.getName().trim();
+    }
+
+    /**
+     * Parse the XLIFF structure for a message format, such as SMS or Email.
+     */
+    private void parseXliffMessageFormat(
+            XLIFFFilter filter, Event event, MessageTemplate messageTemplate) {
+
+        String formatName = getGroupName(event).toLowerCase();
         switch (formatName) {
             case "sms":
-                parseXliffSmsFormat(filter, event, messageTemplate);
+                parseXliffSmsFormat(filter, messageTemplate);
                 break;
             case "email":
-                parseXliffEmailFormat(filter, event, messageTemplate);
+                parseXliffEmailFormat(filter, messageTemplate);
                 break;
             default:
                 throw new BadDataException(
@@ -367,8 +369,7 @@ public class LocalizationService {
         }
     }
 
-    private void parseXliffEmailFormat(
-            XLIFFFilter filter, Event event, MessageTemplate messageTemplate) {
+    private void parseXliffEmailFormat(XLIFFFilter filter, MessageTemplate messageTemplate) {
         var subEvent = filter.next();
         switch (subEvent.getEventType()) {
             case END_GROUP:
@@ -414,15 +415,8 @@ public class LocalizationService {
 
     private void tempParseEmailContents(
             XLIFFFilter filter, Event subEvent, MessageTemplate messageTemplate) {
-        // TODO this logic should be modularized
-        StartGroup group = subEvent.getStartGroup();
-        if (group.getName() == null) {
-            throw new BadDataException(
-                    "There is at least one group missing the resname attribute needed for "
-                            + " message template mapping");
-        }
-        var emailSubGroupName = group.getName().trim().toLowerCase();
-        // ... up to here
+
+        String emailSubGroupName = getGroupName(subEvent).toLowerCase();
 
         if (!emailSubGroupName.equals("content")) {
             throw new BadDataException(
@@ -471,15 +465,10 @@ public class LocalizationService {
                                                                         ::getLocalizedTemplateStrings)
                                                         .orElse(null);
 
-                                        if (langStrings != null) {
-                                            langStrings.add(
-                                                    LocalizedStringTemplateLanguage.builder()
-                                                            .language(
-                                                                    filter.getCurrentTargetLocale()
-                                                                            .toBCP47())
-                                                            .template(contentAndData.getSecond())
-                                                            .build());
-                                        }
+                                        addDataToLangStrings(
+                                                langStrings,
+                                                filter.getCurrentTargetLocale(),
+                                                contentAndData.getSecond());
                                     });
                 }
             }
@@ -489,7 +478,7 @@ public class LocalizationService {
 
     private void tempParseEmailSubject(
             XLIFFFilter filter, Event subEvent, MessageTemplate messageTemplate) {
-        // TODO see if this **COULD** be modularized
+
         var nameAndData = readTextUnitData(filter, subEvent);
         if (!nameAndData.getFirst().equalsIgnoreCase("subject")) {
             throw new BadDataException(
@@ -504,18 +493,23 @@ public class LocalizationService {
                             .map(LocalizedStringTemplate::getLocalizedTemplateStrings)
                             .orElse(null);
 
-            if (langStrings != null) {
-                langStrings.add(
-                        LocalizedStringTemplateLanguage.builder()
-                                .language(filter.getCurrentTargetLocale().toBCP47())
-                                .template(nameAndData.getSecond())
-                                .build());
-            }
+            addDataToLangStrings(
+                    langStrings, filter.getCurrentTargetLocale(), nameAndData.getSecond());
         }
     }
 
-    private void parseXliffSmsFormat(
-            XLIFFFilter filter, Event event, MessageTemplate messageTemplate) {
+    private void addDataToLangStrings(
+            List<LocalizedStringTemplateLanguage> langStrings, LocaleId localeId, String data) {
+        if (langStrings != null) {
+            langStrings.add(
+                    LocalizedStringTemplateLanguage.builder()
+                            .language(localeId.toBCP47())
+                            .template(data)
+                            .build());
+        }
+    }
+
+    private void parseXliffSmsFormat(XLIFFFilter filter, MessageTemplate messageTemplate) {
 
         var subEvent = filter.next();
         switch (subEvent.getEventType()) {
@@ -543,6 +537,8 @@ public class LocalizationService {
                                         .template(nameAndData.getSecond())
                                         .build());
                     }
+                    addDataToLangStrings(
+                            langStrings, filter.getCurrentTargetLocale(), nameAndData.getSecond());
                 }
                 if (!filter.next().getEventType().equals(EventType.END_GROUP)) {
                     throw new BadDataException(
@@ -566,13 +562,13 @@ public class LocalizationService {
         ITextUnit tu = event.getTextUnit();
         if (tu.getName() == null) {
             throw new BadDataException(
-                    "There is at least one group missing the resname attribute needed for "
+                    "There is at least one trans-unit missing the resname attribute needed for "
                             + " message template mapping");
         }
         String targetText = "";
         if (tu.hasTarget(filter.getCurrentTargetLocale())) {
             targetText = tu.getTarget(filter.getCurrentTargetLocale()).toString();
         }
-        return Pair.of(tu.getName(), targetText);
+        return Pair.of(tu.getName().trim(), targetText.trim());
     }
 }
