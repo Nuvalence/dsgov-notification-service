@@ -47,23 +47,23 @@
                 </group>
             </group>
             <group id="TO-BE-CHANGED-2" resname="TO-BE-CHANGED-2">
-                <group id="sms" resname="sms">
-                    <trans-unit id="message" resname="message">
-                        <source xml:lang="en">email-sms-english</source>
-                        <target xml:lang="es">email-sms-french</target>
-                    </trans-unit>
-                </group>
                 <group id="email" resname="email">
-                    <trans-unit id="subject" resname="subject">
-                        <source xml:lang="en">email-subject-english</source>
-                        <target xml:lang="es">email-subject-french</target>
-                    </trans-unit>
                     <group id="content" resname="content">
                         <trans-unit id="body" resname="body">
                             <source xml:lang="en">email-body-english</source>
                             <target xml:lang="es">email-body-french</target>
                         </trans-unit>
                     </group>
+                    <trans-unit id="subject" resname="subject">
+                        <source xml:lang="en">email-subject-english</source>
+                        <target xml:lang="es">email-subject-french</target>
+                    </trans-unit>
+                </group>
+                <group id="sms" resname="sms">
+                    <trans-unit id="message" resname="message">
+                        <source xml:lang="en">email-sms-english</source>
+                        <target xml:lang="es">email-sms-french</target>
+                    </trans-unit>
                 </group>
             </group>
         </body>

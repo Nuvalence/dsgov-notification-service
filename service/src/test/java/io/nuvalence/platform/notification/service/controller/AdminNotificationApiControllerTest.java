@@ -225,7 +225,9 @@ class AdminNotificationApiControllerTest {
 
         String content =
                 StreamUtils.copyToString(
-                        getClass().getClassLoader().getResourceAsStream("xliff/xliffPutTester.xlf"),
+                        Thread.currentThread()
+                                .getContextClassLoader()
+                                .getResourceAsStream("xliff/xliffPutTester.xlf"),
                         StandardCharsets.UTF_8);
 
         List<MessageTemplate> allTemplates = templateRepository.findAll();
@@ -264,6 +266,7 @@ class AdminNotificationApiControllerTest {
             int existingTemplates,
             boolean targetPresentButEmpty)
             throws Exception {
+
         // validate entire response data based on database existing templates
         XmlUtils.xmlValidateAndMinify(responseString);
 

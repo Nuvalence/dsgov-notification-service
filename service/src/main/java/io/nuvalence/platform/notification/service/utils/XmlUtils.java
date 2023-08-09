@@ -36,11 +36,10 @@ public class XmlUtils {
         saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
-        var reader = new StringReader(xmlString);
-        Document xmlDoc = saxBuilder.build(reader);
-        reader.close();
-
-        return new XMLOutputter(Format.getCompactFormat()).outputString(xmlDoc);
+        try (var reader = new StringReader(xmlString)) {
+            Document xmlDoc = saxBuilder.build(reader);
+            return new XMLOutputter(Format.getCompactFormat()).outputString(xmlDoc);
+        }
     }
 
     /**
@@ -60,10 +59,9 @@ public class XmlUtils {
         saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
-        var reader = new StringReader(xmlString);
-        Document xmlDoc = saxBuilder.build(reader);
-        reader.close();
-
-        return xmlDoc;
+        try (var reader = new StringReader(xmlString)) {
+            Document xmlDoc = saxBuilder.build(reader);
+            return xmlDoc;
+        }
     }
 }

@@ -253,7 +253,8 @@ public class LocalizationService {
 
             XmlUtils.xmlValidateAndMinify(xliffFileString);
 
-            ByteArrayInputStream stream = new ByteArrayInputStream(xliffFileString.getBytes());
+            ByteArrayInputStream stream =
+                    new ByteArrayInputStream(xliffFileString.getBytes(StandardCharsets.UTF_8));
 
             var document =
                     new RawDocument(
@@ -341,7 +342,7 @@ public class LocalizationService {
     private void parseXliffMessageFormats(
             XLIFFFilter filter, Event event, MessageTemplate messageTemplate) {
 
-        String formatName = getGroupName(event).toLowerCase();
+        String formatName = getGroupName(event).toLowerCase(Locale.ENGLISH);
         switch (formatName) {
             case "sms":
                 parseXliffSmsFormat(filter, messageTemplate);
@@ -389,7 +390,7 @@ public class LocalizationService {
     private void parseEmailContents(
             XLIFFFilter filter, Event subEvent, MessageTemplate messageTemplate) {
 
-        String emailSubGroupName = getGroupName(subEvent).toLowerCase();
+        String emailSubGroupName = getGroupName(subEvent).toLowerCase(Locale.ENGLISH);
 
         if (!emailSubGroupName.equals("content")) {
             unsupportedXliffStructure();
