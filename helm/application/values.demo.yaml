@@ -70,3 +70,7 @@ env:
   TOKEN_PRIVATE_KEY_SECRET: "dsgov-self-signed-token-private-key"
   TOKEN_ISSUER: "dsgov"
   TOKEN_PRIVATE_KEY_VERSION: "latest"
+  SEND_GRID_EMAIL_CONTENT_TYPE: "text/html"
+  SEND_GRID_EMAIL_ENDPOINT: "mail/send"
+  SEND_GRID_API_KEY: "${sm://projects/dsgov-dev/secrets/dsgov-dev-send-grid-api-key/versions/latest}"
+  SEND_GRID_SENDER: "${sm://projects/dsgov-dev/secrets/dsgov-dev-send-grid-sender-email/versions/latest}"

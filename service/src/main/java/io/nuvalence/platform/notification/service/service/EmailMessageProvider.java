@@ -14,6 +14,7 @@ import io.nuvalence.platform.notification.usermanagent.client.generated.models.U
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class EmailMessageProvider implements SendMessageProvider {
     }
 
     @Override
-    public void sendMessage(UserDTO user, Message message, MessageTemplate template) {
+    public void sendMessage(UserDTO user, Message message, MessageTemplate template) throws IOException {
         UserPreferenceDTO userPreferences = user.getPreferences();
 
         Optional<EmailLayout> emailLayout =

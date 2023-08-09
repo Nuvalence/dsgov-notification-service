@@ -4,6 +4,8 @@ import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 
+import java.io.IOException;
+
 /**
  * Interface for sending messages.
  */
@@ -16,7 +18,7 @@ public interface SendMessageProvider {
      * @param message  message
      * @param template template
      */
-    void sendMessage(UserDTO user, Message message, MessageTemplate template);
+    void sendMessage(UserDTO user, Message message, MessageTemplate template) throws IOException;
 
     /**
      * Get the supported method.

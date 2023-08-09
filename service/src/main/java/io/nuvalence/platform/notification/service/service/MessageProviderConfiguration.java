@@ -18,7 +18,7 @@ public class MessageProviderConfiguration {
      */
     @Bean
     public EmailProvider emailMessageProvider() {
-        return new LoggingStubEmailProvider();
+        return new SendGridEmailProvider();
     }
 
     /**

@@ -48,6 +48,7 @@ dependencies {
 	implementation 'org.springframework.integration:spring-integration-core'
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-pubsub:3.5.4'
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-secretmanager:3.5.4'
+	implementation 'com.sendgrid:sendgrid-java:4.4.1'
 
 	implementation 'io.hypersistence:hypersistence-utils-hibernate-55:3.5.0'
 
