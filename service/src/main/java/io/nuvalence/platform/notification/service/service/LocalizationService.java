@@ -60,7 +60,7 @@ public class LocalizationService {
         validateLocaleTag(defaultLocale);
     }
 
-    // TODO REMOVE THIS CLASS FROM HERE
+    // TODO REMOVE THIS METHOD FROM HERE
     /**
     * <p>
     * Verifies the string represents a valid XML file.
@@ -273,7 +273,7 @@ public class LocalizationService {
      * Those not matching are ignored, sine this method is not intended to create new message
      * templates, but rather add language data to existing ones.
      * @param xliffFileString the XLIFF file with language support data to parse
-     * @return a pair with the target locale and the list of message templates updated
+     * @return a pair with the target locale and the list of message templates updated but pending to be persisted
      */
     public Pair<String, List<MessageTemplate>> parseXliffToExistingMsgTemplates(
             String xliffFileString) {
@@ -294,6 +294,8 @@ public class LocalizationService {
             filter.open(document);
 
             var documentPartFound = false;
+            String targetLocale = null;
+            List<MessageTemplate> updatedTemplatesToPersist = new ArrayList<>();
             while (filter.hasNext()) {
                 Event event = filter.next();
                 switch (event.getEventType()) {
@@ -304,7 +306,7 @@ public class LocalizationService {
                                             + " localization data");
                         }
                         documentPartFound = true;
-                        var targetLocale = filter.getCurrentTargetLocale().toString();
+                        targetLocale = filter.getCurrentTargetLocale().toBCP47();
 
                         if (targetLocale.equals("und")) {
                             throw new BadDataException("Target locale is not defined");
@@ -315,7 +317,11 @@ public class LocalizationService {
                         break;
 
                     case START_GROUP:
-                        parseXliffMainGroup(filter, event);
+                        var template = parseXliffMainGroup(filter, event, targetLocale);
+                        if (template != null) {
+                            updatedTemplatesToPersist.add(template);
+                        }
+
                         break;
 
                     default:
@@ -323,17 +329,21 @@ public class LocalizationService {
                 }
             }
 
+            return Pair.of(targetLocale, updatedTemplatesToPersist);
+
         } catch (Exception e) {
             throw new BadDataException(
                     "Error parsing provided localization data. No data was saved. "
                             + e.getMessage());
         }
-
-        // TODO return the right objects
-        return null;
     }
 
-    private void parseXliffMainGroup(XLIFFFilter filter, Event event) {
+    private MessageTemplate parseXliffMainGroup(
+            XLIFFFilter filter, Event event, String targetLocale) {
+
+        if (targetLocale == null) {
+            throw new BadDataException("Target locale was not found in the provided XLIFF file");
+        }
 
         String groupName = getGroupName(event);
         var messageTemplate =
@@ -349,6 +359,8 @@ public class LocalizationService {
             default:
                 unsupportedXliffStructure();
         }
+
+        return messageTemplate;
     }
 
     /**
@@ -429,6 +441,10 @@ public class LocalizationService {
                                 .orElse(null);
 
                 if (formatContents != null) {
+
+                    formatContents = formatContentsDeduplicate(formatContents);
+                    messageTemplate.getEmailFormat().setEmailFormatContents(formatContents);
+
                     formatContents.stream()
                             .filter(
                                     formatContent ->

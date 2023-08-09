@@ -21,7 +21,6 @@ import io.nuvalence.platform.notification.service.service.TemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -167,7 +166,16 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
         if (!authorizationHandler.isAllowed("create", MessageTemplate.class)) {
             throw new ForbiddenException();
         }
-        localizationService.parseXliffToExistingMsgTemplates(xliffFileString);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+
+        var localeAndTemplatesToPersist =
+                localizationService.parseXliffToExistingMsgTemplates(xliffFileString);
+
+        var locale = localeAndTemplatesToPersist.getFirst();
+        var templatesToPersist = localeAndTemplatesToPersist.getSecond();
+
+        templatesToPersist.forEach(
+                template -> templateService.createOrUpdateTemplate(template.getKey(), template));
+
+        return ResponseEntity.ok(localizationService.getLocalizationData(locale));
     }
 }
