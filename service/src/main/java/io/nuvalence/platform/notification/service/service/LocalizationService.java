@@ -361,9 +361,13 @@ public class LocalizationService {
         switch (formatName) {
             case "sms":
                 parseXliffSmsFormat(filter, messageTemplate);
+                filter.next();
+                parseXliffEmailFormat(filter, messageTemplate);
                 break;
             case "email":
                 parseXliffEmailFormat(filter, messageTemplate);
+                filter.next();
+                parseXliffSmsFormat(filter, messageTemplate);
                 break;
             default:
                 unsupportedXliffStructure();
@@ -378,18 +382,12 @@ public class LocalizationService {
             case TEXT_UNIT:
                 parseEmailSubject(filter, subEvent, messageTemplate);
                 subEvent = filter.next();
-                if (!subEvent.isStartGroup()) {
-                    unsupportedXliffStructure();
-                }
                 parseEmailContents(filter, subEvent, messageTemplate);
                 break;
 
             case START_GROUP:
                 parseEmailContents(filter, subEvent, messageTemplate);
                 subEvent = filter.next();
-                if (!subEvent.isTextUnit()) {
-                    unsupportedXliffStructure();
-                }
                 parseEmailSubject(filter, subEvent, messageTemplate);
                 break;
 
@@ -399,10 +397,6 @@ public class LocalizationService {
         subEvent = filter.next();
         if (!subEvent.isEndGroup()) {
             unsupportedXliffStructure();
-        }
-        var nextEvent = filter.next();
-        if (nextEvent.isStartGroup()) {
-            parseXliffMessageFormat(filter, nextEvent, messageTemplate);
         }
     }
 
@@ -513,10 +507,6 @@ public class LocalizationService {
 
             default:
                 unsupportedXliffStructure();
-        }
-        var nextEvent = filter.next();
-        if (nextEvent.isStartGroup()) {
-            parseXliffMessageFormat(filter, nextEvent, messageTemplate);
         }
     }
 

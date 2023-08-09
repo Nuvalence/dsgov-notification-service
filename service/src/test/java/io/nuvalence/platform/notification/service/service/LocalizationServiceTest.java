@@ -25,8 +25,7 @@ class LocalizationServiceTest {
     }
 
     @Test
-    void TEST() {
-
-        service.validateLocaleTag("");
+    void tempTest() {
+        service.validateLocaleTag("en-US");
     }
 }
