@@ -105,6 +105,11 @@ public class LocalizationService {
         }
     }
 
+    /**
+     * Returns the localization data for a given locale tag.
+     * @param localeTag an IETF BCP 47 locale tag to be used as target locale
+     * @return a valid XLIFF string with the localization data
+     */
     public String getLocalizationData(String localeTag) {
 
         validateLocaleTag(localeTag);
@@ -156,6 +161,7 @@ public class LocalizationService {
 
     private void writeEmailGroup(
             XLIFFWriter writer, MessageTemplate template, LocaleId targetLocale) {
+
         String emailResname = "email";
         var group = new StartGroup(null, emailResname);
         group.setName(emailResname);
@@ -261,7 +267,16 @@ public class LocalizationService {
         writer.writeTextUnit(tu);
     }
 
-    public void parseXliffToExistingMsgTemplates(String xliffFileString) {
+    /**
+     * Parses the provided XLIFF file and updates the existing message templates for all the 
+     * matching configurations.
+     * Those not matching are ignored, sine this method is not intended to create new message
+     * templates, but rather add language data to existing ones.
+     * @param xliffFileString the XLIFF file with language support data to parse
+     * @return a pair with the target locale and the list of message templates updated
+     */
+    public Pair<String, List<MessageTemplate>> parseXliffToExistingMsgTemplates(
+            String xliffFileString) {
 
         try (XLIFFFilter filter = new XLIFFFilter()) {
 
@@ -313,6 +328,9 @@ public class LocalizationService {
                     "Error parsing provided localization data. No data was saved. "
                             + e.getMessage());
         }
+
+        // TODO return the right objects
+        return null;
     }
 
     private void parseXliffMainGroup(XLIFFFilter filter, Event event) {
@@ -331,26 +349,6 @@ public class LocalizationService {
             default:
                 unsupportedXliffStructure();
         }
-    }
-
-    /** Throws a very common XLIFF structure validation exception. */
-    private void unsupportedXliffStructure() {
-        throw new BadDataException(
-                "Unsupported XLIFF structure. Please get a new XLIFF file from this API to"
-                        + " get the proper format.");
-    }
-
-    /**
-     * Get the group resname of an event previously checked as a START_GROUP.
-     */
-    private String getGroupName(Event event) {
-        StartGroup group = event.getStartGroup();
-        if (group.getName() == null) {
-            throw new BadDataException(
-                    "There is at least one group missing the resname attribute needed for "
-                            + " message template mapping");
-        }
-        return group.getName().trim();
     }
 
     /**
@@ -378,21 +376,21 @@ public class LocalizationService {
             case END_GROUP:
                 break;
             case TEXT_UNIT:
-                tempParseEmailSubject(filter, subEvent, messageTemplate);
+                parseEmailSubject(filter, subEvent, messageTemplate);
                 subEvent = filter.next();
                 if (!subEvent.isStartGroup()) {
                     unsupportedXliffStructure();
                 }
-                tempParseEmailContents(filter, subEvent, messageTemplate);
+                parseEmailContents(filter, subEvent, messageTemplate);
                 break;
 
             case START_GROUP:
-                tempParseEmailContents(filter, subEvent, messageTemplate);
+                parseEmailContents(filter, subEvent, messageTemplate);
                 subEvent = filter.next();
                 if (!subEvent.isTextUnit()) {
                     unsupportedXliffStructure();
                 }
-                tempParseEmailSubject(filter, subEvent, messageTemplate);
+                parseEmailSubject(filter, subEvent, messageTemplate);
                 break;
 
             default:
@@ -408,7 +406,7 @@ public class LocalizationService {
         }
     }
 
-    private void tempParseEmailContents(
+    private void parseEmailContents(
             XLIFFFilter filter, Event subEvent, MessageTemplate messageTemplate) {
 
         String emailSubGroupName = getGroupName(subEvent).toLowerCase();
@@ -417,8 +415,10 @@ public class LocalizationService {
             unsupportedXliffStructure();
         }
 
-        var contentTypeEvent = filter.next();
-        while (contentTypeEvent.getEventType() != EventType.END_GROUP) {
+        for (var contentTypeEvent = filter.next();
+                contentTypeEvent.getEventType() != EventType.END_GROUP;
+                contentTypeEvent = filter.next()) {
+
             if (contentTypeEvent.getEventType() != EventType.TEXT_UNIT) {
                 unsupportedXliffStructure();
             }
@@ -461,11 +461,10 @@ public class LocalizationService {
                                     });
                 }
             }
-            contentTypeEvent = filter.next();
         }
     }
 
-    private void tempParseEmailSubject(
+    private void parseEmailSubject(
             XLIFFFilter filter, Event subEvent, MessageTemplate messageTemplate) {
 
         var nameAndData = readTextUnitData(filter, subEvent);
@@ -482,19 +481,6 @@ public class LocalizationService {
 
             addDataToLangStrings(
                     langStrings, filter.getCurrentTargetLocale(), nameAndData.getSecond());
-        }
-    }
-
-    private void addDataToLangStrings(
-            List<LocalizedStringTemplateLanguage> langStrings,
-            LocaleId targetLocaleId,
-            String data) {
-        if (langStrings != null) {
-            langStrings.add(
-                    LocalizedStringTemplateLanguage.builder()
-                            .language(targetLocaleId.toBCP47())
-                            .template(data)
-                            .build());
         }
     }
 
@@ -534,6 +520,42 @@ public class LocalizationService {
         }
     }
 
+    private void addDataToLangStrings(
+            List<LocalizedStringTemplateLanguage> langStrings,
+            LocaleId targetLocaleId,
+            String data) {
+        if (langStrings != null) {
+            langStrings.add(
+                    LocalizedStringTemplateLanguage.builder()
+                            .language(targetLocaleId.toBCP47())
+                            .template(data)
+                            .build());
+        }
+    }
+
+    /** Throws a common XLIFF structure validation exception. */
+    private void unsupportedXliffStructure() {
+        throw new BadDataException(
+                "Unsupported XLIFF structure. Please get a new XLIFF file from this API to"
+                        + " get the proper format.");
+    }
+
+    /**
+     * Get the group resname of an event previously checked as a START_GROUP.
+     */
+    private String getGroupName(Event event) {
+        StartGroup group = event.getStartGroup();
+        if (group.getName() == null) {
+            throw new BadDataException(
+                    "There is at least one group missing the resname attribute needed for "
+                            + " message template mapping");
+        }
+        return group.getName().trim();
+    }
+
+    /**
+     * Get the resname and target data of an event previously checked as a TEXT_UNIT.
+     */
     private Pair<String, String> readTextUnitData(XLIFFFilter filter, Event event) {
         ITextUnit tu = event.getTextUnit();
         if (tu.getName() == null) {
