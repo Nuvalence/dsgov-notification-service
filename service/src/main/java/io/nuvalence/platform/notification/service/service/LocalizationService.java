@@ -375,12 +375,23 @@ public class LocalizationService {
                 break;
             case TEXT_UNIT:
                 tempParseEmailSubject(filter, subEvent, messageTemplate);
+                subEvent = filter.next();
+                if (!subEvent.isStartGroup()) {
+                    throw new BadDataException(
+                            "Unsupported XLIFF structure. Please get a new XLIFF file from this"
+                                    + " API to get the proper format.");
+                }
                 tempParseEmailContents(filter, subEvent, messageTemplate);
-
                 break;
 
             case START_GROUP:
                 tempParseEmailContents(filter, subEvent, messageTemplate);
+                subEvent = filter.next();
+                if (!subEvent.isTextUnit()) {
+                    throw new BadDataException(
+                            "Unsupported XLIFF structure. Please get a new XLIFF file from this"
+                                    + " API to get the proper format.");
+                }
                 tempParseEmailSubject(filter, subEvent, messageTemplate);
                 break;
 
@@ -388,6 +399,12 @@ public class LocalizationService {
                 throw new BadDataException(
                         "Unsupported XLIFF structure. Please get a new XLIFF file from this API to"
                                 + " get the proper format.");
+        }
+        subEvent = filter.next();
+        if (!subEvent.isEndGroup()) {
+            throw new BadDataException(
+                    "Unsupported XLIFF structure. Please get a new XLIFF file from this"
+                            + " API to get the proper format.");
         }
         var nextEvent = filter.next();
         if (nextEvent.isStartGroup()) {
@@ -466,6 +483,7 @@ public class LocalizationService {
                                     });
                 }
             }
+            contentTypeEvent = filter.next();
         }
     }
 
