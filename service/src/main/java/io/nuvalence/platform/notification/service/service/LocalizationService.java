@@ -329,6 +329,7 @@ public class LocalizationService {
                 break;
             default:
                 unsupportedXliffStructure();
+                break;
         }
 
         return messageTemplate;
@@ -354,6 +355,7 @@ public class LocalizationService {
                 break;
             default:
                 unsupportedXliffStructure();
+                break;
         }
     }
 
@@ -376,6 +378,7 @@ public class LocalizationService {
 
             default:
                 unsupportedXliffStructure();
+                break;
         }
         subEvent = filter.next();
         if (!subEvent.isEndGroup()) {
@@ -494,6 +497,7 @@ public class LocalizationService {
 
             default:
                 unsupportedXliffStructure();
+                break;
         }
     }
 
