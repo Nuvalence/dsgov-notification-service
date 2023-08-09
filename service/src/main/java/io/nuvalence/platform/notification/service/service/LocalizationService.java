@@ -531,11 +531,26 @@ public class LocalizationService {
             LocaleId targetLocaleId,
             String data) {
         if (langStrings != null) {
-            langStrings.add(
-                    LocalizedStringTemplateLanguage.builder()
-                            .language(targetLocaleId.toBCP47())
-                            .template(data)
-                            .build());
+            Optional<LocalizedStringTemplateLanguage> existingLangString =
+                    langStrings.stream()
+                            .filter(
+                                    langString ->
+                                            langString
+                                                    .getLanguage()
+                                                    .equals(targetLocaleId.toBCP47()))
+                            .findFirst();
+
+            if (existingLangString.isPresent()) {
+                existingLangString.get().setTemplate(data);
+            } else {
+                langStrings.add(
+                        LocalizedStringTemplateLanguage.builder()
+                                .language(targetLocaleId.toBCP47())
+                                .template(data)
+                                .localizedStringTemplate(
+                                        langStrings.get(0).getLocalizedStringTemplate())
+                                .build());
+            }
         }
     }
 
