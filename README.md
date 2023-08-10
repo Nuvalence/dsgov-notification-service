@@ -102,6 +102,11 @@ Here are the key configuration parameters for the application:
 - zipStoreBase=`<zip-store-base>`
 - zipStorePath=`<zip-store-path>`
 
+
+## Localization support
+This service allows localization configuration using XLIFF 1.2. \
+You can get the needed template, by calling the API to GET any valid IETF language tag or locale, it will return the existing translations for that language, or a structured template to use in a translation tool with the source language and blank target language values. So it can be used to add new languages or update existing ones, or verifying the level of coverage and adding translations to new message templates.
+
 ## Contributors
 
 The Nuvalence Work Manager was originally a private project with contributions from:
