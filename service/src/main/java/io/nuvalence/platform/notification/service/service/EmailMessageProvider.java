@@ -45,7 +45,8 @@ public class EmailMessageProvider implements SendMessageProvider {
     }
 
     @Override
-    public void sendMessage(UserDTO user, Message message, MessageTemplate template) throws IOException {
+    public void sendMessage(UserDTO user, Message message, MessageTemplate template)
+            throws IOException {
         UserPreferenceDTO userPreferences = user.getPreferences();
 
         Optional<EmailLayout> emailLayout =

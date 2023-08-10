@@ -7,11 +7,12 @@ import java.io.IOException;
  */
 public interface EmailProvider {
 
-    /** Send an email.
-     *
-     * @param to      recipient
-     * @param subject subject
-     * @param body    body
+    /**
+     * Sends an email.
+     * @param to recipient.
+     * @param subject email subject.
+     * @param body email body.
+     * @throws IOException possibly thrown by apis.
      */
     void sendEmail(String to, String subject, String body) throws IOException;
 }

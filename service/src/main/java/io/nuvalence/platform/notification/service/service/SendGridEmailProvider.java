@@ -1,8 +1,12 @@
 package io.nuvalence.platform.notification.service.service;
 
-import com.sendgrid.*;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.*;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,13 +20,27 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class SendGridEmailProvider implements EmailProvider {
 
-    @Value("${sendgrid.contentType}") String contentType;
-    @Value("${sendgrid.sendEmailEndpoint}") String sendEndpoint;
-    @Value("${sendgrid.apiKey}") String sendGridApiKey;
-    @Value("${sendgrid.from}") String from;
+    @Value("${sendgrid.contentType}")
+    String contentType;
+
+    @Value("${sendgrid.sendEmailEndpoint}")
+    String sendEndpoint;
+
+    @Value("${sendgrid.apiKey}")
+    String sendGridApiKey;
+
+    @Value("${sendgrid.from}")
+    String from;
 
     private final SendGrid sg;
 
+    /**
+     * Sends an email via SendGrid.
+     * @param to      recipient of the email.
+     * @param subject subject for the email.
+     * @param body    body for the email.
+     * @throws IOException possibly thrown by api.
+     */
     public void sendEmail(String to, String subject, String body) throws IOException {
         Email sender = new Email(from);
         Email receiver = new Email(to);

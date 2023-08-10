@@ -1,6 +1,10 @@
 package io.nuvalence.platform.notification.service.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +29,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,12 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-
-import ch.qos.logback.classic.Logger;
-import org.slf4j.LoggerFactory;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -66,12 +65,12 @@ class NotificationProcessingSubscriberTest {
 
     @MockBean private UserManagementClientService userManagementClientService;
 
-    @MockBean
-    private SendGrid sendGrid;
+    @MockBean private SendGrid sendGrid;
 
     private MessageTemplate createdTemplate;
 
     private ListAppender<ILoggingEvent> logWatcher;
+
     @BeforeAll
     void setUp() {
         final String emailLayoutKeykey = "emailLayoutKey";
@@ -290,7 +289,8 @@ class NotificationProcessingSubscriberTest {
 
         logWatcher = new ListAppender<>();
         logWatcher.start();
-        Logger sendGridEmailEmailProvider = ((Logger) LoggerFactory.getLogger(SendGridEmailProvider.class));
+        Logger sendGridEmailEmailProvider =
+                ((Logger) LoggerFactory.getLogger(SendGridEmailProvider.class));
         sendGridEmailEmailProvider.setLevel(Level.TRACE);
         sendGridEmailEmailProvider.addAppender(logWatcher);
     }

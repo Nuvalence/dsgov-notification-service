@@ -1,5 +1,9 @@
 package io.nuvalence.platform.notification.service.service;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
@@ -11,16 +15,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class SendGridEmailProviderTest {
 
-    @Mock
-    private SendGrid sendGrid;
+    @Mock private SendGrid sendGrid;
 
-    @Mock
-    private Response response;
+    @Mock private Response response;
 
     private SendGridEmailProvider emailProvider;
 

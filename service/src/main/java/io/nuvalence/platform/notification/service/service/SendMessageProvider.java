@@ -17,6 +17,7 @@ public interface SendMessageProvider {
      * @param user     user
      * @param message  message
      * @param template template
+     * @throws IOException possibly thrown by apis.
      */
     void sendMessage(UserDTO user, Message message, MessageTemplate template) throws IOException;
 

@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration beans for SendGrid connection.
+ */
 @Configuration
 public class SendGridConfiguration {
     @Value("${sendgrid.apiKey}")
@@ -14,5 +17,4 @@ public class SendGridConfiguration {
     public SendGrid sendGrid() {
         return new SendGrid(sendGridApiKey);
     }
-
 }
