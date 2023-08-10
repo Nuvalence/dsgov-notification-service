@@ -71,7 +71,7 @@ Here are the key configuration parameters for the application:
 - readinessProbe.path: `<k8s-readiness-probe-path>`
 
 #### Environment Variables
-- ENABLE_PUB_SUB: `<bool>`
+- PUBSUB_ENABLED: `<bool>`
 - PUB_SUB_TOPIC: `<pubsub-topic-name>`
 - PUB_SUB_TOPIC_SUBSCRIPTION: `<pubsub-topic-subscription-name>`
 - ALLOWED_ORIGINS: `<allowed-origins>`
