@@ -37,6 +37,9 @@ twilio:
   authToken: ${TWILIO_AUTH_TOKEN}
   phoneNumber: ${TWILIO_PHONE_NUMBER}
 
+localization:
+  default-locale: en-US
+
 management:
   endpoints:
     web:

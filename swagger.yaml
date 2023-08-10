@@ -274,6 +274,46 @@ paths:
                 $ref: "#/components/schemas/MessageResponseModel"
         "404":
           description: Message not found
+  /admin/localization-data:
+    get: 
+      summary: Get localization data
+      operationId: getLocalizationData
+      tags:
+        - admin-notification
+      parameters:
+        - in: query
+          name: locale
+          required: true
+          description: Locale tag in IETF format
+          schema:
+            type: string
+            example: en-US
+      responses:
+        '200':
+          description: XLIFF document
+          content:
+            application/xml:
+              schema:
+                type: string
+    put:
+      summary: Update or add new localization data to existing configuration.
+      operationId: createOrUpdateLocalizationData
+      tags:
+        - admin-notification
+      requestBody:
+        description: XLIFF document
+        required: true
+        content:
+            application/xml:
+              schema:
+                type: string
+      responses:
+        '201':
+          description: Created
+          content:
+            application/xml:
+              schema:
+                type: string
 components:
   schemas:
     EmailLayoutRequestModel:
@@ -510,3 +550,5 @@ components:
         sentTimestamp:
           type: string
           format: date-time
+
+              
