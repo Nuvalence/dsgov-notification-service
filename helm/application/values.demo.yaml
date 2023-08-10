@@ -64,7 +64,7 @@ env:
   SELF_SIGN_PUBLIC_KEY: "${sm://projects/dsgov-demo/secrets/dsgov-self-signed-token-public-key/versions/latest}"
   SELF_SIGN_PRIVATE_KEY: "${sm://projects/dsgov-demo/secrets/dsgov-self-signed-token-private-key/versions/latest}"
   USER_MANAGEMENT_BASE_URL: "http://dsgov-user-management/um"
-  ENABLE_PUB_SUB: "true"
+  PUBSUB_ENABLED: true
   PUB_SUB_TOPIC: "NOTIFICATION_MSG_QUEUE"
   PUB_SUB_TOPIC_SUBSCRIPTION: "NOTIFICATION_MSG_QUEUE_SUBSCRIPTION"
   TOKEN_PRIVATE_KEY_SECRET: "dsgov-self-signed-token-private-key"
