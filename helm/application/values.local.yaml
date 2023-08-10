@@ -83,3 +83,6 @@ env:
   PUBSUB_CREATE_TOPIC: true
   TOKEN_ISSUER: "dsgov"
   TOKEN_PRIVATE_KEY_VERSION: "latest"
+  TWILIO_ACCOUNT_SID: "${sm://projects/dsgov-dev/secrets/dsgov-twilio-account-sid/versions/latest}"
+  TWILIO_AUTH_TOKEN: "${sm://projects/dsgov-dev/secrets/dsgov-twilio-auth-token/versions/latest}"
+  TWILIO_PHONE_NUMBER: "${sm://projects/dsgov-dev/secrets/dsgov-twilio-sender-number/versions/latest}"

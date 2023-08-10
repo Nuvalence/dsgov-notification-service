@@ -71,3 +71,9 @@ userManagement:
 
 cerbos:
   uri: 127.0.0.1:3592
+
+twilio:
+  accountSID: "accountSID"
+  authToken: "authToken"
+  phoneNumber: "phoneNumber
+  "
