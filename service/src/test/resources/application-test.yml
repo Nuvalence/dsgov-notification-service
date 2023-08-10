@@ -71,3 +71,9 @@ userManagement:
 
 cerbos:
   uri: 127.0.0.1:3592
+
+sendgrid:
+  contentType: "text/html"
+  sendEmailEndpoint: "mail/send"
+  apiKey: "apiKey"
+  from: "send@test.com"
