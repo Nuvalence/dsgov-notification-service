@@ -20,7 +20,8 @@ public class MessageBuilderUtils {
     }
 
     /**
-     * Get the localized template for a given language.
+     * Get the localized template for a given language.If there is not a direct match,
+     * the non-country-specific language is obtained, following BCP 47 standard for language tags.
      *
      * @param localizedStringTemplate localized string template
      * @param language                language
@@ -28,11 +29,29 @@ public class MessageBuilderUtils {
      */
     public static Optional<LocalizedStringTemplateLanguage> getLocalizedTemplate(
             LocalizedStringTemplate localizedStringTemplate, String language) {
-        return localizedStringTemplate.getLocalizedTemplateStrings().stream()
-                .filter(
-                        localizedTemplateString ->
-                                localizedTemplateString.getLanguage().equals(language))
-                .findFirst();
+
+        String languagePart = language.contains("-") ? language.split("-")[0] : language;
+
+        Optional<LocalizedStringTemplateLanguage> result =
+                localizedStringTemplate.getLocalizedTemplateStrings().stream()
+                        .filter(
+                                localizedTemplateString ->
+                                        localizedTemplateString.getLanguage().equals(language))
+                        .findFirst();
+
+        if (!result.isPresent()) {
+            result =
+                    localizedStringTemplate.getLocalizedTemplateStrings().stream()
+                            .filter(
+                                    localizedTemplateString ->
+                                            localizedTemplateString
+                                                    .getLanguage()
+                                                    .split("-")[0]
+                                                    .equals(languagePart))
+                            .findFirst();
+        }
+
+        return result;
     }
 
     /**
