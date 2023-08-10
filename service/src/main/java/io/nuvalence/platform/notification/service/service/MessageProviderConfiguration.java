@@ -11,6 +11,12 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Configuration
 public class MessageProviderConfiguration {
+
+    /**
+     * Create a message provider for email.
+     * @param sendGrid api.
+     * @return SendGridEmailProvider object.
+     */
     @Bean
     public EmailProvider emailMessageProvider(SendGrid sendGrid) {
         return new SendGridEmailProvider(sendGrid);
