@@ -3,6 +3,7 @@ package io.nuvalence.platform.notification.service.service;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -12,6 +13,7 @@ import java.io.IOException;
  * Concrete implementation of email provider.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class SendGridEmailProvider implements EmailProvider {
 
     @Value("${sendgrid.contentType}") String contentType;
@@ -19,10 +21,9 @@ public class SendGridEmailProvider implements EmailProvider {
     @Value("${sendgrid.apiKey}") String sendGridApiKey;
     @Value("${sendgrid.from}") String from;
 
+    private final SendGrid sg;
 
     public void sendEmail(String to, String subject, String body) throws IOException {
-        log.info("Sending email to {} with subject {} and message {}", to, subject, body);
-
         Email sender = new Email(from);
         Email receiver = new Email(to);
 
@@ -30,7 +31,6 @@ public class SendGridEmailProvider implements EmailProvider {
 
         Mail mail = new Mail(sender, subject, receiver, content);
 
-        SendGrid sg = new SendGrid(sendGridApiKey);
         Request request = new Request();
 
         request.setMethod(Method.POST);
@@ -39,8 +39,6 @@ public class SendGridEmailProvider implements EmailProvider {
 
         Response response = sg.api(request);
 
-        System.out.println(response.getStatusCode());
-        System.out.println(response.getHeaders());
-        System.out.println(response.getBody());
+        log.trace("Email sent to {} with status code {}", to, response.getStatusCode());
     }
 }
