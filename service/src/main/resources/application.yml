@@ -32,9 +32,13 @@ spring:
         enableTopicCreation: ${PUBSUB_CREATE_TOPIC}
         emulator-host: ${PUBSUB_EMULATOR_HOST:false}
 
+twilio:
+  accountSID: ${TWILIO_ACCOUNT_SID}
+  authToken: ${TWILIO_AUTH_TOKEN}
+  phoneNumber: ${TWILIO_PHONE_NUMBER}
+
 localization:
   default-locale: en-US
-
 
 management:
   endpoints:

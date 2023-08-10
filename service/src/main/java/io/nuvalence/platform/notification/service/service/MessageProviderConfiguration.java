@@ -29,6 +29,6 @@ public class MessageProviderConfiguration {
      */
     @Bean
     public SmsProvider smsMessageProvider() {
-        return new LoggingStubSmsProvider();
+        return new TwilioSmsProvider();
     }
 }
