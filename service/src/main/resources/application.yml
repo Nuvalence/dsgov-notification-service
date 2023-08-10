@@ -32,6 +32,9 @@ spring:
         enableTopicCreation: ${PUBSUB_CREATE_TOPIC}
         emulator-host: ${PUBSUB_EMULATOR_HOST:false}
 
+localization:
+  default-locale: en-US
+
 
 management:
   endpoints:

@@ -1,7 +1,7 @@
 package io.nuvalence.platform.notification.service.exception;
 
 /**
- * Exception thrown when a resource is not found.
+ * Exception thrown when processing data is not valid.
  */
 public class BadDataException extends RuntimeException {
     private static final long serialVersionUID = -9036738998540806492L;

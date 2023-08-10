@@ -2,6 +2,7 @@ package io.nuvalence.platform.notification.service.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -11,12 +12,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nuvalence.auth.access.AuthorizationHandler;
+import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.generated.models.EmailFormatModel;
 import io.nuvalence.platform.notification.service.generated.models.EmailLayoutRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.LocalizedTemplateModel;
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModelSmsFormat;
+import io.nuvalence.platform.notification.service.repository.MessageTemplateRepository;
+import io.nuvalence.platform.notification.service.utils.XmlUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +33,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.StreamUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +47,7 @@ import java.util.Map;
 class AdminNotificationApiControllerTest {
 
     @Autowired private MockMvc mockMvc;
+    @Autowired private MessageTemplateRepository templateRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -51,6 +59,11 @@ class AdminNotificationApiControllerTest {
         when(authorizationHandler.isAllowed(any(), (String) any())).thenReturn(true);
         when(authorizationHandler.isAllowedForInstance(any(), any())).thenReturn(true);
         when(authorizationHandler.getAuthFilter(any(), any())).thenReturn(element -> true);
+    }
+
+    @AfterEach
+    void tearDown() {
+        templateRepository.deleteAll();
     }
 
     @Test
@@ -81,6 +94,10 @@ class AdminNotificationApiControllerTest {
 
     @Test
     void testCreateTemplate() throws Exception {
+        reusableCreateTemplate();
+    }
+
+    private void reusableCreateTemplate() throws Exception {
         String emailLayoutKey = RandomStringUtils.randomAlphanumeric(10);
         createEmailLayout(emailLayoutKey);
 
@@ -158,5 +175,156 @@ class AdminNotificationApiControllerTest {
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.key", is(emailLayoutKey)))
                 .andReturn();
+    }
+
+    @Test
+    void testGetLocalizationDataForExistingLanguage() throws Exception {
+
+        reusableCreateTemplate();
+
+        String targetLanguage = "es";
+
+        var responseString =
+                mockMvc.perform(
+                                get("/api/v1/admin/localization-data/")
+                                        .param("locale", targetLanguage))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        verifyCompleteXliffResponse(responseString, targetLanguage, "spanish", 1, false);
+    }
+
+    @Test
+    void testGetLocalizationDataTemplateForNewLanguage() throws Exception {
+
+        reusableCreateTemplate();
+
+        String targetLanguage = "fr";
+
+        var responseString =
+                mockMvc.perform(
+                                get("/api/v1/admin/localization-data/")
+                                        .param("locale", targetLanguage))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        verifyCompleteXliffResponse(responseString, targetLanguage, "french", 1, true);
+    }
+
+    @Test
+    void testPutLocalizationDataSuccess() throws Exception {
+
+        reusableCreateTemplate();
+        reusableCreateTemplate();
+
+        String targetLanguage = "fr";
+
+        String content =
+                StreamUtils.copyToString(
+                        Thread.currentThread()
+                                .getContextClassLoader()
+                                .getResourceAsStream("xliff/xliffPutTester.xlf"),
+                        StandardCharsets.UTF_8);
+
+        List<MessageTemplate> allTemplates = templateRepository.findAll();
+        content = content.replaceAll("TO-BE-CHANGED-1", allTemplates.get(0).getKey().toString());
+        content = content.replaceAll("TO-BE-CHANGED-2", allTemplates.get(1).getKey().toString());
+
+        var responseString =
+                mockMvc.perform(
+                                put("/api/v1/admin/localization-data")
+                                        .contentType(MediaType.APPLICATION_XML)
+                                        .content(content))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        verifyCompleteXliffResponse(responseString, targetLanguage, "french", 2, false);
+    }
+
+    @Test
+    void testPutLocalizationBadData() throws Exception {
+
+        mockMvc.perform(
+                        put("/api/v1/admin/localization-data")
+                                .contentType(MediaType.APPLICATION_XML)
+                                .content(
+                                        "<?xml version=\"1.0\""
+                                                + " encoding=\"UTF-8\"?><root></root>"))
+                .andExpect(status().isBadRequest());
+    }
+
+    private void verifyCompleteXliffResponse(
+            String responseString,
+            String targeLanguage,
+            String extLangSuffix,
+            int existingTemplates,
+            boolean targetPresentButEmpty)
+            throws Exception {
+
+        // validate entire response data based on database existing templates
+        XmlUtils.xmlValidateAndMinify(responseString);
+
+        var xmlDoc = XmlUtils.getXmlDocument(responseString);
+
+        var root = xmlDoc.getRootElement();
+        assertEquals("xliff", root.getName());
+        assertEquals("1.2", root.getAttributeValue("version"));
+
+        var namespace = root.getNamespace();
+        assertEquals("urn:oasis:names:tc:xliff:document:1.2", namespace.getURI());
+
+        var file = root.getChild("file", namespace);
+        assertEquals("notification-service", file.getAttributeValue("original"));
+        assertEquals(targeLanguage, file.getAttributeValue("target-language"));
+
+        var mainGroups = file.getChild("body", namespace).getChildren("group", namespace);
+        assertEquals(existingTemplates, mainGroups.size());
+
+        for (var group : mainGroups) {
+            assert (!group.getAttributeValue("resname").isBlank());
+
+            var messageFormats = group.getChildren("group", namespace);
+            assertEquals(2, messageFormats.size());
+
+            var smsFormat = messageFormats.get(0);
+            assertEquals("sms", smsFormat.getAttributeValue("resname"));
+
+            var smsMessage = smsFormat.getChild("trans-unit", namespace);
+            assertEquals("message", smsMessage.getAttributeValue("resname"));
+            assertEquals("email-sms-english", smsMessage.getChild("source", namespace).getText());
+            assertEquals(
+                    targetPresentButEmpty ? "" : "email-sms-" + extLangSuffix,
+                    smsMessage.getChild("target", namespace).getText());
+
+            var emailFormat = messageFormats.get(1);
+            assertEquals("email", emailFormat.getAttributeValue("resname"));
+            var emailSubject = emailFormat.getChild("trans-unit", namespace);
+            assertEquals("subject", emailSubject.getAttributeValue("resname"));
+
+            assertEquals(
+                    "email-subject-english", emailSubject.getChild("source", namespace).getText());
+            assertEquals(
+                    targetPresentButEmpty ? "" : "email-subject-" + extLangSuffix,
+                    emailSubject.getChild("target", namespace).getText());
+
+            var emailContent = emailFormat.getChild("group", namespace);
+            assertEquals("content", emailContent.getAttributeValue("resname"));
+
+            var emailContentTranslation = emailContent.getChild("trans-unit", namespace);
+            assertEquals("body", emailContentTranslation.getAttributeValue("resname"));
+
+            assertEquals(
+                    "email-body-english",
+                    emailContentTranslation.getChild("source", namespace).getText());
+            assertEquals(
+                    targetPresentButEmpty ? "" : "email-body-" + extLangSuffix,
+                    emailContentTranslation.getChild("target", namespace).getText());
+        }
     }
 }
