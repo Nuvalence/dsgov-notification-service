@@ -64,12 +64,18 @@ env:
   SELF_SIGN_PUBLIC_KEY: "${sm://projects/dsgov-demo/secrets/dsgov-self-signed-token-public-key/versions/latest}"
   SELF_SIGN_PRIVATE_KEY: "${sm://projects/dsgov-demo/secrets/dsgov-self-signed-token-private-key/versions/latest}"
   USER_MANAGEMENT_BASE_URL: "http://dsgov-user-management/um"
-  ENABLE_PUB_SUB: "true"
   PUB_SUB_TOPIC: "NOTIFICATION_MSG_QUEUE"
   PUB_SUB_TOPIC_SUBSCRIPTION: "NOTIFICATION_MSG_QUEUE_SUBSCRIPTION"
+  PUBSUB_EMULATOR_HOST: false # set actual "host:port" to enable or false to disable
+  PUBSUB_ENABLED: true
+  PUBSUB_CREATE_TOPIC: false
   TOKEN_PRIVATE_KEY_SECRET: "dsgov-self-signed-token-private-key"
   TOKEN_ISSUER: "dsgov"
   TOKEN_PRIVATE_KEY_VERSION: "latest"
   TWILIO_ACCOUNT_SID: "${sm://projects/dsgov-dev/secrets/dsgov-twilio-account-sid/versions/latest}"
   TWILIO_AUTH_TOKEN: "${sm://projects/dsgov-dev/secrets/dsgov-twilio-auth-token/versions/latest}"
   TWILIO_PHONE_NUMBER: "${sm://projects/dsgov-dev/secrets/dsgov-twilio-sender-number/versions/latest}"
+  SEND_GRID_EMAIL_CONTENT_TYPE: "text/html"
+  SEND_GRID_EMAIL_ENDPOINT: "mail/send"
+  SEND_GRID_API_KEY: "${sm://projects/dsgov-dev/secrets/dsgov-dev-send-grid-api-key/versions/latest}"
+  SEND_GRID_SENDER: "${sm://projects/dsgov-dev/secrets/dsgov-dev-send-grid-sender-email/versions/latest}"

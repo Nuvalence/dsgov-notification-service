@@ -1,14 +1,21 @@
 package io.nuvalence.platform.notification.service.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;
 import io.nuvalence.platform.notification.service.domain.EmailFormat;
@@ -22,11 +29,13 @@ import io.nuvalence.platform.notification.service.service.usermanagementapi.User
 import io.nuvalence.platform.notification.usermanagent.client.ApiException;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +44,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,7 +71,11 @@ class NotificationProcessingSubscriberTest {
 
     @MockBean private UserManagementClientService userManagementClientService;
 
+    @MockBean private SendGrid sendGrid;
+
     private MessageTemplate createdTemplate;
+
+    private ListAppender<ILoggingEvent> logWatcher;
 
     @BeforeAll
     void setUp() {
@@ -278,6 +292,18 @@ class NotificationProcessingSubscriberTest {
                         .build();
 
         createdTemplate = templateService.createOrUpdateTemplate(templateKey, template);
+
+        logWatcher = new ListAppender<>();
+        logWatcher.start();
+        Logger sendGridEmailEmailProvider =
+                ((Logger) LoggerFactory.getLogger(SendGridEmailProvider.class));
+        sendGridEmailEmailProvider.setLevel(Level.TRACE);
+        sendGridEmailEmailProvider.addAppender(logWatcher);
+    }
+
+    @AfterEach
+    void teardown() {
+        ((Logger) LoggerFactory.getLogger(SendGridEmailProvider.class)).detachAndStopAllAppenders();
     }
 
     @Test
@@ -289,6 +315,7 @@ class NotificationProcessingSubscriberTest {
                 MessageBuilder.withPayload(generateJsonMessage(userId))
                         .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
                         .build();
+
         Mockito.when(userManagementClientService.getUser(Mockito.any()))
                 .thenReturn(createUser(userId, "en_US", "sms", false));
 
@@ -311,7 +338,7 @@ class NotificationProcessingSubscriberTest {
     }
 
     @Test
-    void testHandleMessage_email() throws JsonProcessingException, ApiException {
+    void testHandleMessage_email() throws IOException, ApiException {
         UUID userId = UUID.randomUUID();
         BasicAcknowledgeablePubsubMessage ack =
                 Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
@@ -319,10 +346,18 @@ class NotificationProcessingSubscriberTest {
                 MessageBuilder.withPayload(generateJsonMessage(userId))
                         .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
                         .build();
-        Mockito.when(userManagementClientService.getUser(Mockito.any()))
+        Mockito.when(userManagementClientService.getUser(any()))
                 .thenReturn(createUser(userId, "en", "email", false));
 
+        Response response = new Response();
+        Mockito.when(sendGrid.api(any())).thenReturn(response);
+
         service.handleMessage(message);
+
+        assertEquals(1, logWatcher.list.size());
+        ILoggingEvent logEvent = logWatcher.list.get(0);
+        assertEquals(Level.TRACE, logEvent.getLevel());
+        assertEquals("Email sent to {} with status code {}", logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }

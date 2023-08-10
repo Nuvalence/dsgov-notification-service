@@ -1,4 +1,4 @@
-# Nuvalence Work Manager
+# Nuvalence Notification Service
 
 ## Prerequisites
 
@@ -28,15 +28,6 @@ The app can be brought down via: `skaffold delete`
 To exit `skaffold dev`, in the terminal where you executed the command, hit `Ctrl + C`.
 
 **NOTE: This will terminate your existing app deployment in minikube.**
-
-## Deploying Camunda BPMN diagrams
-
-1. Open the desired BPMN diagram in the Camunda Modeler application
-2. Click on the 'Deploy Current Diagram' icon on the bottom-left corner of the window
-3. Select a Deployment Name and provide `http://localhost:8080/engine-rest` as the REST Endpoint URL, click 'Deploy'
-4. [Camunda Cockpit](http://localhost:8080/camunda/app/cockpit/default/)
-5. [Camunda Tasklist](http://localhost:8080/camunda/app/tasklist/default/)
-6. Username and Password for Cockpit and Tasklist are admin/admin
 
 ## Querying Postgres locally via IntelliJ
 
@@ -71,7 +62,9 @@ Here are the key configuration parameters for the application:
 - readinessProbe.path: `<k8s-readiness-probe-path>`
 
 #### Environment Variables
-- ENABLE_PUB_SUB: `<bool>`
+- PUBSUB_ENABLED: `<bool>`
+- PUBSUB_CREATE_TOPIC: `<bool>`
+- PUBSUB_EMULATOR_HOST: `<bool>`
 - PUB_SUB_TOPIC: `<pubsub-topic-name>`
 - PUB_SUB_TOPIC_SUBSCRIPTION: `<pubsub-topic-subscription-name>`
 - ALLOWED_ORIGINS: `<allowed-origins>`

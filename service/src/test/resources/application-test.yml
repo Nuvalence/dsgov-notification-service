@@ -75,5 +75,9 @@ cerbos:
 twilio:
   accountSID: "accountSID"
   authToken: "authToken"
-  phoneNumber: "phoneNumber
-  "
+  phoneNumber: "phoneNumber"
+sendgrid:
+  contentType: "text/html"
+  sendEmailEndpoint: "mail/send"
+  apiKey: "apiKey"
+  from: "send@test.com"

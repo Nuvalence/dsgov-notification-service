@@ -64,3 +64,10 @@ cerbos:
 
 userManagement:
   baseUrl: ${USER_MANAGEMENT_BASE_URL}
+
+sendgrid:
+  contentType: ${SEND_GRID_EMAIL_CONTENT_TYPE}
+  sendEmailEndpoint: ${SEND_GRID_EMAIL_ENDPOINT}
+  apiKey: ${SEND_GRID_API_KEY}
+  from: ${SEND_GRID_SENDER}
+

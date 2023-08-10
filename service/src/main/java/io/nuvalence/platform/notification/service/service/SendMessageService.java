@@ -9,6 +9,7 @@ import io.nuvalence.platform.notification.usermanagent.client.generated.models.U
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +55,9 @@ public class SendMessageService {
      *
      * @param message message
      * @throws ApiException if an error occurs while querying user management service
+     * @throws IOException possibly thrown by apis.
      */
-    public void sendMessage(Message message) throws ApiException {
+    public void sendMessage(Message message) throws ApiException, IOException {
         UUID userId = UUID.fromString(message.getUserId());
 
         // Query user management service for user preferences

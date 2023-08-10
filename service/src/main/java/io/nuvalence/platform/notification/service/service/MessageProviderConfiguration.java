@@ -1,5 +1,6 @@
 package io.nuvalence.platform.notification.service.service;
 
+import com.sendgrid.SendGrid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +14,12 @@ public class MessageProviderConfiguration {
 
     /**
      * Create a message provider for email.
-     *
-     * @return email message provider
+     * @param sendGrid api.
+     * @return SendGridEmailProvider object.
      */
     @Bean
-    public EmailProvider emailMessageProvider() {
-        return new LoggingStubEmailProvider();
+    public EmailProvider emailMessageProvider(SendGrid sendGrid) {
+        return new SendGridEmailProvider(sendGrid);
     }
 
     /**
