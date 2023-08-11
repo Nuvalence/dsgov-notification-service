@@ -38,7 +38,7 @@ twilio:
   phoneNumber: ${TWILIO_PHONE_NUMBER}
 
 localization:
-  default-locale: en-US
+  default-locale: en
 
 management:
   endpoints:

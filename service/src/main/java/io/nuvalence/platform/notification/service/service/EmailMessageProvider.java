@@ -65,6 +65,11 @@ public class EmailMessageProvider implements SendMessageProvider {
                 getLocalizedTemplate(
                         emailFormat.getLocalizedSubjectStringTemplate(),
                         userPreferences.getPreferredLanguage());
+        if (emailSubjectTemplate.isEmpty()) {
+            log.warn("Could not send {} email to user {}.", template.getKey(), user.getId());
+            return;
+        }
+
         String subjectEmail =
                 replaceParameterInTemplate(
                         emailSubjectTemplate.get().getTemplate(),
