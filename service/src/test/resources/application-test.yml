@@ -30,6 +30,10 @@ spring:
     user: sa
     password: sa
 
+
+localization:
+  default-locale: en
+
 auth:
   token-filter:
     self-signed:
@@ -72,6 +76,10 @@ userManagement:
 cerbos:
   uri: 127.0.0.1:3592
 
+twilio:
+  accountSID: "accountSID"
+  authToken: "authToken"
+  phoneNumber: "phoneNumber"
 sendgrid:
   contentType: "text/html"
   sendEmailEndpoint: "mail/send"

@@ -2,6 +2,9 @@ package io.nuvalence.platform.notification.service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -13,6 +16,8 @@ import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
+import com.twilio.rest.api.v2010.account.MessageCreator;
+import com.twilio.type.PhoneNumber;
 import io.nuvalence.platform.notification.service.domain.EmailFormat;
 import io.nuvalence.platform.notification.service.domain.EmailFormatContent;
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
@@ -28,6 +33,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -309,10 +315,24 @@ class NotificationProcessingSubscriberTest {
                 MessageBuilder.withPayload(generateJsonMessage(userId))
                         .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
                         .build();
-        Mockito.when(userManagementClientService.getUser(any()))
-                .thenReturn(createUser(userId, "en", "sms", false));
 
-        service.handleMessage(message);
+        Mockito.when(userManagementClientService.getUser(Mockito.any()))
+                .thenReturn(createUser(userId, "en_US", "sms", false));
+
+        MessageCreator messageCreator = mock(MessageCreator.class);
+
+        try (MockedStatic<com.twilio.rest.api.v2010.account.Message> messageMock =
+                mockStatic(com.twilio.rest.api.v2010.account.Message.class)) {
+            messageMock
+                    .when(
+                            () ->
+                                    com.twilio.rest.api.v2010.account.Message.creator(
+                                            any(PhoneNumber.class),
+                                            any(PhoneNumber.class),
+                                            anyString()))
+                    .thenReturn(messageCreator);
+            service.handleMessage(message);
+        }
 
         Mockito.verify(ack).ack();
     }
