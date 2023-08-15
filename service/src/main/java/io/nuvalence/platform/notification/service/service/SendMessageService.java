@@ -64,7 +64,8 @@ public class SendMessageService {
         // Query user management service for user preferences
         Optional<UserDTO> user = userManagementClientService.getUser(userId);
         if (user.isEmpty()) {
-            String userNotFoundMessage = String.format("Message could not be sent. User not found for user %s", userId);
+            String userNotFoundMessage =
+                    String.format("Message could not be sent. User not found for user %s", userId);
             log.error(userNotFoundMessage);
             throw new UnprocessableNotificationException(userNotFoundMessage);
         }
@@ -72,7 +73,11 @@ public class SendMessageService {
         UserPreferenceDTO userPreferences = user.get().getPreferences();
 
         if (userPreferences == null || userPreferences.getPreferredCommunicationMethod() == null) {
-            String communicationPreferencesNotFound = String.format("Message could not be sent. Communication preferences not found for user %s", userId);
+            String communicationPreferencesNotFound =
+                    String.format(
+                            "Message could not be sent. Communication preferences not found for"
+                                    + " user %s",
+                            userId);
             log.error(communicationPreferencesNotFound);
             throw new UnprocessableNotificationException(communicationPreferencesNotFound);
         }
@@ -80,7 +85,11 @@ public class SendMessageService {
         SendMessageProvider messageProvider =
                 sendMessageProviderMap.get(userPreferences.getPreferredCommunicationMethod());
         if (messageProvider == null) {
-            String communicationPreferencesNotAvailable = String.format("Message could not be sent. Preferred communication method not supported for user %s", userId);
+            String communicationPreferencesNotAvailable =
+                    String.format(
+                            "Message could not be sent. Preferred communication method not"
+                                    + " supported for user %s",
+                            userId);
             log.error(communicationPreferencesNotAvailable);
             throw new UnprocessableNotificationException(communicationPreferencesNotAvailable);
         }
@@ -88,7 +97,10 @@ public class SendMessageService {
         Optional<MessageTemplate> template =
                 templateService.getTemplate(message.getMessageTemplateKey());
         if (template.isEmpty()) {
-            String templateNotFound = String.format("Message could not be sent. Template not found for template key %s", message.getMessageTemplateKey());
+            String templateNotFound =
+                    String.format(
+                            "Message could not be sent. Template not found for template key %s",
+                            message.getMessageTemplateKey());
             log.error(templateNotFound);
             throw new UnprocessableNotificationException(templateNotFound);
         }

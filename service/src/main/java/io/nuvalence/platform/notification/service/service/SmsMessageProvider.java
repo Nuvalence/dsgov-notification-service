@@ -43,9 +43,12 @@ public class SmsMessageProvider implements SendMessageProvider {
                         smsFormat.getLocalizedStringTemplate(),
                         userPreferences.getPreferredLanguage());
         if (smsTemplate.isEmpty()) {
-            String templateNotFound = String.format("No template found for language: %s, templateKey: %s", userPreferences.getPreferredLanguage(),
-                    template.getKey());
+            String templateNotFound =
+                    String.format(
+                            "No template found for language: %s, templateKey: %s",
+                            userPreferences.getPreferredLanguage(), template.getKey());
             log.error(templateNotFound);
+            throw new UnprocessableNotificationException(templateNotFound);
         }
         String smsToSend =
                 replaceParameterInTemplate(

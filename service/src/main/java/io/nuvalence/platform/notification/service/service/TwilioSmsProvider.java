@@ -32,17 +32,35 @@ public class TwilioSmsProvider implements SmsProvider {
         Twilio.init(twilioAccountSid, twilioAuthToken);
     }
 
+    /**
+     * Sends a sms via Twilio.
+     * @param to      recipient.
+     * @param message message to be sent.
+     */
     public void sendSms(String to, String message) {
         try {
-            Message.creator(new PhoneNumber(to), new PhoneNumber(twilioPhoneNumber), message).create();
+            Message.creator(new PhoneNumber(to), new PhoneNumber(twilioPhoneNumber), message)
+                    .create();
         } catch (ApiConnectionException connectionException) {
-            log.warn("Network issue encountered while sending sms to {}. This operation will be retried. Error details: {}", to, connectionException.getMessage());
+            log.warn(
+                    "Network issue encountered while sending sms to {}. This operation will be"
+                            + " retried. Error details: {}",
+                    to,
+                    connectionException.getMessage());
             throw connectionException;
         } catch (ApiException apiException) {
-            log.warn("Twilio api exception encountered while sending sms to {}. This operation will be retried. Error details: {}", to, apiException.getMessage());
+            log.warn(
+                    "Twilio api exception encountered while sending sms to {}. This operation will"
+                            + " be retried. Error details: {}",
+                    to,
+                    apiException.getMessage());
             throw apiException;
         } catch (Exception e) {
-            log.warn("An unexpected exception has occurred while sending sms to {}. This operation will be retried. Error details: {}", to, e.getMessage());
+            log.warn(
+                    "An unexpected exception has occurred while sending sms to {}. This operation"
+                            + " will be retried. Error details: {}",
+                    to,
+                    e.getMessage());
             throw e;
         }
     }

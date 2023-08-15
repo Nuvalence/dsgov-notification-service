@@ -59,18 +59,30 @@ public class SendGridEmailProvider implements EmailProvider {
         try {
             Response response = sg.api(request);
 
-            if(response.getStatusCode() >= 400 && response.getStatusCode() < 500) {
-                String sendGridBadRequest = String.format("Bad request response obtained from SendGrid with code %d, could send email to %s", response.getStatusCode(), to);
+            if (response.getStatusCode() >= 400 && response.getStatusCode() < 500) {
+                String sendGridBadRequest =
+                        String.format(
+                                "Bad request response obtained from SendGrid with code %d, could"
+                                        + " send email to %s",
+                                response.getStatusCode(), to);
                 log.error(sendGridBadRequest);
                 throw new UnprocessableNotificationException(sendGridBadRequest);
             }
 
             log.trace("Email sent to {} with status code {}", to, response.getStatusCode());
         } catch (IOException networkError) {
-            log.warn("Network issue encountered while sending email to {}. This operation will be retried. Error details: {}", to, networkError.getMessage());
+            log.warn(
+                    "Network issue encountered while sending email to {}. This operation will be"
+                            + " retried. Error details: {}",
+                    to,
+                    networkError.getMessage());
             throw networkError;
         } catch (Exception e) {
-            log.warn("An unexpected exception has occurred while sending email to {}. This operation will be retried. Error details: {}", to, e.getMessage());
+            log.warn(
+                    "An unexpected exception has occurred while sending email to {}. This"
+                            + " operation will be retried. Error details: {}",
+                    to,
+                    e.getMessage());
             throw e;
         }
     }
