@@ -1,6 +1,8 @@
 package io.nuvalence.platform.notification.service.service;
 
 import com.twilio.Twilio;
+import com.twilio.exception.ApiConnectionException;
+import com.twilio.exception.ApiException;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import lombok.Setter;
@@ -31,6 +33,17 @@ public class TwilioSmsProvider implements SmsProvider {
     }
 
     public void sendSms(String to, String message) {
-        Message.creator(new PhoneNumber(to), new PhoneNumber(twilioPhoneNumber), message).create();
+        try {
+            Message.creator(new PhoneNumber(to), new PhoneNumber(twilioPhoneNumber), message).create();
+        } catch (ApiConnectionException connectionException) {
+            log.warn("Network issue encountered while sending sms to {}. This operation will be retried. Error details: {}", to, connectionException.getMessage());
+            throw connectionException;
+        } catch (ApiException apiException) {
+            log.warn("Twilio api exception encountered while sending sms to {}. This operation will be retried. Error details: {}", to, apiException.getMessage());
+            throw apiException;
+        } catch (Exception e) {
+            log.warn("An unexpected exception has occurred while sending sms to {}. This operation will be retried. Error details: {}", to, e.getMessage());
+            throw e;
+        }
     }
 }

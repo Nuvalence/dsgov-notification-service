@@ -22,6 +22,8 @@ import javax.transaction.Transactional;
 public class NotificationProcessingSubscriber implements MessageHandler {
 
     private static final String SENT_STATUS = "SENT";
+
+    private static final String UNPROCESSABLE_STATUS = "UNPROCESSABLE";
     private final ObjectMapper mapper;
     private final MessageService messageService;
     private final SendMessageService sendMessageService;
@@ -56,6 +58,7 @@ public class NotificationProcessingSubscriber implements MessageHandler {
             acknowledgeMessage(message);
         } catch (UnprocessableNotificationException e) {
             acknowledgeMessage(message);
+            messageService.updateMessageStatus(messageToSend.getId(), UNPROCESSABLE_STATUS);
         } catch (Exception e) {
             log.error("An error occurred processing request", e);
             acknowledgeMessage(message, false);
