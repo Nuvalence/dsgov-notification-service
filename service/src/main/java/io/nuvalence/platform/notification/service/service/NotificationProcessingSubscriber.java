@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
 import io.nuvalence.platform.notification.service.domain.Message;
+import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
@@ -51,8 +52,10 @@ public class NotificationProcessingSubscriber implements MessageHandler {
 
         try {
             sendMessageService.sendMessage(messageToSend);
-            acknowledgeMessage(message);
             messageService.updateMessageStatus(messageToSend.getId(), SENT_STATUS);
+            acknowledgeMessage(message);
+        } catch (UnprocessableNotificationException e) {
+            acknowledgeMessage(message);
         } catch (Exception e) {
             log.error("An error occurred processing request", e);
             acknowledgeMessage(message, false);

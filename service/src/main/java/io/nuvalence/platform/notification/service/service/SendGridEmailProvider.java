@@ -7,6 +7,7 @@ import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
+import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +57,12 @@ public class SendGridEmailProvider implements EmailProvider {
         request.setBody(mail.build());
 
         Response response = sg.api(request);
+
+        if(response.getStatusCode() >= 400 && response.getStatusCode() < 500) {
+            String sendGridBadRequest = String.format("Bad request response obtained from SendGrid with code %d, could send email to %s", response.getStatusCode(), to);
+            log.error(sendGridBadRequest);
+            throw new UnprocessableNotificationException(sendGridBadRequest);
+        }
 
         log.trace("Email sent to {} with status code {}", to, response.getStatusCode());
     }

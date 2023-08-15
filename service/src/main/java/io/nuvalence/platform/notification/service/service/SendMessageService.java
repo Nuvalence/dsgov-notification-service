@@ -2,6 +2,7 @@ package io.nuvalence.platform.notification.service.service;
 
 import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
+import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import io.nuvalence.platform.notification.service.service.usermanagementapi.UserManagementClientService;
 import io.nuvalence.platform.notification.usermanagent.client.ApiException;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
@@ -63,34 +64,33 @@ public class SendMessageService {
         // Query user management service for user preferences
         Optional<UserDTO> user = userManagementClientService.getUser(userId);
         if (user.isEmpty()) {
-            log.error("Message could not be sent. User not found for user {}", userId);
-            return;
+            String userNotFoundMessage = String.format("Message could not be sent. User not found for user %s", userId);
+            log.error(userNotFoundMessage);
+            throw new UnprocessableNotificationException(userNotFoundMessage);
         }
 
         UserPreferenceDTO userPreferences = user.get().getPreferences();
 
         if (userPreferences == null || userPreferences.getPreferredCommunicationMethod() == null) {
-            log.error("Message could not be sent. User preferences not found for user {}", userId);
-            return;
+            String communicationPreferencesNotFound = String.format("Message could not be sent. Communication preferences not found for user %s", userId);
+            log.error(communicationPreferencesNotFound);
+            throw new UnprocessableNotificationException(communicationPreferencesNotFound);
         }
 
         SendMessageProvider messageProvider =
                 sendMessageProviderMap.get(userPreferences.getPreferredCommunicationMethod());
         if (messageProvider == null) {
-            log.error(
-                    "Message could not be sent. Preferred communication method not supported for"
-                            + " user {}",
-                    userId);
-            return;
+            String communicationPreferencesNotAvailable = String.format("Message could not be sent. Preferred communication method not supported for user %s", userId);
+            log.error(communicationPreferencesNotAvailable);
+            throw new UnprocessableNotificationException(communicationPreferencesNotAvailable);
         }
 
         Optional<MessageTemplate> template =
                 templateService.getTemplate(message.getMessageTemplateKey());
         if (template.isEmpty()) {
-            log.error(
-                    "Message could not be sent. Template not found for template key {}",
-                    message.getMessageTemplateKey());
-            return;
+            String templateNotFound = String.format("Message could not be sent. Template not found for template key %s", message.getMessageTemplateKey());
+            log.error(templateNotFound);
+            throw new UnprocessableNotificationException(templateNotFound);
         }
 
         messageProvider.sendMessage(user.get(), message, template.get());
