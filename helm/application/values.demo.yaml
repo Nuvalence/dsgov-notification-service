@@ -65,6 +65,7 @@ env:
   SELF_SIGN_PRIVATE_KEY: "${sm://projects/dsgov-demo/secrets/dsgov-self-signed-token-private-key/versions/latest}"
   USER_MANAGEMENT_BASE_URL: "http://dsgov-user-management/um"
   PUB_SUB_TOPIC: "NOTIFICATION_MSG_QUEUE"
+  DEAD_LETTER_TOPIC: "NOTIFICATION_DEAD_LETTER"
   PUB_SUB_TOPIC_SUBSCRIPTION: "NOTIFICATION_MSG_QUEUE_SUBSCRIPTION"
   PUBSUB_EMULATOR_HOST: false # set actual "host:port" to enable or false to disable
   PUBSUB_ENABLED: true
