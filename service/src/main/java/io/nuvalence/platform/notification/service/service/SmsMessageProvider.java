@@ -25,16 +25,16 @@ public class SmsMessageProvider implements SendMessageProvider {
     private static final String SUPPORTED_METHOD = "sms";
 
     private final SmsProvider smsProvider;
+    private final Handlebars handlebars;
 
     public SmsMessageProvider(SmsProvider smsProvider) {
         this.smsProvider = smsProvider;
+        this.handlebars = new Handlebars();
     }
 
     @Override
     public void sendMessage(UserDTO user, Message message, MessageTemplate template) {
         UserPreferenceDTO userPreferences = user.getPreferences();
-
-        Handlebars handlebars = new Handlebars();
 
         SmsFormat smsFormat = template.getSmsFormat();
         Optional<LocalizedStringTemplateLanguage> smsTemplate =
