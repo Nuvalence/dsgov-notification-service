@@ -10,6 +10,7 @@ import com.sendgrid.helpers.mail.objects.Email;
 import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
@@ -26,9 +27,6 @@ public class SendGridEmailProvider implements EmailProvider {
 
     @Value("${sendgrid.sendEmailEndpoint}")
     String sendEndpoint;
-
-    @Value("${sendgrid.apiKey}")
-    String sendGridApiKey;
 
     @Value("${sendgrid.from}")
     String from;
@@ -59,18 +57,29 @@ public class SendGridEmailProvider implements EmailProvider {
         try {
             Response response = sg.api(request);
 
-            if (response.getStatusCode() >= 400 && response.getStatusCode() < 500) {
+            log.trace("Email sent to {} with status code {}", to, response.getStatusCode());
+        } catch (IOException networkError) {
+            String statusCodeString =
+                    StringUtils.substringBetween(networkError.getMessage(), "status Code ", "Body");
+            Integer statusCode = null;
+            try {
+                statusCode = Integer.parseInt(statusCodeString);
+            } catch (NumberFormatException e) {
+                log.trace(
+                        "Could not parse status code from IOException {}",
+                        networkError.getMessage());
+            }
+
+            if (statusCode != null && statusCode >= 400 && statusCode <= 499) {
                 String sendGridBadRequest =
                         String.format(
                                 "Bad request response obtained from SendGrid with code %d, could"
                                         + " not send email to %s",
-                                response.getStatusCode(), to);
+                                statusCode, to);
                 log.error(sendGridBadRequest);
                 throw new UnprocessableNotificationException(sendGridBadRequest);
             }
 
-            log.trace("Email sent to {} with status code {}", to, response.getStatusCode());
-        } catch (IOException networkError) {
             log.warn(
                     "Network issue encountered while sending email to {}. This operation will be"
                             + " retried. Error details: {}",

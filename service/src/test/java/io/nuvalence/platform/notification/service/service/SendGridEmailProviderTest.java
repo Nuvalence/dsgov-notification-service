@@ -48,20 +48,20 @@ public class SendGridEmailProviderTest {
 
     @Test
     void testSendEmail_BadRequest() throws IOException {
-        Integer responseStatusCode = 400;
-        when(sendGrid.api(any(Request.class))).thenReturn(response);
-        when(response.getStatusCode()).thenReturn(responseStatusCode);
+        IOException exception = new IOException("Request returned status Code 401Body: {}");
+        when(sendGrid.api(any())).thenThrow(exception);
 
-        UnprocessableNotificationException exception =
+        UnprocessableNotificationException actualException =
                 assertThrows(
                         UnprocessableNotificationException.class,
                         () -> emailProvider.sendEmail(to, subject, body));
+
         assertEquals(
                 String.format(
                         "Bad request response obtained from SendGrid with code %d, could not send"
                                 + " email to %s",
-                        responseStatusCode, to),
-                exception.getMessage());
+                        401, to),
+                actualException.getMessage());
     }
 
     @Test

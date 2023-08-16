@@ -105,6 +105,7 @@ public class PubSubInboundConfig {
 
             Subscription.Builder subscriptionBuilder =
                     Subscription.newBuilder()
+                            .setName(subscription)
                             .setTopic(topic)
                             .setAckDeadlineSeconds(20)
                             .setDeadLetterPolicy(deadLetterPolicy);

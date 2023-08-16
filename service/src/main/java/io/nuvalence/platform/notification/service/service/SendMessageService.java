@@ -65,7 +65,7 @@ public class SendMessageService {
         Optional<UserDTO> user = userManagementClientService.getUser(userId);
         if (user.isEmpty()) {
             String userNotFoundMessage =
-                    String.format("Message could not be sent. User not found for user %s", userId);
+                    String.format("Message could not be sent. User not found %s", userId);
             log.error(userNotFoundMessage);
             throw new UnprocessableNotificationException(userNotFoundMessage);
         }

@@ -405,7 +405,7 @@ class NotificationProcessingSubscriberTest {
         assertEquals(1, sendMessageLogWatcher.list.size());
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
         assertEquals(
-                String.format("Message could not be sent. User not found for user %s", userId),
+                String.format("Message could not be sent. User not found %s", userId),
                 logEvent.getMessage());
 
         Mockito.verify(ack).ack();

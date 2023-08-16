@@ -47,7 +47,6 @@ public class NotificationProcessingSubscriber implements MessageHandler {
     @Override
     @Transactional
     public void handleMessage(org.springframework.messaging.Message<?> message) {
-
         log.trace("Received message for notification processing.");
 
         Message messageToSend = parseSubscriptionPayload(message);
