@@ -2,7 +2,6 @@ package io.nuvalence.platform.notification.service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,7 +10,6 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
-import liquibase.pro.packaged.E;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +33,6 @@ public class SendGridEmailProviderTest {
 
     private String body = "Body";
 
-
     @BeforeEach
     void setUp() throws IOException {
         emailProvider = new SendGridEmailProvider(sendGrid);
@@ -55,16 +52,25 @@ public class SendGridEmailProviderTest {
         when(sendGrid.api(any(Request.class))).thenReturn(response);
         when(response.getStatusCode()).thenReturn(responseStatusCode);
 
-        UnprocessableNotificationException exception = assertThrows(UnprocessableNotificationException.class, () -> emailProvider.sendEmail(to, subject, body));
-        assertEquals(String.format("Bad request response obtained from SendGrid with code %d, could not send email to %s", responseStatusCode, to), exception.getMessage());
+        UnprocessableNotificationException exception =
+                assertThrows(
+                        UnprocessableNotificationException.class,
+                        () -> emailProvider.sendEmail(to, subject, body));
+        assertEquals(
+                String.format(
+                        "Bad request response obtained from SendGrid with code %d, could not send"
+                                + " email to %s",
+                        responseStatusCode, to),
+                exception.getMessage());
     }
 
     @Test
-    void testSendEmail_IOExceptionHandling() throws IOException {
+    void testSendEmail_IoExceptionHandling() throws IOException {
         IOException expectedException = new IOException("Expected exception");
         when(sendGrid.api(any())).thenThrow(expectedException);
 
-        IOException actualException = assertThrows(IOException.class, () -> emailProvider.sendEmail(to, subject, body));
+        IOException actualException =
+                assertThrows(IOException.class, () -> emailProvider.sendEmail(to, subject, body));
         assertEquals(expectedException, actualException);
     }
 
@@ -73,7 +79,9 @@ public class SendGridEmailProviderTest {
         RuntimeException expectedException = new RuntimeException("Expected exception");
         when(sendGrid.api(any())).thenThrow(expectedException);
 
-        RuntimeException actualException = assertThrows(RuntimeException.class, () -> emailProvider.sendEmail(to, subject, body));
+        RuntimeException actualException =
+                assertThrows(
+                        RuntimeException.class, () -> emailProvider.sendEmail(to, subject, body));
         assertEquals(expectedException, actualException);
     }
 }
