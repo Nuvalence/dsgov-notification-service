@@ -32,6 +32,8 @@ public class EmailMessageProvider implements SendMessageProvider {
 
     private final EmailProvider emailProvider;
 
+    private final Handlebars handlebars;
+
     /**
      * Constructor.
      *
@@ -42,6 +44,7 @@ public class EmailMessageProvider implements SendMessageProvider {
             EmailLayoutService emailLayoutService, EmailProvider emailProvider) {
         this.emailLayoutService = emailLayoutService;
         this.emailProvider = emailProvider;
+        this.handlebars = new Handlebars();
     }
 
     @Override
@@ -57,8 +60,6 @@ public class EmailMessageProvider implements SendMessageProvider {
                     template.getEmailLayoutKey());
             return;
         }
-
-        Handlebars handlebars = new Handlebars();
 
         EmailFormat emailFormat = template.getEmailFormat();
         Optional<LocalizedStringTemplateLanguage> emailSubjectTemplate =
