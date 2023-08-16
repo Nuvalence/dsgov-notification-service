@@ -1,7 +1,8 @@
 package io.nuvalence.platform.notification.service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
@@ -314,8 +315,7 @@ class NotificationProcessingSubscriberTest {
 
         sendMessageLogWatcher = new ListAppender<>();
         sendMessageLogWatcher.start();
-        Logger sendMessageLogger =
-                ((Logger) LoggerFactory.getLogger(SendMessageService.class));
+        Logger sendMessageLogger = ((Logger) LoggerFactory.getLogger(SendMessageService.class));
         sendMessageLogger.setLevel(Level.WARN);
         sendMessageLogger.addAppender(sendMessageLogWatcher);
 
@@ -325,12 +325,13 @@ class NotificationProcessingSubscriberTest {
                 ((Logger) LoggerFactory.getLogger(EmailMessageProvider.class));
         emailMessageProviderLogger.setLevel(Level.WARN);
         emailMessageProviderLogger.addAppender(emailMessageProviderLogWatcher);
-
     }
 
     @AfterEach
-    void teardown() {
-        ((Logger) LoggerFactory.getLogger(SendGridEmailProvider.class)).detachAndStopAllAppenders();
+    void clearLogWatchers() {
+        sendGridLogWatcher.list.clear();
+        sendMessageLogWatcher.list.clear();
+        emailMessageProviderLogWatcher.list.clear();
     }
 
     @Test
@@ -398,13 +399,14 @@ class NotificationProcessingSubscriberTest {
                         .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
                         .build();
 
-        Mockito.when(userManagementClientService.getUser(any()))
-                .thenReturn(Optional.empty());
+        Mockito.when(userManagementClientService.getUser(any())).thenReturn(Optional.empty());
 
         service.handleMessage(message);
         assertEquals(1, sendMessageLogWatcher.list.size());
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(String.format("Message could not be sent. User not found for user %s", userId), logEvent.getMessage());
+        assertEquals(
+                String.format("Message could not be sent. User not found for user %s", userId),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
@@ -425,7 +427,12 @@ class NotificationProcessingSubscriberTest {
         service.handleMessage(message);
         assertEquals(1, sendMessageLogWatcher.list.size());
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(String.format("Message could not be sent. Communication preferences not found for user %s", userId), logEvent.getMessage());
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Communication preferences not found for user"
+                                + " %s",
+                        userId),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
@@ -446,7 +453,12 @@ class NotificationProcessingSubscriberTest {
         service.handleMessage(message);
         assertEquals(1, sendMessageLogWatcher.list.size());
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(String.format("Message could not be sent. Preferred communication method not supported for user %s", userId), logEvent.getMessage());
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Preferred communication method not supported"
+                                + " for user %s",
+                        userId),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
@@ -467,7 +479,12 @@ class NotificationProcessingSubscriberTest {
         service.handleMessage(message);
         assertEquals(1, sendMessageLogWatcher.list.size());
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(String.format("Message could not be sent. Preferred communication method not supported for user %s", userId), logEvent.getMessage());
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Preferred communication method not supported"
+                                + " for user %s",
+                        userId),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
@@ -488,13 +505,16 @@ class NotificationProcessingSubscriberTest {
         service.handleMessage(message);
         assertEquals(1, sendMessageLogWatcher.list.size());
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(String.format("Message could not be sent. Template not found for template key invalid"), logEvent.getMessage());
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Template not found for template key invalid"),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
 
     @Test
-    void messageHandling_EmailMessageNotFound() throws IOException, ApiException {
+    void messageHandling_EmailMessageTemplateNotFound() throws IOException, ApiException {
         UUID userId = UUID.randomUUID();
         BasicAcknowledgeablePubsubMessage ack =
                 Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
@@ -509,7 +529,10 @@ class NotificationProcessingSubscriberTest {
         service.handleMessage(message);
         assertEquals(1, sendMessageLogWatcher.list.size());
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(String.format("Message could not be sent. Template not found for template key invalid"), logEvent.getMessage());
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Template not found for template key invalid"),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
@@ -530,7 +553,11 @@ class NotificationProcessingSubscriberTest {
         service.handleMessage(message);
         assertEquals(1, emailMessageProviderLogWatcher.list.size());
         ILoggingEvent logEvent = emailMessageProviderLogWatcher.list.get(0);
-        assertEquals(String.format("Could not send %s email to user %s, subject template not found", createdTemplate.getKey(), userId), logEvent.getMessage());
+        assertEquals(
+                String.format(
+                        "Could not send %s email to user %s, subject template not found",
+                        createdTemplate.getKey(), userId),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
@@ -551,7 +578,11 @@ class NotificationProcessingSubscriberTest {
         service.handleMessage(message);
         assertEquals(1, emailMessageProviderLogWatcher.list.size());
         ILoggingEvent logEvent = emailMessageProviderLogWatcher.list.get(0);
-        assertEquals(String.format("Could not send %s email to user %s, subject template not found", createdTemplate.getKey(), userId), logEvent.getMessage());
+        assertEquals(
+                String.format(
+                        "Could not send %s email to user %s, subject template not found",
+                        createdTemplate.getKey(), userId),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
@@ -572,7 +603,8 @@ class NotificationProcessingSubscriberTest {
         return objectMapper.writeValueAsString(message).getBytes(StandardCharsets.UTF_8);
     }
 
-    private byte[] generateInvalidTemplateKeyJsonMessage(UUID userId) throws JsonProcessingException {
+    private byte[] generateInvalidTemplateKeyJsonMessage(UUID userId)
+            throws JsonProcessingException {
         Map<String, String> parameters =
                 Map.of(
                         "name", "Deibys Parra",

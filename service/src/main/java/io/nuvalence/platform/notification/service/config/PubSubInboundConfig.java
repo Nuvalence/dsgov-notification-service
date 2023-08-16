@@ -109,7 +109,7 @@ public class PubSubInboundConfig {
                             .setAckDeadlineSeconds(20)
                             .setDeadLetterPolicy(deadLetterPolicy);
 
-           admin.createSubscription(subscriptionBuilder);
+            admin.createSubscription(subscriptionBuilder);
         }
 
         PubSubInboundChannelAdapter adapter =
