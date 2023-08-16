@@ -62,7 +62,7 @@ public class SendGridEmailProvider implements EmailProvider {
             if (response.getStatusCode() >= 400 && response.getStatusCode() < 500) {
                 String sendGridBadRequest =
                         String.format(
-                                "Bad request response obtained from SendGrid with code %d, could"
+                                "Bad request response obtained from SendGrid with code %d, could not"
                                         + " send email to %s",
                                 response.getStatusCode(), to);
                 log.error(sendGridBadRequest);
