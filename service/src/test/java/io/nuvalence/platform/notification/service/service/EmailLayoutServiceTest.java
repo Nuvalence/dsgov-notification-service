@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
+import io.nuvalence.platform.notification.service.exception.BadDataException;
 import io.nuvalence.platform.notification.service.model.SearchEmailLayoutFilter;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,6 +46,61 @@ class EmailLayoutServiceTest {
 
         assertNotNull(createdEmailLayout);
         assertEquals("DRAFT", createdEmailLayout.getStatus());
+    }
+
+    @Test
+    void testCreateEmailLayout_content_contains_valid_inputs() {
+        final String key = "key";
+
+        final String content = "<div>{{input1}}</div>" + "<div>{{input2}}</div>";
+
+        List<String> inputs =
+                new ArrayList<>() {
+                    {
+                        add("input1");
+                        add("input2");
+                    }
+                };
+        EmailLayout emailLayout = new EmailLayout();
+        emailLayout.setName("name");
+        emailLayout.setDescription("description");
+        emailLayout.setContent(content);
+        emailLayout.setInputs(inputs);
+
+        EmailLayout createdEmailLayout = service.createEmailLayout(key, emailLayout);
+
+        assertNotNull(createdEmailLayout);
+        assertEquals("DRAFT", createdEmailLayout.getStatus());
+    }
+
+    @Test
+    void testCreateEmailLayout_content_contains_invalid_inputs() {
+        final String key = "key";
+
+        final String content = "<div>{{input1}}</div>" + "<div>{{invalidInput}}</div>";
+
+        List<String> inputs =
+                new ArrayList<>() {
+                    {
+                        add("input1");
+                        add("input2");
+                    }
+                };
+        EmailLayout emailLayout = new EmailLayout();
+        emailLayout.setName("name");
+        emailLayout.setDescription("description");
+        emailLayout.setContent(content);
+        emailLayout.setInputs(inputs);
+
+        BadDataException thrown =
+                Assertions.assertThrows(
+                        BadDataException.class,
+                        () -> {
+                            service.createEmailLayout(key, emailLayout);
+                        },
+                        "BadDataException was expected");
+
+        assertEquals("Invalid inputs", thrown.getMessage());
     }
 
     @Test
