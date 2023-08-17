@@ -8,6 +8,7 @@ import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplate
 import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.domain.SmsFormat;
+import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -42,11 +43,12 @@ public class SmsMessageProvider implements SendMessageProvider {
                         smsFormat.getLocalizedStringTemplate(),
                         userPreferences.getPreferredLanguage());
         if (smsTemplate.isEmpty()) {
-            log.error(
-                    "No template found for language: {}, templateKey: {}",
-                    userPreferences.getPreferredLanguage(),
-                    template.getKey());
-            return;
+            String templateNotFound =
+                    String.format(
+                            "No template found for language: %s, templateKey: %s",
+                            userPreferences.getPreferredLanguage(), template.getKey());
+            log.error(templateNotFound);
+            throw new UnprocessableNotificationException(templateNotFound);
         }
         String smsToSend =
                 replaceParameterInTemplate(

@@ -9,6 +9,7 @@ import io.nuvalence.platform.notification.service.domain.EmailLayout;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
 import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
+import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -55,10 +56,12 @@ public class EmailMessageProvider implements SendMessageProvider {
         Optional<EmailLayout> emailLayout =
                 emailLayoutService.getEmailLayout(template.getEmailLayoutKey());
         if (emailLayout.isEmpty()) {
-            log.error(
-                    "Message could not be sent. Email layout not found {}",
-                    template.getEmailLayoutKey());
-            return;
+            String emailLayoutNotFound =
+                    String.format(
+                            "Message could not be sent. Email layout not found %s",
+                            template.getEmailLayoutKey());
+            log.error(emailLayoutNotFound);
+            throw new UnprocessableNotificationException(emailLayoutNotFound);
         }
 
         EmailFormat emailFormat = template.getEmailFormat();
@@ -67,8 +70,12 @@ public class EmailMessageProvider implements SendMessageProvider {
                         emailFormat.getLocalizedSubjectStringTemplate(),
                         userPreferences.getPreferredLanguage());
         if (emailSubjectTemplate.isEmpty()) {
-            log.warn("Could not send {} email to user {}.", template.getKey(), user.getId());
-            return;
+            String emailSubjectTemplateNotFound =
+                    String.format(
+                            "Could not send %s email to user %s, subject template not found",
+                            template.getKey(), user.getId());
+            log.error(emailSubjectTemplateNotFound);
+            throw new UnprocessableNotificationException(emailSubjectTemplateNotFound);
         }
 
         String subjectEmail =
@@ -85,6 +92,16 @@ public class EmailMessageProvider implements SendMessageProvider {
                                     getLocalizedTemplate(
                                             emailFormatContent.getLocalizedStringTemplate(),
                                             userPreferences.getPreferredLanguage());
+                            if (emailContentTemplate.isEmpty()) {
+                                String emailContentTemplateNotFound =
+                                        String.format(
+                                                "Could not send %s email to user %s, subject"
+                                                        + " template not found",
+                                                template.getKey(), user.getId());
+                                log.error(emailContentTemplateNotFound);
+                                throw new UnprocessableNotificationException(
+                                        emailContentTemplateNotFound);
+                            }
                             emailLayoutInputToTemplate.put(
                                     emailFormatContent.getEmailLayoutInput(),
                                     replaceParameterInTemplate(

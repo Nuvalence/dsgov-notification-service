@@ -16,6 +16,7 @@ spring:
     gcp:
       pubsub:
         topic: NOTIFICATION_MSG_QUEUE
+        deadLetterTopic: NOTIFICATION_DEAD_LETTER_TEST
         enabled: false
         subscriber:
           fully-qualified-name: NOTIFICATION_MSG_QUEUESUBSCRIPTION

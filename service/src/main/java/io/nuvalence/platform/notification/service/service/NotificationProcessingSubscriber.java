@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
 import io.nuvalence.platform.notification.service.domain.Message;
+import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ import javax.transaction.Transactional;
 public class NotificationProcessingSubscriber implements MessageHandler {
 
     private static final String SENT_STATUS = "SENT";
+
+    private static final String UNPROCESSABLE_STATUS = "UNPROCESSABLE";
     private final ObjectMapper mapper;
     private final MessageService messageService;
     private final SendMessageService sendMessageService;
@@ -44,15 +47,17 @@ public class NotificationProcessingSubscriber implements MessageHandler {
     @Override
     @Transactional
     public void handleMessage(org.springframework.messaging.Message<?> message) {
-
         log.trace("Received message for notification processing.");
 
         Message messageToSend = parseSubscriptionPayload(message);
 
         try {
             sendMessageService.sendMessage(messageToSend);
-            acknowledgeMessage(message);
             messageService.updateMessageStatus(messageToSend.getId(), SENT_STATUS);
+            acknowledgeMessage(message);
+        } catch (UnprocessableNotificationException e) {
+            acknowledgeMessage(message);
+            messageService.updateMessageStatus(messageToSend.getId(), UNPROCESSABLE_STATUS);
         } catch (Exception e) {
             log.error("An error occurred processing request", e);
             acknowledgeMessage(message, false);

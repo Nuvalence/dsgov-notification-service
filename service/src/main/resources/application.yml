@@ -27,6 +27,7 @@ spring:
       project-id: ${GCP_PROJECT_ID}
       pubsub:
         topic: ${PUB_SUB_TOPIC}
+        deadLetterTopic: ${DEAD_LETTER_TOPIC}
         enabled: ${PUBSUB_ENABLED}
         subscription2: ${PUB_SUB_TOPIC_SUBSCRIPTION}
         enableTopicCreation: ${PUBSUB_CREATE_TOPIC}

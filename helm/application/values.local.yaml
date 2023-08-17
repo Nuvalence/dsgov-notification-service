@@ -77,6 +77,7 @@ env:
   SELF_SIGN_PRIVATE_KEY: "${sm://projects/dsgov-dev/secrets/dsgov-self-signed-token-private-key/versions/latest}"
   USER_MANAGEMENT_BASE_URL: "http://user-management/um"
   PUB_SUB_TOPIC: "projects/dsgov-dev/topics/NOTIFICATION_MSG_QUEUE"
+  DEAD_LETTER_TOPIC: "projects/dsgov-dev/topics/NOTIFICATION_DEAD_LETTER"
   PUB_SUB_TOPIC_SUBSCRIPTION: "projects/dsgov-dev/subscriptions/NOTIFICATION_MSG_QUEUE_SUBSCRIPTION"
   PUBSUB_EMULATOR_HOST: "pubsub-emulator-service:8085"
   PUBSUB_ENABLED: true

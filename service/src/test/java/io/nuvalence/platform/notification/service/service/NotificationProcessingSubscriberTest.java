@@ -75,7 +75,11 @@ class NotificationProcessingSubscriberTest {
 
     private MessageTemplate createdTemplate;
 
-    private ListAppender<ILoggingEvent> logWatcher;
+    private ListAppender<ILoggingEvent> sendGridLogWatcher;
+
+    private ListAppender<ILoggingEvent> sendMessageLogWatcher;
+
+    private ListAppender<ILoggingEvent> emailMessageProviderLogWatcher;
 
     @BeforeAll
     void setUp() {
@@ -254,6 +258,12 @@ class NotificationProcessingSubscriberTest {
                         .template("Su Solicitud de Beneficios Financieros ha sido Aprobada")
                         .build();
 
+        LocalizedStringTemplateLanguage localizedSubjectStringTemplateLanguage3 =
+                LocalizedStringTemplateLanguage.builder()
+                        .language("it")
+                        .template("La sua richiesta di benefici finanziari è stata approvata.")
+                        .build();
+
         EmailFormat emailFormat =
                 EmailFormat.builder()
                         .localizedSubjectStringTemplate(
@@ -261,7 +271,8 @@ class NotificationProcessingSubscriberTest {
                                         .localizedTemplateStrings(
                                                 List.of(
                                                         localizedSubjectStringTemplateLanguage1,
-                                                        localizedSubjectStringTemplateLanguage2))
+                                                        localizedSubjectStringTemplateLanguage2,
+                                                        localizedSubjectStringTemplateLanguage3))
                                         .build())
                         .emailFormatContents(
                                 List.of(
@@ -272,6 +283,8 @@ class NotificationProcessingSubscriberTest {
         localizedSubjectStringTemplateLanguage1.setLocalizedStringTemplate(
                 emailFormat.getLocalizedSubjectStringTemplate());
         localizedSubjectStringTemplateLanguage2.setLocalizedStringTemplate(
+                emailFormat.getLocalizedSubjectStringTemplate());
+        localizedSubjectStringTemplateLanguage3.setLocalizedStringTemplate(
                 emailFormat.getLocalizedSubjectStringTemplate());
         emailFormatGreeting1.setEmailFormat(emailFormat);
         emailFormatContent1.setEmailFormat(emailFormat);
@@ -293,17 +306,32 @@ class NotificationProcessingSubscriberTest {
 
         createdTemplate = templateService.createOrUpdateTemplate(templateKey, template);
 
-        logWatcher = new ListAppender<>();
-        logWatcher.start();
-        Logger sendGridEmailEmailProvider =
+        sendGridLogWatcher = new ListAppender<>();
+        sendGridLogWatcher.start();
+        Logger sendGridEmailEmailProviderLogger =
                 ((Logger) LoggerFactory.getLogger(SendGridEmailProvider.class));
-        sendGridEmailEmailProvider.setLevel(Level.TRACE);
-        sendGridEmailEmailProvider.addAppender(logWatcher);
+        sendGridEmailEmailProviderLogger.setLevel(Level.TRACE);
+        sendGridEmailEmailProviderLogger.addAppender(sendGridLogWatcher);
+
+        sendMessageLogWatcher = new ListAppender<>();
+        sendMessageLogWatcher.start();
+        Logger sendMessageLogger = ((Logger) LoggerFactory.getLogger(SendMessageService.class));
+        sendMessageLogger.setLevel(Level.WARN);
+        sendMessageLogger.addAppender(sendMessageLogWatcher);
+
+        emailMessageProviderLogWatcher = new ListAppender<>();
+        emailMessageProviderLogWatcher.start();
+        Logger emailMessageProviderLogger =
+                ((Logger) LoggerFactory.getLogger(EmailMessageProvider.class));
+        emailMessageProviderLogger.setLevel(Level.WARN);
+        emailMessageProviderLogger.addAppender(emailMessageProviderLogWatcher);
     }
 
     @AfterEach
-    void teardown() {
-        ((Logger) LoggerFactory.getLogger(SendGridEmailProvider.class)).detachAndStopAllAppenders();
+    void clearLogWatchers() {
+        sendGridLogWatcher.list.clear();
+        sendMessageLogWatcher.list.clear();
+        emailMessageProviderLogWatcher.list.clear();
     }
 
     @Test
@@ -354,10 +382,207 @@ class NotificationProcessingSubscriberTest {
 
         service.handleMessage(message);
 
-        assertEquals(1, logWatcher.list.size());
-        ILoggingEvent logEvent = logWatcher.list.get(0);
-        assertEquals(Level.TRACE, logEvent.getLevel());
+        assertEquals(1, sendGridLogWatcher.list.size());
+        ILoggingEvent logEvent = sendGridLogWatcher.list.get(0);
         assertEquals("Email sent to {} with status code {}", logEvent.getMessage());
+
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void messageHandling_UserNotFound() throws IOException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+
+        Mockito.when(userManagementClientService.getUser(any())).thenReturn(Optional.empty());
+
+        service.handleMessage(message);
+        assertEquals(1, sendMessageLogWatcher.list.size());
+        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
+        assertEquals(
+                String.format("Message could not be sent. User not found %s", userId),
+                logEvent.getMessage());
+
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void messageHandling_UserPreferencesNotFound() throws IOException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+
+        Mockito.when(userManagementClientService.getUser(any()))
+                .thenReturn(createUser(userId, null, null, false));
+
+        service.handleMessage(message);
+        assertEquals(1, sendMessageLogWatcher.list.size());
+        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Communication preferences not found for user"
+                                + " %s",
+                        userId),
+                logEvent.getMessage());
+
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void messageHandling_CommunicationMethodNotSupported() throws IOException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+
+        Mockito.when(userManagementClientService.getUser(any()))
+                .thenReturn(createUser(userId, null, "carrierPigeon", false));
+
+        service.handleMessage(message);
+        assertEquals(1, sendMessageLogWatcher.list.size());
+        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Preferred communication method not supported"
+                                + " for user %s",
+                        userId),
+                logEvent.getMessage());
+
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void messageHandling_MessageProviderNotFound() throws IOException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+
+        Mockito.when(userManagementClientService.getUser(any()))
+                .thenReturn(createUser(userId, null, "carrierPigeon", false));
+
+        service.handleMessage(message);
+        assertEquals(1, sendMessageLogWatcher.list.size());
+        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Preferred communication method not supported"
+                                + " for user %s",
+                        userId),
+                logEvent.getMessage());
+
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void messageHandling_TemplateNotFound() throws IOException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateInvalidTemplateKeyJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+
+        Mockito.when(userManagementClientService.getUser(any()))
+                .thenReturn(createUser(userId, null, "email", false));
+
+        service.handleMessage(message);
+        assertEquals(1, sendMessageLogWatcher.list.size());
+        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Template not found for template key invalid"),
+                logEvent.getMessage());
+
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void messageHandling_EmailMessageTemplateNotFound() throws IOException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateInvalidTemplateKeyJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+
+        Mockito.when(userManagementClientService.getUser(any()))
+                .thenReturn(createUser(userId, null, "email", false));
+
+        service.handleMessage(message);
+        assertEquals(1, sendMessageLogWatcher.list.size());
+        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
+        assertEquals(
+                String.format(
+                        "Message could not be sent. Template not found for template key invalid"),
+                logEvent.getMessage());
+
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void messageHandling_EmailSubjectNotFound() throws IOException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+
+        Mockito.when(userManagementClientService.getUser(any()))
+                .thenReturn(createUser(userId, "fr", "email", false));
+
+        service.handleMessage(message);
+        assertEquals(1, emailMessageProviderLogWatcher.list.size());
+        ILoggingEvent logEvent = emailMessageProviderLogWatcher.list.get(0);
+        assertEquals(
+                String.format(
+                        "Could not send %s email to user %s, subject template not found",
+                        createdTemplate.getKey(), userId),
+                logEvent.getMessage());
+
+        Mockito.verify(ack).ack();
+    }
+
+    @Test
+    void messageHandling_EmailContentNotFound() throws IOException, ApiException {
+        UUID userId = UUID.randomUUID();
+        BasicAcknowledgeablePubsubMessage ack =
+                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
+        Message<?> message =
+                MessageBuilder.withPayload(generateJsonMessage(userId))
+                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
+                        .build();
+
+        Mockito.when(userManagementClientService.getUser(any()))
+                .thenReturn(createUser(userId, "it", "email", false));
+
+        service.handleMessage(message);
+        assertEquals(1, emailMessageProviderLogWatcher.list.size());
+        ILoggingEvent logEvent = emailMessageProviderLogWatcher.list.get(0);
+        assertEquals(
+                String.format(
+                        "Could not send %s email to user %s, subject template not found",
+                        createdTemplate.getKey(), userId),
+                logEvent.getMessage());
 
         Mockito.verify(ack).ack();
     }
@@ -375,6 +600,22 @@ class NotificationProcessingSubscriberTest {
                         .parameters(parameters)
                         .build();
         messageService.save(message);
+        return objectMapper.writeValueAsString(message).getBytes(StandardCharsets.UTF_8);
+    }
+
+    private byte[] generateInvalidTemplateKeyJsonMessage(UUID userId)
+            throws JsonProcessingException {
+        Map<String, String> parameters =
+                Map.of(
+                        "name", "Deibys Parra",
+                        "transactionId", "38dh38");
+        io.nuvalence.platform.notification.service.domain.Message message =
+                io.nuvalence.platform.notification.service.domain.Message.builder()
+                        .messageTemplateKey("invalid")
+                        .userId(userId.toString())
+                        .status("DRAFT")
+                        .parameters(parameters)
+                        .build();
         return objectMapper.writeValueAsString(message).getBytes(StandardCharsets.UTF_8);
     }
 
