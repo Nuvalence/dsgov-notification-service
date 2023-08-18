@@ -19,17 +19,17 @@ public class XmlUtils {
     private XmlUtils() {}
 
     /**
-    * <p>
-    * Verifies the string represents a valid XML file.
-    * And returns it minified for transfer convenience.
-    * </p>
-    * 
-    * @param xmlString the XML string to be parsed
-    * @return valid XML string in pretty format
-    * @throws JDOMException when errors occur in parsing
-    * @throws IOException   when an I/O error prevents a document from being fully
-    *                       parsed
-    */
+     * <p>
+     * Verifies the string represents a valid XML file.
+     * And returns it minified for transfer convenience.
+     * </p>
+     *
+     * @param xmlString the XML string to be parsed
+     * @return valid XML string in pretty format
+     * @throws JDOMException when errors occur in parsing
+     * @throws IOException   when an I/O error prevents a document from being fully
+     *                       parsed
+     */
     public static String xmlValidateAndMinify(String xmlString) throws JDOMException, IOException {
 
         SAXBuilder saxBuilder = new SAXBuilder();
@@ -43,16 +43,16 @@ public class XmlUtils {
     }
 
     /**
-    * <p>
-    * Verifies the string represents a valid XML file.
-    * And returns its representation as a Jdom2 document.
-    * </p>
-    * @param xmlString the XML string to be parsed
-    * @return valid XML Jdom2 Document
-    * @throws JDOMException when errors occur in parsing
-    * @throws IOException   when an I/O error prevents a document from being fully
-    *                       parsed
-    */
+     * <p>
+     * Verifies the string represents a valid XML file.
+     * And returns its representation as a Jdom2 document.
+     * </p>
+     * @param xmlString the XML string to be parsed
+     * @return valid XML Jdom2 Document
+     * @throws JDOMException when errors occur in parsing
+     * @throws IOException   when an I/O error prevents a document from being fully
+     *                       parsed
+     */
     public static Document getXmlDocument(String xmlString) throws JDOMException, IOException {
 
         SAXBuilder saxBuilder = new SAXBuilder();
