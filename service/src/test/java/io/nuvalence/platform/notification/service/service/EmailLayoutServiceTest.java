@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
 import io.nuvalence.platform.notification.service.exception.BadDataException;
@@ -100,7 +101,7 @@ class EmailLayoutServiceTest {
                         },
                         "BadDataException was expected");
 
-        assertEquals("Invalid inputs", thrown.getMessage());
+        assertTrue(thrown.getMessage().contains("These inputs are not defined"));
     }
 
     @Test

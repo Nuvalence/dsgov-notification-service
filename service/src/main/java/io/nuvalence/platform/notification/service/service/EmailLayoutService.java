@@ -13,7 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -51,8 +52,11 @@ public class EmailLayoutService {
         Set<String> variableNames =
                 MessageBuilderUtils.getVariablesInTemplate(emailLayout.getContent(), handlebars);
 
-        if (!new HashSet<>(emailLayout.getInputs()).containsAll(variableNames)) {
-            throw new BadDataException("Invalid inputs");
+        Collection<String> missingElements =
+                returnMissingElements(variableNames, emailLayout.getInputs());
+
+        if (!missingElements.isEmpty()) {
+            throw new BadDataException("These inputs are not defined: " + missingElements);
         }
 
         Optional<EmailLayout> emailLayoutFound =
@@ -105,5 +109,16 @@ public class EmailLayoutService {
             createdByUserId = token.getApplicationUserId();
         }
         return Optional.ofNullable(createdByUserId);
+    }
+
+    private Collection<String> returnMissingElements(
+            Collection<String> collection1, Collection<String> collection2) {
+        Collection<String> missingElements = new ArrayList<>();
+        for (String element : collection1) {
+            if (!collection2.contains(element)) {
+                missingElements.add(element);
+            }
+        }
+        return missingElements;
     }
 }
