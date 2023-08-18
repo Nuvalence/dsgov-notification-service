@@ -1,11 +1,5 @@
 package io.nuvalence.platform.notification.service.utils;
 
-import org.jdom2.Document;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
-
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -60,8 +54,7 @@ public class XmlUtils {
         saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
         try (var reader = new StringReader(xmlString)) {
-            Document xmlDoc = saxBuilder.build(reader);
-            return xmlDoc;
+            return saxBuilder.build(reader);
         }
     }
 }
