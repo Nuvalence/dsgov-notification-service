@@ -34,9 +34,6 @@ public class SendNotificationApiDelegateImpl implements SendNotificationApiDeleg
         if (!authorizationHandler.isAllowed("send", Message.class)) {
             throw new ForbiddenException();
         }
-
-        log.info("Sending message: {}", messageRequestModel.toString());
-
         Message message =
                 messageService.save(
                         messageMapperImpl.messageRequestModelToMessage(messageRequestModel));
