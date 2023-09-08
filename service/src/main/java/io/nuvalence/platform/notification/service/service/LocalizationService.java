@@ -391,6 +391,12 @@ public class LocalizationService {
 
         String emailSubGroupName = getGroupName(subEvent).toLowerCase(Locale.ENGLISH);
 
+        if (messageTemplate == null) {
+            throw new BadDataException(
+                    "Message template not found for the provided XLIFF file. Please make sure"
+                            + " the template key is correct");
+        }
+
         if (!emailSubGroupName.equals("content")) {
             unsupportedXliffStructure();
         }
@@ -409,7 +415,7 @@ public class LocalizationService {
             }
             if (!contentAndData.getSecond().isBlank()) {
                 var formatContents =
-                        Optional.ofNullable(messageTemplate)
+                        Optional.of(messageTemplate)
                                 .map(MessageTemplate::getEmailFormat)
                                 .map(EmailFormat::getEmailFormatContents)
                                 .orElse(null);
@@ -419,6 +425,7 @@ public class LocalizationService {
                     formatContents = formatContentsDeduplicate(formatContents);
 
                     messageTemplate.getEmailFormat().setEmailFormatContents(formatContents);
+
 
                     formatContents.stream()
                             .filter(
