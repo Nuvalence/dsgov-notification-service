@@ -33,6 +33,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -52,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -411,35 +414,32 @@ class NotificationProcessingSubscriberTest {
         Mockito.verify(ack).ack();
     }
 
-    @Test
-    void messageHandling_UserPreferencesNotFound() throws IOException, ApiException {
-        UUID userId = UUID.randomUUID();
-        BasicAcknowledgeablePubsubMessage ack =
-                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
-        Message<?> message =
-                MessageBuilder.withPayload(generateJsonMessage(userId))
-                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
-                        .build();
-
-        Mockito.when(userManagementClientService.getUser(any()))
-                .thenReturn(createUser(userId, null, null, false));
-
-        service.handleMessage(message);
-        assertEquals(1, sendMessageLogWatcher.list.size());
-        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(
-                String.format(
-                        "Message could not be sent. Communication preferences not found for user"
-                                + " %s",
-                        userId),
-                logEvent.getMessage());
-
-        Mockito.verify(ack).ack();
+    private static Stream<Object[]> testData() {
+        return Stream.of(
+                new Object[] {
+                    UUID.randomUUID(), null, null, false, "Communication preferences not found"
+                },
+                new Object[] {
+                    UUID.randomUUID(),
+                    null,
+                    "carrierPigeon",
+                    false,
+                    "Preferred communication method not supported"
+                },
+                new Object[] {
+                    UUID.randomUUID(),
+                    null,
+                    "carrierPigeon",
+                    false,
+                    "Preferred communication method not supported"
+                });
     }
 
-    @Test
-    void messageHandling_CommunicationMethodNotSupported() throws IOException, ApiException {
-        UUID userId = UUID.randomUUID();
+    @ParameterizedTest(name = "Test {index}: {4}")
+    @MethodSource("testData")
+    void messageHandling(
+            UUID userId, String preferences, String method, boolean condition, String testName)
+            throws IOException, ApiException {
         BasicAcknowledgeablePubsubMessage ack =
                 Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
         Message<?> message =
@@ -448,42 +448,13 @@ class NotificationProcessingSubscriberTest {
                         .build();
 
         Mockito.when(userManagementClientService.getUser(any()))
-                .thenReturn(createUser(userId, null, "carrierPigeon", false));
+                .thenReturn(createUser(userId, preferences, method, condition));
 
         service.handleMessage(message);
         assertEquals(1, sendMessageLogWatcher.list.size());
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
         assertEquals(
-                String.format(
-                        "Message could not be sent. Preferred communication method not supported"
-                                + " for user %s",
-                        userId),
-                logEvent.getMessage());
-
-        Mockito.verify(ack).ack();
-    }
-
-    @Test
-    void messageHandling_MessageProviderNotFound() throws IOException, ApiException {
-        UUID userId = UUID.randomUUID();
-        BasicAcknowledgeablePubsubMessage ack =
-                Mockito.mock(BasicAcknowledgeablePubsubMessage.class);
-        Message<?> message =
-                MessageBuilder.withPayload(generateJsonMessage(userId))
-                        .setHeader(GcpPubSubHeaders.ORIGINAL_MESSAGE, ack)
-                        .build();
-
-        Mockito.when(userManagementClientService.getUser(any()))
-                .thenReturn(createUser(userId, null, "carrierPigeon", false));
-
-        service.handleMessage(message);
-        assertEquals(1, sendMessageLogWatcher.list.size());
-        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(
-                String.format(
-                        "Message could not be sent. Preferred communication method not supported"
-                                + " for user %s",
-                        userId),
+                String.format("Message could not be sent. %s for user %s", testName, userId),
                 logEvent.getMessage());
 
         Mockito.verify(ack).ack();

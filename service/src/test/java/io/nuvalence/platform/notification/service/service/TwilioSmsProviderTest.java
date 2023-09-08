@@ -19,12 +19,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
-public class TwilioSmsProviderTest {
+class TwilioSmsProviderTest {
 
-    private MessageCreator messageCreator = mock(MessageCreator.class);
+    private final MessageCreator messageCreator = mock(MessageCreator.class);
 
     private TwilioSmsProvider smsProvider;
-    private String twilioPhoneNumber = "some_phone_number";
+    private final String twilioPhoneNumber = "some_phone_number";
 
     @BeforeEach
     public void setUp() {
@@ -33,11 +33,11 @@ public class TwilioSmsProviderTest {
     }
 
     @Test
-    public void testSendSms() {
+    void testSendSms() {
 
-        String calledToNumber = "";
-        String calledFromNumber = "";
-        String calledMessage = "";
+        String calledToNumber;
+        String calledFromNumber;
+        String calledMessage;
 
         try (MockedStatic<Message> messageMock = mockStatic(Message.class)) {
             messageMock

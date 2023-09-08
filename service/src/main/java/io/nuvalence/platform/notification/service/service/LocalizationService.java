@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
@@ -106,9 +107,7 @@ public class LocalizationService {
                     " Please use 'resname' attribute on all 'group' and 'trans-unit' elements ");
 
             templates.forEach(template -> writeTemplateGroup(writer, template, targetLocale));
-
             writer.close();
-
             return XmlUtils.xmlValidateAndMinify(baos.toString(StandardCharsets.UTF_8));
 
         } catch (Exception e) {
@@ -301,7 +300,7 @@ public class LocalizationService {
                 }
             }
 
-            return Pair.of(targetLocale, updatedTemplatesToPersist);
+            return Pair.of(Objects.requireNonNull(targetLocale), updatedTemplatesToPersist);
 
         } catch (Exception e) {
             throw new BadDataException(
@@ -418,6 +417,7 @@ public class LocalizationService {
                 if (formatContents != null) {
 
                     formatContents = formatContentsDeduplicate(formatContents);
+
                     messageTemplate.getEmailFormat().setEmailFormatContents(formatContents);
 
                     formatContents.stream()

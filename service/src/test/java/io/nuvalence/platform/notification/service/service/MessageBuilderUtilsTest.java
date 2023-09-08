@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class MessageBuilderUtilsTest {
+class MessageBuilderUtilsTest {
 
     @Mock LocalizedStringTemplate localizedStringTemplate;
 

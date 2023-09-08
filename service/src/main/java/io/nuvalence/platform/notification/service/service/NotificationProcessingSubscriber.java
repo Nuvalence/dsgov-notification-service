@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
 import io.nuvalence.platform.notification.service.domain.Message;
+import io.nuvalence.platform.notification.service.exception.MessageParsingException;
 import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageHandler;
@@ -93,7 +94,7 @@ public class NotificationProcessingSubscriber implements MessageHandler {
             return mapper.readValue(requestWrapperString, Message.class);
         } catch (IOException ex) {
             log.error("Error parsing message from PubSub", ex);
-            throw new RuntimeException(ex);
+            throw new MessageParsingException("Error parsing message from PubSub", ex);
         }
     }
 }

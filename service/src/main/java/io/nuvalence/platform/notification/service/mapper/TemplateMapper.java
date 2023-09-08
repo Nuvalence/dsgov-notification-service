@@ -110,39 +110,35 @@ public class TemplateMapper {
             TemplateRequestModel templateRequestModel) {
         Map<String, LocalizedStringTemplateLanguage> emailSubjectLocalized = new HashMap<>();
         Map<String, LocalizedStringTemplateLanguage> smsMessageLocalized = new HashMap<>();
-        Map<String, EmailFormatContent> contentLocalized = new HashMap<>();
+        Map<String, EmailFormatContent> contentLocalized;
 
-        if (templateRequestModel.getEmailFormat() != null) {
-            templateRequestModel
-                    .getEmailFormat()
-                    .getSubject()
-                    .getTemplates()
-                    .forEach(
-                            (locale, localizedValue) ->
-                                    emailSubjectLocalized.put(
-                                            locale,
-                                            LocalizedStringTemplateLanguage.builder()
-                                                    .language(locale)
-                                                    .template(localizedValue)
-                                                    .build()));
+        templateRequestModel
+                .getEmailFormat()
+                .getSubject()
+                .getTemplates()
+                .forEach(
+                        (locale, localizedValue) ->
+                                emailSubjectLocalized.put(
+                                        locale,
+                                        LocalizedStringTemplateLanguage.builder()
+                                                .language(locale)
+                                                .template(localizedValue)
+                                                .build()));
 
-            contentLocalized = buildContentLocalized(templateRequestModel);
-        }
+        contentLocalized = buildContentLocalized(templateRequestModel);
 
-        if (templateRequestModel.getSmsFormat() != null) {
-            templateRequestModel
-                    .getSmsFormat()
-                    .getMessage()
-                    .getTemplates()
-                    .forEach(
-                            (locale, localizedValue) ->
-                                    smsMessageLocalized.put(
-                                            locale,
-                                            LocalizedStringTemplateLanguage.builder()
-                                                    .language(locale)
-                                                    .template(localizedValue)
-                                                    .build()));
-        }
+        templateRequestModel
+                .getSmsFormat()
+                .getMessage()
+                .getTemplates()
+                .forEach(
+                        (locale, localizedValue) ->
+                                smsMessageLocalized.put(
+                                        locale,
+                                        LocalizedStringTemplateLanguage.builder()
+                                                .language(locale)
+                                                .template(localizedValue)
+                                                .build()));
 
         MessageTemplate messageTemplate =
                 MessageTemplate.builder()

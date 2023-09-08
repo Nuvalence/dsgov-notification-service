@@ -5,6 +5,7 @@ import com.github.jknack.handlebars.TagType;
 import com.github.jknack.handlebars.Template;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplate;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
+import io.nuvalence.platform.notification.service.exception.TemplateCompilationException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
@@ -72,7 +73,7 @@ public class MessageBuilderUtils {
             return handleBarTemplate.apply(parameters);
         } catch (Exception e) {
             log.error("Error compiling template: {}", template, e);
-            throw new RuntimeException(e);
+            throw new TemplateCompilationException(template, e);
         }
     }
 
@@ -89,7 +90,7 @@ public class MessageBuilderUtils {
             return new HashSet<>(handleBarTemplate.collect(TagType.VAR));
         } catch (Exception e) {
             log.error("Error compiling template: {}", template, e);
-            throw new RuntimeException(e);
+            throw new TemplateCompilationException(template, e);
         }
     }
 }

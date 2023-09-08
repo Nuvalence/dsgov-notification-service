@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 
 @ExtendWith(MockitoExtension.class)
-public class SendGridEmailProviderTest {
+class SendGridEmailProviderTest {
 
     @Mock private SendGrid sendGrid;
 
