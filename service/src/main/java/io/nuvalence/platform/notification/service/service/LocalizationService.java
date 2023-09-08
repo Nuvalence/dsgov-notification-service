@@ -171,7 +171,7 @@ public class LocalizationService {
         for (var formatContent : formatContents) {
             var resourceName = formatContent.getEmailLayoutInput();
             var langStrings =
-                    Optional.ofNullable(formatContent)
+                    Optional.of(formatContent)
                             .map(EmailFormatContent::getLocalizedStringTemplate)
                             .map(LocalizedStringTemplate::getLocalizedTemplateStrings)
                             .orElse(List.of());
@@ -391,12 +391,6 @@ public class LocalizationService {
 
         String emailSubGroupName = getGroupName(subEvent).toLowerCase(Locale.ENGLISH);
 
-        if (messageTemplate == null) {
-            throw new BadDataException(
-                    "Message template not found for the provided XLIFF file. Please make sure"
-                            + " the template key is correct");
-        }
-
         if (!emailSubGroupName.equals("content")) {
             unsupportedXliffStructure();
         }
@@ -415,17 +409,15 @@ public class LocalizationService {
             }
             if (!contentAndData.getSecond().isBlank()) {
                 var formatContents =
-                        Optional.of(messageTemplate)
-                                .map(MessageTemplate::getEmailFormat)
-                                .map(EmailFormat::getEmailFormatContents)
-                                .orElse(null);
+                        (messageTemplate != null && messageTemplate.getEmailFormat() != null)
+                                ? messageTemplate.getEmailFormat().getEmailFormatContents()
+                                : null;
 
                 if (formatContents != null) {
 
                     formatContents = formatContentsDeduplicate(formatContents);
 
                     messageTemplate.getEmailFormat().setEmailFormatContents(formatContents);
-
 
                     formatContents.stream()
                             .filter(
@@ -437,7 +429,7 @@ public class LocalizationService {
                             .ifPresent(
                                     formatContent -> {
                                         var langStrings =
-                                                Optional.ofNullable(formatContent)
+                                                Optional.of(formatContent)
                                                         .map(
                                                                 EmailFormatContent
                                                                         ::getLocalizedStringTemplate)
