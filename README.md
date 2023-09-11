@@ -82,6 +82,7 @@ Here are the key configuration parameters for the application:
 - TOKEN_PRIVATE_KEY_SECRET: `<token-private-key-secret-name>`
 - TOKEN_PRIVATE_KEY_VERSION: `<token-private-key-secret-version>`
 - TOKEN_ISSUER: `<token-issuer-name>`
+- OTEL_SAMPLER_PROBABILITY: `<opentelemetry-sampler-probability>`
 
 ### Gradle
 
