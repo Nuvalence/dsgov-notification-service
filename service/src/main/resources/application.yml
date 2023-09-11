@@ -4,6 +4,9 @@ server:
   forward-headers-strategy: framework
 
 spring:
+  sleuth:
+    sampler:
+      probability: ${OTEL_SAMPLER_PROBABILITY:1.0} # Valid values [0.0 - 1.0]
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_CONNECTION_URL}

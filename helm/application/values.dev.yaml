@@ -79,3 +79,4 @@ env:
   SEND_GRID_EMAIL_ENDPOINT: "mail/send"
   SEND_GRID_API_KEY: "${sm://projects/dsgov-dev/secrets/dsgov-sendgrid-api-key/versions/latest}"
   SEND_GRID_SENDER: "${sm://projects/dsgov-dev/secrets/dsgov-sendgrid-sender-email/versions/latest}"
+  OTEL_SAMPLER_PROBABILITY: 1.0 # valid values: [0.0 - 1.0]
