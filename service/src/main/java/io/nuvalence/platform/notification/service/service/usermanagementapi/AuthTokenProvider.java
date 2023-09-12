@@ -2,6 +2,7 @@ package io.nuvalence.platform.notification.service.service.usermanagementapi;
 
 import io.nuvalence.auth.token.SelfSignedTokenGenerator;
 import io.nuvalence.auth.util.RsaKeyUtility;
+import io.nuvalence.platform.notification.service.exception.TokenGeneratorCreationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -41,7 +42,7 @@ public class AuthTokenProvider {
                             Duration.ofMinutes(5),
                             RsaKeyUtility.getPrivateKeyFromString(privateKey));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new TokenGeneratorCreationException("Error creating token generator", e);
         }
     }
 

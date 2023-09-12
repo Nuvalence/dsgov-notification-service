@@ -60,8 +60,7 @@ public class XmlUtils {
         saxBuilder.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
         try (var reader = new StringReader(xmlString)) {
-            Document xmlDoc = saxBuilder.build(reader);
-            return xmlDoc;
+            return saxBuilder.build(reader);
         }
     }
 }

@@ -26,8 +26,6 @@ public class SendMessageService {
 
     private final UserManagementClientService userManagementClientService;
 
-    private final List<SendMessageProvider> sendMessageProviders;
-
     private final TemplateService templateService;
 
     private Map<String, SendMessageProvider> sendMessageProviderMap = new HashMap<>();
@@ -44,7 +42,6 @@ public class SendMessageService {
             List<SendMessageProvider> sendMessageProviders,
             TemplateService templateService) {
         this.userManagementClientService = userManagementClientService;
-        this.sendMessageProviders = sendMessageProviders;
         this.templateService = templateService;
         for (SendMessageProvider sendMessageProvider : sendMessageProviders) {
             sendMessageProviderMap.put(sendMessageProvider.supportedMethod(), sendMessageProvider);

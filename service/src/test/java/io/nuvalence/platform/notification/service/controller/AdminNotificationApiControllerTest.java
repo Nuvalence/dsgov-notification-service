@@ -231,8 +231,8 @@ class AdminNotificationApiControllerTest {
                         StandardCharsets.UTF_8);
 
         List<MessageTemplate> allTemplates = templateRepository.findAll();
-        content = content.replaceAll("TO-BE-CHANGED-1", allTemplates.get(0).getKey().toString());
-        content = content.replaceAll("TO-BE-CHANGED-2", allTemplates.get(1).getKey().toString());
+        content = content.replaceAll("TO-BE-CHANGED-1", allTemplates.get(0).getKey());
+        content = content.replaceAll("TO-BE-CHANGED-2", allTemplates.get(1).getKey());
 
         var responseString =
                 mockMvc.perform(

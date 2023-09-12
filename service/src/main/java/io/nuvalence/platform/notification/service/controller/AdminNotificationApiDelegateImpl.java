@@ -36,7 +36,7 @@ import javax.ws.rs.ForbiddenException;
 @Service
 @SuppressWarnings("checkstyle:ClassFanOutComplexity")
 public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDelegate {
-
+    private static final String CREATE_PERMISSION = "create";
     private final EmailLayoutService emailLayoutService;
     private final EmailLayoutMapper emailLayoutMapper;
     private final TemplateService templateService;
@@ -48,7 +48,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     @Override
     public ResponseEntity<EmailLayoutResponseModel> createEmailLayout(
             String key, EmailLayoutRequestModel emailLayoutRequestModel) {
-        if (!authorizationHandler.isAllowed("create", EmailLayout.class)) {
+        if (!authorizationHandler.isAllowed(CREATE_PERMISSION, EmailLayout.class)) {
             throw new ForbiddenException();
         }
 
@@ -104,7 +104,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
     @Override
     public ResponseEntity<TemplateResponseModel> createTemplate(
             String key, TemplateRequestModel templateRequestModel) {
-        if (!authorizationHandler.isAllowed("create", MessageTemplate.class)) {
+        if (!authorizationHandler.isAllowed(CREATE_PERMISSION, MessageTemplate.class)) {
             throw new ForbiddenException();
         }
         MessageTemplate template =
@@ -163,7 +163,7 @@ public class AdminNotificationApiDelegateImpl implements AdminNotificationApiDel
 
     @Override
     public ResponseEntity<String> createOrUpdateLocalizationData(String xliffFileString) {
-        if (!authorizationHandler.isAllowed("create", MessageTemplate.class)) {
+        if (!authorizationHandler.isAllowed(CREATE_PERMISSION, MessageTemplate.class)) {
             throw new ForbiddenException();
         }
 
