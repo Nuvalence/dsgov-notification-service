@@ -15,6 +15,7 @@ steps:
           -Dsonar.projectName=${REPO_NAME} \
           -Dsonar.branch.name=${BRANCH_NAME} \
           -Dsonar.host.url=${_SONARQUBE_HOST} \
+          -Dsonar.qualitygate.wait=true \
           clean build jacocoTestReport sonarqube
     secretEnv: ['SONARQUBE_TOKEN']
 
