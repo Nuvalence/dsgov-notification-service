@@ -5,6 +5,8 @@ import io.nuvalence.platform.notification.service.domain.EmailFormatContent;
 import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
+import io.nuvalence.platform.notification.service.repository.EmailFormatContentRepository;
+import io.nuvalence.platform.notification.service.repository.LocalizedTemplateStringLanguageRepository;
 import io.nuvalence.platform.notification.service.repository.MessageTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing {@link io.nuvalence.platform.notification.service.domain.MessageTemplate} entities.
@@ -25,6 +29,8 @@ import java.util.Optional;
 public class TemplateService {
 
     private final MessageTemplateRepository templateRepository;
+    private final EmailFormatContentRepository emailFormatContentRepository;
+    private final LocalizedTemplateStringLanguageRepository localizedTemplateStringRepository;
 
     /**
      * Create or update a template.
@@ -179,6 +185,40 @@ public class TemplateService {
                                     emailFormatContent1 ->
                                             emailFormatContent.setId(emailFormatContent1.getId()));
                         });
+
+        // Delete all non-existing emailFormatContents
+        List<String> newTemplateLayoutInputs =
+                templateToSave.getEmailFormat().getEmailFormatContents().stream()
+                        .map(EmailFormatContent::getEmailLayoutInput)
+                        .collect(Collectors.toList());
+
+        List<String> newSmsSupportedLanguages =
+                templateToSave
+                        .getSmsFormat()
+                        .getLocalizedStringTemplate()
+                        .getLocalizedTemplateStrings()
+                        .stream()
+                        .map(LocalizedStringTemplateLanguage::getLanguage)
+                        .collect(Collectors.toList());
+
+        existingTemplate.getEmailFormat().getEmailFormatContents().stream()
+                .filter(
+                        emailFormatContent ->
+                                !newTemplateLayoutInputs.contains(
+                                        emailFormatContent.getEmailLayoutInput()))
+                .forEach(emailFormatContentRepository::delete);
+
+        existingTemplate
+                .getSmsFormat()
+                .getLocalizedStringTemplate()
+                .getLocalizedTemplateStrings()
+                .stream()
+                .filter(
+                        localizedStringTemplateLanguage ->
+                                !newSmsSupportedLanguages.contains(
+                                        localizedStringTemplateLanguage.getLanguage()))
+                .forEach(localizedTemplateStringRepository::delete);
+
         templateToSave.setCreatedBy(existingTemplate.getCreatedBy());
     }
 }
