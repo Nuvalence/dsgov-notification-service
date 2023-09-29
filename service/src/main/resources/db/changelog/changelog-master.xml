@@ -209,10 +209,4 @@
                 referencedColumnNames="id"
                 onDelete="CASCADE"/>
     </changeSet>
-
-    <changeSet id="unique-key-constraint_message_template" author="jcsuarezm">
-        <addUniqueConstraint columnNames="key"
-                             constraintName="uk_message_template_key"
-                             tableName="message_template"/>
-    </changeSet>
 </databaseChangeLog>
