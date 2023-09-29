@@ -55,7 +55,7 @@ public class SendMessageService {
      * @throws ApiException if an error occurs while querying user management service
      * @throws IOException possibly thrown by apis.
      */
-    public void sendMessage(Message message) throws ApiException, IOException { // HER HEREHER
+    public void sendMessage(Message message) throws ApiException, IOException {
         UUID userId = UUID.fromString(message.getUserId());
 
         // Query user management service for user preferences

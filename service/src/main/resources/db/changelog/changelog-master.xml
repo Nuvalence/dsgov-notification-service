@@ -193,4 +193,26 @@
                        tableName="message_parameter"
                        validate="true" />
     </changeSet>
+
+    <changeSet id="drop-old-foreign-key_email_format_content" author="jcsuarezm">
+        <dropForeignKeyConstraint
+                baseTableName="email_format_content"
+                constraintName="fk_email_format_content_email_format_id"/>
+    </changeSet>
+
+    <changeSet id="add-new-foreign-key" author="jcsuarezm">
+        <addForeignKeyConstraint
+                baseTableName="email_format_content"
+                baseColumnNames="email_format_id"
+                constraintName="fk_email_format_content_email_format_id"
+                referencedTableName="email_format"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="unique-key-constraint_message_template" author="jcsuarezm">
+        <addUniqueConstraint columnNames="key"
+                             constraintName="uk_message_template_key"
+                             tableName="message_template"/>
+    </changeSet>
 </databaseChangeLog>
