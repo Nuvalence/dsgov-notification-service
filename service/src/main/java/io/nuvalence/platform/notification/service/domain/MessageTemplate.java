@@ -70,11 +70,11 @@ public class MessageTemplate {
             joinColumns = @JoinColumn(name = "message_template_id", nullable = false))
     private Map<String, String> parameters;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "sms_format_id", referencedColumnName = "id")
     private SmsFormat smsFormat;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "email_format_id", referencedColumnName = "id")
     private EmailFormat emailFormat;
 

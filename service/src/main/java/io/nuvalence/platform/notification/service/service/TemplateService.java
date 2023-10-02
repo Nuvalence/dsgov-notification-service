@@ -1,8 +1,6 @@
 package io.nuvalence.platform.notification.service.service;
 
 import io.nuvalence.auth.token.UserToken;
-import io.nuvalence.platform.notification.service.domain.EmailFormatContent;
-import io.nuvalence.platform.notification.service.domain.LocalizedStringTemplateLanguage;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
 import io.nuvalence.platform.notification.service.repository.MessageTemplateRepository;
@@ -15,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+
+import javax.transaction.Transactional;
 
 /**
  * Service for managing {@link io.nuvalence.platform.notification.service.domain.MessageTemplate} entities.
@@ -33,6 +33,7 @@ public class TemplateService {
      * @param template the template
      * @return the template
      */
+    @Transactional
     public MessageTemplate createOrUpdateTemplate(
             final String key, final MessageTemplate template) {
         OffsetDateTime now = OffsetDateTime.now();
@@ -45,10 +46,11 @@ public class TemplateService {
 
         if (templateFound.isPresent()) {
             MessageTemplate existingTemplate = templateFound.get();
-            updateIdsInTemplate(templateToSave, existingTemplate);
+            templateToSave.setId(existingTemplate.getId());
         }
 
-        return templateRepository.save(templateToSave);
+        MessageTemplate resultingMessageTemplate = templateRepository.save(templateToSave);
+        return resultingMessageTemplate;
     }
 
     /**
@@ -80,105 +82,5 @@ public class TemplateService {
             createdByUserId = token.getApplicationUserId();
         }
         return Optional.ofNullable(createdByUserId);
-    }
-
-    private void updateIdsInTemplate(
-            MessageTemplate templateToSave, MessageTemplate existingTemplate) {
-        templateToSave.setId(existingTemplate.getId());
-        templateToSave.setCreatedTimestamp(existingTemplate.getCreatedTimestamp());
-
-        templateToSave.getSmsFormat().setId(existingTemplate.getSmsFormat().getId());
-        templateToSave.getSmsFormat().setMessageTemplate(templateToSave);
-        templateToSave
-                .getSmsFormat()
-                .getLocalizedStringTemplate()
-                .setId(existingTemplate.getSmsFormat().getLocalizedStringTemplate().getId());
-        templateToSave
-                .getSmsFormat()
-                .getLocalizedStringTemplate()
-                .getLocalizedTemplateStrings()
-                .forEach(
-                        localizedTemplateString -> {
-                            // search in existing template if there is and localizedTemplateString
-                            // with the same language
-                            Optional<LocalizedStringTemplateLanguage> matchedLanguage =
-                                    existingTemplate
-                                            .getSmsFormat()
-                                            .getLocalizedStringTemplate()
-                                            .getLocalizedTemplateStrings()
-                                            .stream()
-                                            .filter(
-                                                    lts ->
-                                                            localizedTemplateString
-                                                                    .getLanguage()
-                                                                    .equals(lts.getLanguage()))
-                                            .findFirst();
-                            matchedLanguage.ifPresent(
-                                    localizedTemplateString1 ->
-                                            localizedTemplateString.setId(
-                                                    localizedTemplateString1.getId()));
-                        });
-
-        templateToSave.getEmailFormat().setId(existingTemplate.getEmailFormat().getId());
-        templateToSave.getEmailFormat().setMessageTemplate(templateToSave);
-        templateToSave
-                .getEmailFormat()
-                .getLocalizedSubjectStringTemplate()
-                .setId(
-                        existingTemplate
-                                .getEmailFormat()
-                                .getLocalizedSubjectStringTemplate()
-                                .getId());
-        templateToSave
-                .getEmailFormat()
-                .getLocalizedSubjectStringTemplate()
-                .getLocalizedTemplateStrings()
-                .forEach(
-                        localizedTemplateString -> {
-                            // search in existing template if there is and localizedTemplateString
-                            // with the same language
-                            Optional<LocalizedStringTemplateLanguage> matchedLanguage =
-                                    existingTemplate
-                                            .getEmailFormat()
-                                            .getLocalizedSubjectStringTemplate()
-                                            .getLocalizedTemplateStrings()
-                                            .stream()
-                                            .filter(
-                                                    lts ->
-                                                            localizedTemplateString
-                                                                    .getLanguage()
-                                                                    .equals(lts.getLanguage()))
-                                            .findFirst();
-                            matchedLanguage.ifPresent(
-                                    localizedTemplateString1 ->
-                                            localizedTemplateString.setId(
-                                                    localizedTemplateString1.getId()));
-                        });
-
-        templateToSave
-                .getEmailFormat()
-                .getEmailFormatContents()
-                .forEach(
-                        emailFormatContent -> {
-                            // search in existing template if there is and emailFormatContent
-                            // with the same emailLayoutInput
-                            Optional<EmailFormatContent> matchedLayoutInput =
-                                    existingTemplate
-                                            .getEmailFormat()
-                                            .getEmailFormatContents()
-                                            .stream()
-                                            .filter(
-                                                    efc ->
-                                                            emailFormatContent
-                                                                    .getEmailLayoutInput()
-                                                                    .equals(
-                                                                            efc
-                                                                                    .getEmailLayoutInput()))
-                                            .findFirst();
-                            matchedLayoutInput.ifPresent(
-                                    emailFormatContent1 ->
-                                            emailFormatContent.setId(emailFormatContent1.getId()));
-                        });
-        templateToSave.setCreatedBy(existingTemplate.getCreatedBy());
     }
 }
