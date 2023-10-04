@@ -60,7 +60,7 @@ steps:
         gh pr comment ${_PR_NUMBER} --body "
         :sparkles: Build reports have been generated and can be accessed here:
         :one: **Jacoco Report URL in GCS:** https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET_NAME}/${REPO_NAME}/${_PR_NUMBER}/jacoco/test/html/index.html
-        :two: **SonarQube:** ${_SONARQUBE_HOST}/dashboard?id=${REPO_NAME}-${_PR_NUMBER}
+        :two: **SonarQube:** ${_SONARQUBE_HOST}/dashboard?branch=${BRANCH_NAME}&id=${REPO_NAME}
         "
     secretEnv: ['GH_TOKEN']
 
