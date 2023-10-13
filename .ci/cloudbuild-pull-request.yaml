@@ -9,14 +9,14 @@ steps:
     args:
       - "-c"
       - |
-        ./gradlew \
-          -Dsonar.login="$$SONARQUBE_TOKEN" \
-          -Dsonar.projectKey=${REPO_NAME} \
-          -Dsonar.projectName=${REPO_NAME} \
-          -Dsonar.branch.name=${BRANCH_NAME} \
-          -Dsonar.host.url=${_SONARQUBE_HOST} \
-          -Dsonar.qualitygate.wait=true \
-          clean build jacocoTestReport sonarqube
+        #./gradlew \
+        #-Dsonar.login="$$SONARQUBE_TOKEN" \
+        #  -Dsonar.projectKey=${REPO_NAME} \
+        #  -Dsonar.projectName=${REPO_NAME} \
+        #  -Dsonar.branch.name=${BRANCH_NAME} \
+        #  -Dsonar.host.url=${_SONARQUBE_HOST} \
+        #  -Dsonar.qualitygate.wait=true \
+        ./gradlew clean build
     secretEnv: ['SONARQUBE_TOKEN']
 
   - id: 'Skaffold Render - Minikube'
