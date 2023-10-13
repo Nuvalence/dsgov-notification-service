@@ -16,7 +16,7 @@ steps:
         #  -Dsonar.branch.name=${BRANCH_NAME} \
         #  -Dsonar.host.url=${_SONARQUBE_HOST} \
         #  -Dsonar.qualitygate.wait=true \
-        /gradlew clean build
+        ./gradlew clean build
     secretEnv: ['SONARQUBE_TOKEN']
 
   - id: 'Skaffold Render - Minikube'
