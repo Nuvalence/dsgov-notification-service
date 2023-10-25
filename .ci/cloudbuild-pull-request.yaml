@@ -30,7 +30,7 @@ steps:
         skaffold render -p minikube --digest-source=tag
 
   - id: 'Skaffold Render - Dev (GKE)'
-    name: "${_GAR_BUILDER_URL}/helm:4.0.0""
+    name: "${_GAR_BUILDER_URL}/helm:4.0.0"
     entrypoint: bash
     args:
       - "-c"
