@@ -12,8 +12,8 @@ plugins {
 }
 
 java {
-	sourceCompatibility = '11'
-	targetCompatibility = '11'
+	sourceCompatibility = '17'
+	targetCompatibility = '17'
 }
 
 apply from: "${rootDir}/gradle/openapi-tools/server.gradle"
@@ -85,8 +85,8 @@ test {
 
 jacocoTestReport {
 	reports {
-		xml.enabled true
-		html.enabled true
+		xml.required = true
+		html.required = true
 	}
 }
 

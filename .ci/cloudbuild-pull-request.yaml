@@ -4,7 +4,7 @@ options:
   machineType: 'E2_HIGHCPU_8'
 steps:
   - id: 'Gradle Build && Publish to SonarQube'
-    name: 'openjdk:11'
+    name: 'openjdk:17'
     entrypoint: bash
     args:
       - "-c"
@@ -20,7 +20,7 @@ steps:
     secretEnv: ['SONARQUBE_TOKEN']
 
   - id: 'Skaffold Render - Minikube'
-    name: "${_GAR_BUILDER_URL}/helm"
+    name: "${_GAR_BUILDER_URL}/helm:4.0.0"
     entrypoint: bash
     args:
       - "-c"
@@ -30,7 +30,7 @@ steps:
         skaffold render -p minikube --digest-source=tag
 
   - id: 'Skaffold Render - Dev (GKE)'
-    name: "${_GAR_BUILDER_URL}/helm"
+    name: "${_GAR_BUILDER_URL}/helm:4.0.0""
     entrypoint: bash
     args:
       - "-c"
