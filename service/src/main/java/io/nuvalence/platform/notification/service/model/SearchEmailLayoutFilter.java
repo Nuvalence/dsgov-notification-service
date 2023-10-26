@@ -1,14 +1,13 @@
 package io.nuvalence.platform.notification.service.model;
 
 import io.nuvalence.platform.notification.service.domain.EmailLayout;
+import jakarta.persistence.criteria.Predicate;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import javax.persistence.criteria.Predicate;
 
 /**
  * Filter for searching email layouts.

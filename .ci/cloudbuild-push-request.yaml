@@ -8,8 +8,8 @@ availableSecrets:
     env: 'SONARQUBE_TOKEN'
 steps:
   - id: 'Gradle Build && Publish to SonarQube'
-    name: 'openjdk:17'
-    entrypoint: bash
+    name: 'azul/zulu-openjdk-alpine:17-latest'
+    entrypoint: sh
     args:
       - "-c"
       - |

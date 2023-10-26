@@ -7,14 +7,13 @@ import io.nuvalence.platform.notification.service.generated.models.MessageReques
 import io.nuvalence.platform.notification.service.generated.models.MessageResponseModel;
 import io.nuvalence.platform.notification.service.mapper.MessageMapperImpl;
 import io.nuvalence.platform.notification.service.service.MessageService;
+import jakarta.ws.rs.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-
-import javax.ws.rs.ForbiddenException;
 
 /**
  * Implementation of SendNotificationApiDelegate.

@@ -1,11 +1,10 @@
 package io.nuvalence.platform.notification.service.utils.jpa;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import org.springframework.util.StringUtils;
 
 import java.util.UUID;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 /**
  * JPA converter to map UUID class to db column.
