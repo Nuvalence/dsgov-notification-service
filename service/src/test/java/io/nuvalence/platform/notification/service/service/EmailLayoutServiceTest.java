@@ -137,8 +137,8 @@ class EmailLayoutServiceTest {
 
         assertNotNull(updatedEmailLayout);
         assertEquals(
-                createdEmailLayout.getCreatedTimestamp().truncatedTo(ChronoUnit.SECONDS),
-                updatedEmailLayout.getCreatedTimestamp().truncatedTo(ChronoUnit.SECONDS));
+                createdEmailLayout.getCreatedTimestamp(),
+                updatedEmailLayout.getCreatedTimestamp());
         assertNotEquals(
                 createdEmailLayout.getLastUpdatedTimestamp(),
                 updatedEmailLayout.getLastUpdatedTimestamp());
