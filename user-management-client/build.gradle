@@ -47,12 +47,12 @@ compileJava {
     dependsOn "openApiGenerate"
 }
 
-task copyJarToModuleNotificationProject(type: Copy) {
+tasks.register('copyJarToModuleNotificationProject', Copy) {
+    dependsOn(":user-management-client:jar")
     from "${buildDir}/libs/user-management-client-0.0.1-SNAPSHOT.jar"
     into "${projectDir}/../service/libs"
 }
 
-// Hook the copyJarToModuleB task into the build lifecycle
-build.dependsOn  copyJarToModuleNotificationProject
+
 
 tasks.register("prepareKotlinBuildScriptModel"){}
