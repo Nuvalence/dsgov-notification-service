@@ -3,6 +3,7 @@ package io.nuvalence.platform.notification.service.service.usermanagementapi;
 import io.nuvalence.auth.token.SelfSignedTokenGenerator;
 import io.nuvalence.auth.util.RsaKeyUtility;
 import io.nuvalence.platform.notification.service.exception.TokenGeneratorCreationException;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,8 +12,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Simple class that houses and provides the service to service token used in user-manager

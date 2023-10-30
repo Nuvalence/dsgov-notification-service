@@ -186,7 +186,7 @@ class AdminNotificationApiControllerTest {
 
         var responseString =
                 mockMvc.perform(
-                                get("/api/v1/admin/localization-data/")
+                                get("/api/v1/admin/localization-data")
                                         .param("locale", targetLanguage))
                         .andExpect(status().isOk())
                         .andReturn()
@@ -205,7 +205,7 @@ class AdminNotificationApiControllerTest {
 
         var responseString =
                 mockMvc.perform(
-                                get("/api/v1/admin/localization-data/")
+                                get("/api/v1/admin/localization-data")
                                         .param("locale", targetLanguage))
                         .andExpect(status().isOk())
                         .andReturn()

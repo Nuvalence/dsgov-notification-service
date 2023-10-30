@@ -1,9 +1,9 @@
 apply from: "$rootDir/gradle/openapi-tools/base.gradle"
 
 dependencies {
-    //implementation 'org.springframework.boot:spring-boot-starter-web'
-    //implementation 'jakarta.validation:jakarta.validation-api'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'jakarta.validation:jakarta.validation-api'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 }
 
 openApiGenerate {
@@ -13,6 +13,7 @@ openApiGenerate {
             delegatePattern: "true",
             documentationProvider: 'springdoc',
             configPackage: "${group}.${name}.generated.config",
-            useTags: "true"
+            useTags: "true",
+            useSpringBoot3: "true"
     ]
 }

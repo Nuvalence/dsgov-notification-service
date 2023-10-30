@@ -6,14 +6,13 @@ import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
 import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.exception.MessageParsingException;
 import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import javax.transaction.Transactional;
 
 /**
  * Service to handle messages from the PubSub subscription, for notification processing.

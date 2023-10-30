@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -67,42 +68,26 @@ public class WebSecurityConfig {
      */
     @Bean
     @Order(0)
-    public SecurityFilterChain apidocs(HttpSecurity http) throws Exception {
-        return http.requestMatchers(
-                        matchers ->
-                                matchers.antMatchers(
-                                        "/",
-                                        "/swagger-ui.html",
-                                        "/swagger-ui/**",
-                                        "/v3/api-docs/**"))
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http.cors()
+                .and()
+                .csrf(csrf -> csrf.disable())
                 .requestCache()
-                .disable()
+                .requestCache(new NullRequestCache())
+                .and()
                 .securityContext()
                 .disable()
-                .sessionManagement()
-                .disable()
-                .build();
-    }
-
-    /**
-     * Sets up API token filter.
-     *
-     * @param http Spring HttpSecurity configuration.
-     * @return Configured SecurityFilterChain
-     * @throws Exception If any erroes occur during configuration
-     */
-    @Bean
-    @Order(1)
-    public SecurityFilterChain defaultSecurityFilterChain(final HttpSecurity http)
-            throws Exception {
-        return http.csrf()
-                .disable()
-                .authorizeHttpRequests(
-                        authorize -> authorize.antMatchers("/actuator/health").permitAll())
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(
+                        auth ->
+                                auth.requestMatchers(
+                                                "/",
+                                                "/swagger-ui.html",
+                                                "/swagger-ui/**",
+                                                "/v3/api-docs/**",
+                                                "/actuator/health")
+                                        .permitAll().anyRequest().authenticated())
                 .addFilterAfter(new LoggingContextFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(
                         new TokenFilter(
@@ -113,6 +98,7 @@ public class WebSecurityConfig {
                                         NAMESPACE)),
                         LoggingContextFilter.class)
                 .build();
+
     }
 
     /**

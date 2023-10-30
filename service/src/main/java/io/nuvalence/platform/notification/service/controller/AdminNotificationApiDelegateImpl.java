@@ -18,6 +18,7 @@ import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
 import io.nuvalence.platform.notification.service.service.EmailLayoutService;
 import io.nuvalence.platform.notification.service.service.LocalizationService;
 import io.nuvalence.platform.notification.service.service.TemplateService;
+import jakarta.ws.rs.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,8 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
-
-import javax.ws.rs.ForbiddenException;
 
 /**
  * Implementation of AdminNotificationApiDelegate.

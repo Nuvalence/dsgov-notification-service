@@ -4,6 +4,7 @@ import io.nuvalence.auth.token.UserToken;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.model.SearchTemplateFilter;
 import io.nuvalence.platform.notification.service.repository.MessageTemplateRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
-
-import javax.transaction.Transactional;
 
 /**
  * Service for managing {@link io.nuvalence.platform.notification.service.domain.MessageTemplate} entities.
