@@ -3,21 +3,48 @@ logsBucket: "gs://${_ARTIFACT_BUCKET_NAME}/cloudbuild-logs/app-${_SERVICE_NAME}-
 options:
   machineType: 'E2_HIGHCPU_8'
 steps:
-  - id: 'Gradle Build && Publish to SonarQube'
-    name: 'openjdk:11'
+  - id: 'Gradle Build && Set up ssh tunnel && Publish to SonarQube'
+    secretEnv: ['SONARQUBE_TOKEN']
+    #name: 'gcr.io/cloud-builders/gcloud'
+    name: 'us-east4-docker.pkg.dev/dsgov-services/builders/cloudbuild-jdk17'
     entrypoint: bash
     args:
-      - "-c"
+      - '-c'
       - |
-        #./gradlew \
-        #-Dsonar.login="$$SONARQUBE_TOKEN" \
-        #  -Dsonar.projectKey=${REPO_NAME} \
-        #  -Dsonar.projectName=${REPO_NAME} \
-        #  -Dsonar.branch.name=${BRANCH_NAME} \
-        #  -Dsonar.host.url=${_SONARQUBE_HOST} \
-        #  -Dsonar.qualitygate.wait=true \
-        ./gradlew clean build
-    secretEnv: ['SONARQUBE_TOKEN']
+        SONAR_HOST=$(gcloud compute instances list --filter 'name~sonarqube' --format 'value(name)')
+        SONAR_ZONE=$(gcloud compute instances list --filter 'name~sonarqube' --format 'value(zone)')
+        gcloud compute ssh sonarqube@$$SONAR_HOST --zone $$SONAR_ZONE
+        gcloud compute ssh sonarqube@$$SONAR_HOST  \
+          --zone $$SONAR_ZONE \
+          --tunnel-through-iap \
+          --project $PROJECT_ID \
+          -- -NL 9000:localhost:9000 &
+        PID=$?
+        ELAPSED=0
+        TIMEOUT=10
+        echo "Establishing tunnel..."
+        until curl -s http://localhost:9000
+          do
+          sleep 1
+          if (( ELAPSED > TIMEOUT ))
+            then
+            echo "establishing tunnel timed out. exiting."
+            kill $$PID
+            exit 1
+          fi
+          ELAPSED=$(( ELAPSED + 1 ))
+        done
+        echo "Tunnel has been established"
+        ./gradlew \
+            -Dsonar.login="$$SONARQUBE_TOKEN" \
+            -Dsonar.projectKey=${REPO_NAME} \
+            -Dsonar.projectName=${REPO_NAME} \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.branch.name=${BRANCH_NAME} \
+            -Dsonar.qualitygate.wait=true \
+             clean build jacocoTestReport sonar
+
+        kill $$PID
 
   - id: 'Skaffold Render - Minikube'
     name: "${_GAR_BUILDER_URL}/helm"
