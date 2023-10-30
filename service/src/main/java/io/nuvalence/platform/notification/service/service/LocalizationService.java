@@ -9,6 +9,7 @@ import io.nuvalence.platform.notification.service.domain.SmsFormat;
 import io.nuvalence.platform.notification.service.exception.BadDataException;
 import io.nuvalence.platform.notification.service.repository.MessageTemplateRepository;
 import io.nuvalence.platform.notification.service.utils.XmlUtils;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.okapi.common.Event;
@@ -35,8 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Service to handle localization data.

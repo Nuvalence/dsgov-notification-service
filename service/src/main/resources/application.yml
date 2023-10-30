@@ -4,6 +4,8 @@ server:
   forward-headers-strategy: framework
 
 spring:
+  config:
+    import: sm://
   sleuth:
     sampler:
       probability: ${OTEL_SAMPLER_PROBABILITY:1.0} # Valid values [0.0 - 1.0]
@@ -17,7 +19,7 @@ spring:
     hibernate:
       ddl-auto: none
     open-in-view: false
-    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml

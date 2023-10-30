@@ -4,8 +4,8 @@ plugins {
     id 'java-library'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 openApiGenerate {
     generatorName = 'java'
@@ -13,7 +13,8 @@ openApiGenerate {
             library: 'native',
             java8: 'true',
             dateLibrary: 'java8',
-            openApiNullable: 'false']
+            openApiNullable: 'false',
+            useJakartaEE: 'true']
     remoteInputSpec = project.property('usermanagement-services.api-docs.url')
     outputDir = "$buildDir/generated".toString()
     invokerPackage = "${group}.usermanagent.client"
@@ -46,12 +47,12 @@ compileJava {
     dependsOn "openApiGenerate"
 }
 
-task copyJarToModuleNotificationProject(type: Copy) {
+tasks.register('copyJarToModuleNotificationProject', Copy) {
+    dependsOn(":user-management-client:jar")
     from "${buildDir}/libs/user-management-client-0.0.1-SNAPSHOT.jar"
     into "${projectDir}/../service/libs"
 }
 
-// Hook the copyJarToModuleB task into the build lifecycle
-build.dependsOn  copyJarToModuleNotificationProject
+
 
 tasks.register("prepareKotlinBuildScriptModel"){}

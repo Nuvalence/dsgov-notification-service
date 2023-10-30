@@ -7,7 +7,7 @@ profiles:
     build:
       googleCloudBuild:
         projectId: dsgov-services
-        gradleImage: gradle:7.6-jdk11-alpine
+        gradleImage: gradle:8.2.1-jdk17-alpine
       artifacts:
         - image: us-east4-docker.pkg.dev/dsgov-services/application/dsgov-notification-service
           jib:
@@ -31,7 +31,7 @@ profiles:
     build:
       googleCloudBuild:
         projectId: dsgov-services
-        gradleImage: gradle:7.6-jdk11-alpine
+        gradleImage: gradle:8.2.1-jdk17-alpine
       artifacts:
         - image: us-east4-docker.pkg.dev/dsgov-services/application/dsgov-notification-service
           jib:

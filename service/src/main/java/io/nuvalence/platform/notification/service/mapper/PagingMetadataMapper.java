@@ -1,6 +1,7 @@
 package io.nuvalence.platform.notification.service.mapper;
 
 import io.nuvalence.platform.notification.service.generated.models.PagingMetadata;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,8 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Converts page objects from JPA to the paging metadata model.
