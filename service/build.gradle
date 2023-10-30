@@ -64,7 +64,7 @@ dependencies {
 
 	runtimeOnly 'org.postgresql:postgresql:42.6.0'
 
-	testRuntimeOnly 'com.h2database:h2:2.2.224'
+	testRuntimeOnly 'com.h2database:h2:2.1.214'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	implementation 'com.twilio.sdk:twilio:9.9.1'

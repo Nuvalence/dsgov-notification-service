@@ -67,9 +67,9 @@ public class EmailLayout {
     @Column(name = "createdby", length = 64)
     private String createdBy;
 
-    @Column(name = "created_timestamp", updatable = false, columnDefinition = "TIMESTAMP(6)")
+    @Column(name = "created_timestamp", updatable = false)
     private OffsetDateTime createdTimestamp;
 
-    @Column(name = "last_updated_timestamp", columnDefinition = "TIMESTAMP(6)")
+    @Column(name = "last_updated_timestamp")
     private OffsetDateTime lastUpdatedTimestamp;
 }
