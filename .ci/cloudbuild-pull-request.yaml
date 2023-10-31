@@ -5,12 +5,12 @@ options:
 steps:
   - id: 'Gradle Build && Set up ssh tunnel && Publish to SonarQube'
     secretEnv: ['SONARQUBE_TOKEN']
-    #name: 'gcr.io/cloud-builders/gcloud'
     name: 'us-east4-docker.pkg.dev/dsgov-services/builders/cloudbuild-jdk17'
     entrypoint: bash
     args:
       - '-c'
       - |
+
         SONAR_HOST=$(gcloud compute instances list --filter 'name~sonarqube' --format 'value(name)')
         SONAR_ZONE=$(gcloud compute instances list --filter 'name~sonarqube' --format 'value(zone)')
         gcloud compute ssh sonarqube@$$SONAR_HOST --zone $$SONAR_ZONE
