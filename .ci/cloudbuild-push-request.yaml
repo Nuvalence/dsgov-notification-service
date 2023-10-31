@@ -9,7 +9,7 @@ availableSecrets:
 steps:
   - id: 'Gradle Build && Set up ssh tunnel && Publish to SonarQube'
     secretEnv: ['SONARQUBE_TOKEN']
-    name: 'us-east4-docker.pkg.dev/dsgov-services/builders/cloudbuild-jdk17'
+    name: "${_GAR_BUILDER_URL}/cloudbuild-jdk17"
     entrypoint: bash
     args:
       - '-c'
