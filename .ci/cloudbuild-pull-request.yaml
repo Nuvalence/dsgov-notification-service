@@ -44,7 +44,15 @@ steps:
             -Dsonar.qualitygate.wait=true \
              clean build jacocoTestReport sonar
 
+        SQEXIT=$?
+        echo "Sonarqube scan exited with status code $$SQEXIT"
+    
         kill $$PID
+        ## Fail code needs to be the last step in the ID.
+        ## Moving an escape check to the end of the ID.
+        if [[ $$SQEXIT > 0 ]]; then
+          exit 1
+        fi
 
   - id: 'Skaffold Render - Minikube'
     name: "${_GAR_BUILDER_URL}/helm:4.0.0"
