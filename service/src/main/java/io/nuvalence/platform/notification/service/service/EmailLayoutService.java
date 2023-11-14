@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -47,7 +48,7 @@ public class EmailLayoutService {
      * @return Email Layout
      */
     public EmailLayout createEmailLayout(final String key, final EmailLayout emailLayout) {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
 
         Set<String> variableNames =
                 MessageBuilderUtils.getVariablesInTemplate(emailLayout.getContent(), handlebars);

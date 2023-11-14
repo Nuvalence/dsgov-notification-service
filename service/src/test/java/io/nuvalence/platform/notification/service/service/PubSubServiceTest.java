@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ class PubSubServiceTest {
         message.setMessageTemplateKey("messageTemplateKey");
         message.setStatus("QUEUED");
         message.setParameters(Map.of("parameter-key", "parameter-value"));
-        message.setRequestedTimestamp(OffsetDateTime.now());
+        message.setRequestedTimestamp(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
 
         Mockito.when(mockMapper.writeValueAsString(any(Message.class)))
                 .thenReturn("serialized-string");

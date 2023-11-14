@@ -135,9 +135,10 @@ class EmailLayoutServiceTest {
         EmailLayout updatedEmailLayout = service.createEmailLayout(key, emailLayout2);
 
         assertNotNull(updatedEmailLayout);
-        // TO BE fixed
-        // assertEquals(
-        // createdEmailLayout.getCreatedTimestamp(), updatedEmailLayout.getCreatedTimestamp());
+
+        assertEquals(
+                createdEmailLayout.getCreatedTimestamp(), updatedEmailLayout.getCreatedTimestamp());
+
         assertNotEquals(
                 createdEmailLayout.getLastUpdatedTimestamp(),
                 updatedEmailLayout.getLastUpdatedTimestamp());
