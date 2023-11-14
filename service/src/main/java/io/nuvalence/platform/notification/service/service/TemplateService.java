@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 /**
@@ -35,7 +36,7 @@ public class TemplateService {
     @Transactional
     public MessageTemplate createOrUpdateTemplate(
             final String key, final MessageTemplate template) {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
 
         Optional<MessageTemplate> templateFound =
                 templateRepository.findFirstByKeyOrderByVersionDesc(key);

@@ -20,7 +20,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -138,10 +137,8 @@ class EmailLayoutServiceTest {
 
         assertNotNull(updatedEmailLayout);
 
-        OffsetDateTime createdTimestampRounded =
-                roundToMicroseconds(createdEmailLayout.getCreatedTimestamp());
-        OffsetDateTime updatedTimestampRounded =
-                roundToMicroseconds(updatedEmailLayout.getCreatedTimestamp());
+        OffsetDateTime createdTimestampRounded = createdEmailLayout.getCreatedTimestamp();
+        OffsetDateTime updatedTimestampRounded = updatedEmailLayout.getCreatedTimestamp();
 
         assertEquals(createdTimestampRounded, updatedTimestampRounded);
 
@@ -217,12 +214,5 @@ class EmailLayoutServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals(createdEmailLayout1.getId(), result.getContent().get(0).getId());
-    }
-
-    private OffsetDateTime roundToMicroseconds(OffsetDateTime dateTime) {
-        long nanoSeconds = dateTime.getNano();
-        long microSeconds = TimeUnit.NANOSECONDS.toMicros(nanoSeconds);
-        long roundedNanoSeconds = TimeUnit.MICROSECONDS.toNanos(microSeconds);
-        return dateTime.withNano((int) roundedNanoSeconds);
     }
 }
