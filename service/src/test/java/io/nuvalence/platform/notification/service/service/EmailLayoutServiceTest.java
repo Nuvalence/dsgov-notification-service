@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -137,10 +136,8 @@ class EmailLayoutServiceTest {
 
         assertNotNull(updatedEmailLayout);
 
-        OffsetDateTime createdTimestampRounded = createdEmailLayout.getCreatedTimestamp();
-        OffsetDateTime updatedTimestampRounded = updatedEmailLayout.getCreatedTimestamp();
-
-        assertEquals(createdTimestampRounded, updatedTimestampRounded);
+        assertEquals(
+                createdEmailLayout.getCreatedTimestamp(), updatedEmailLayout.getCreatedTimestamp());
 
         assertNotEquals(
                 createdEmailLayout.getLastUpdatedTimestamp(),
