@@ -72,7 +72,7 @@ public class PubSubOutboundConfig {
     public MessageHandler localMessageSender() {
         return message -> {
             String payload = (String) message.getPayload();
-            log.info("Message sent to local channel: {}", payload);
+            log.info("Message sent to local channel: {}", payload)
         };
     }
 
