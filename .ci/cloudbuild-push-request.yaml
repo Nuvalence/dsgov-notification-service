@@ -46,7 +46,17 @@ steps:
             -Dsonar.branch.name=${BRANCH_NAME} \
              clean build jacocoTestReport sonar
 
+        EXIT=$?
+        echo "Build exited with status code $$EXIT"
+    
         kill $$PID
+    
+        ## Fail code needs to be the last step in the ID.
+        ## Moving an escape check to the end of the ID.
+    
+        if [[ $$EXIT > 0 ]]; then
+          exit 1
+        fi
 
   - id: 'build'
     name: "${_GAR_BUILDER_URL}/helm:4.0.0"
