@@ -65,7 +65,7 @@ net:
     failureThreshold: 10
 
 env:
-  ALLOWED_ORIGINS: "http://localhost:4202, http://employer.dsgov.test, http://localhost:4200,http://localhost:8081,http://localhost:8082"
+  ALLOWED_ORIGINS: "http://localhost:4200, http://localhost:4201, http://localhost:4202, http://public.dsgov.test, http://agency.dsgov.test, http://employer.dsgov.test"
   DB_CONNECTION_URL: "jdbc:postgresql://notification-service-postgres:5432/local-notification-service-db"
   DB_USERNAME: "root"
   DB_PASSWORD: "root"
