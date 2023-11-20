@@ -1,6 +1,7 @@
 package io.nuvalence.platform.notification.service.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -71,5 +72,39 @@ public class ErrorHandler {
                         .title(exception.getMessage())
                         .build();
         return ResponseEntity.badRequest().body(problemDetail);
+    }
+
+    /**
+     * Manages DataIntegrityViolationException exceptions, to provide easily readable response messages.
+     * @param e exception to be managed.
+     * @return Response to be sent to the user.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(
+            DataIntegrityViolationException e) {
+        var response =
+                ResponseEntity.internalServerError()
+                        .body(
+                                ProblemDetail.builder()
+                                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                                        .title("Data integrity violation. Not saved.")
+                                        .build());
+
+        try {
+            if (e.getRootCause().getMessage().contains("key value violates unique constraint")) {
+                response =
+                        ResponseEntity.badRequest()
+                                .body(
+                                        ProblemDetail.builder()
+                                                .status(HttpStatus.BAD_REQUEST.value())
+                                                .title(
+                                                        "Case-insensitive key already exists for"
+                                                                + " this type.")
+                                                .build());
+            }
+        } catch (Exception ex) {
+            return response;
+        }
+        return response;
     }
 }
