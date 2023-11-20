@@ -4,6 +4,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -19,6 +21,8 @@ import io.nuvalence.platform.notification.service.generated.models.LocalizedTemp
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModel;
 import io.nuvalence.platform.notification.service.generated.models.TemplateRequestModelSmsFormat;
 import io.nuvalence.platform.notification.service.repository.MessageTemplateRepository;
+import io.nuvalence.platform.notification.service.service.EmailLayoutService;
+import io.nuvalence.platform.notification.service.service.TemplateService;
 import io.nuvalence.platform.notification.service.utils.XmlUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -29,10 +33,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.StreamUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -44,10 +53,13 @@ import java.util.Map;
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class AdminNotificationApiControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private MessageTemplateRepository templateRepository;
+    @Autowired private ApplicationContext applicationContext;
+    @Autowired private TemplateService templateServiceBean;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -69,13 +81,36 @@ class AdminNotificationApiControllerTest {
     @Test
     void testCreateEmailLayout() throws Exception {
         String emailLayoutKey = RandomStringUtils.randomAlphanumeric(10);
-        createEmailLayout(emailLayoutKey);
+        reusableCreateEmailLayoutRequest(emailLayoutKey);
+    }
+
+    @Test
+    void testCreateEmailLayoutKeyUniquenessConstraint() throws Exception {
+        var adminImplementation =
+                applicationContext.getBean(AdminNotificationApiDelegateImpl.class);
+        var emailLayoutService = mock(EmailLayoutService.class);
+
+        ReflectionTestUtils.setField(adminImplementation, "emailLayoutService", emailLayoutService);
+
+        var exception = mock(DataIntegrityViolationException.class);
+        when(exception.getRootCause())
+                .thenReturn(new RuntimeException("key value violates unique constraint"));
+
+        when(emailLayoutService.createEmailLayout(anyString(), any())).thenThrow(exception);
+
+        createEmailLayoutBaseRequest(RandomStringUtils.randomAlphanumeric(10))
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        jsonPath("$.title")
+                                .value("Case-insensitive key already exists for this type."));
+
+        ReflectionTestUtils.setField(adminImplementation, "emailLayoutService", emailLayoutService);
     }
 
     @Test
     void testgetEmailLayoutByKey() throws Exception {
         String emailLayoutKey = RandomStringUtils.randomAlphanumeric(10);
-        createEmailLayout(emailLayoutKey);
+        reusableCreateEmailLayoutRequest(emailLayoutKey);
 
         mockMvc.perform(get("/api/v1/admin/email-layout/{key}", emailLayoutKey))
                 .andExpect(status().isOk())
@@ -94,14 +129,36 @@ class AdminNotificationApiControllerTest {
 
     @Test
     void testCreateTemplate() throws Exception {
-        reusableCreateTemplate();
+        reusableCreateTemplateRequest(RandomStringUtils.randomAlphanumeric(10));
     }
 
-    private void reusableCreateTemplate() throws Exception {
-        String emailLayoutKey = RandomStringUtils.randomAlphanumeric(10);
-        createEmailLayout(emailLayoutKey);
+    @Test
+    void testCreateTemplateKeyUniquenessConstraint() throws Exception {
 
-        String templateKey = RandomStringUtils.randomAlphanumeric(10);
+        var adminImplementation =
+                applicationContext.getBean(AdminNotificationApiDelegateImpl.class);
+        var templateService = mock(TemplateService.class);
+
+        ReflectionTestUtils.setField(adminImplementation, "templateService", templateService);
+
+        var exception = mock(DataIntegrityViolationException.class);
+        when(exception.getRootCause())
+                .thenReturn(new RuntimeException("key value violates unique constraint"));
+
+        when(templateService.createOrUpdateTemplate(anyString(), any())).thenThrow(exception);
+
+        createTemplateBaseRequest(RandomStringUtils.randomAlphanumeric(10))
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        jsonPath("$.title")
+                                .value("Case-insensitive key already exists for this type."));
+
+        ReflectionTestUtils.setField(adminImplementation, "templateService", templateServiceBean);
+    }
+
+    private ResultActions createTemplateBaseRequest(String templateKey) throws Exception {
+        String emailLayoutKey = RandomStringUtils.randomAlphanumeric(10);
+        reusableCreateEmailLayoutRequest(emailLayoutKey);
 
         Map<String, String> templateParameters =
                 Map.of(
@@ -149,17 +206,21 @@ class AdminNotificationApiControllerTest {
                         emailFormat,
                         smsFormat);
 
-        mockMvc.perform(
-                        put("/api/v1/admin/templates/{key}", templateKey)
-                                .content(objectMapper.writeValueAsString(templateRequestModel))
-                                .contentType(MediaType.APPLICATION_JSON))
+        return mockMvc.perform(
+                put("/api/v1/admin/templates/{key}", templateKey)
+                        .content(objectMapper.writeValueAsString(templateRequestModel))
+                        .contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private void reusableCreateTemplateRequest(String templateKey) throws Exception {
+        createTemplateBaseRequest(templateKey)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.key", is(templateKey)))
                 .andReturn();
     }
 
-    private void createEmailLayout(String emailLayoutKey) throws Exception {
+    private ResultActions createEmailLayoutBaseRequest(String emailLayoutKey) throws Exception {
         EmailLayoutRequestModel emailLayoutRequestModel =
                 new EmailLayoutRequestModel(
                         "name",
@@ -167,10 +228,14 @@ class AdminNotificationApiControllerTest {
                         "content",
                         new java.util.ArrayList<>(List.of("inputs")));
 
-        mockMvc.perform(
-                        put("/api/v1/admin/email-layout/{key}", emailLayoutKey)
-                                .content(objectMapper.writeValueAsString(emailLayoutRequestModel))
-                                .contentType(MediaType.APPLICATION_JSON))
+        return mockMvc.perform(
+                put("/api/v1/admin/email-layout/{key}", emailLayoutKey)
+                        .content(objectMapper.writeValueAsString(emailLayoutRequestModel))
+                        .contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private void reusableCreateEmailLayoutRequest(String emailLayoutKey) throws Exception {
+        createEmailLayoutBaseRequest(emailLayoutKey)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.key", is(emailLayoutKey)))
@@ -180,7 +245,7 @@ class AdminNotificationApiControllerTest {
     @Test
     void testGetLocalizationDataForExistingLanguage() throws Exception {
 
-        reusableCreateTemplate();
+        reusableCreateTemplateRequest(RandomStringUtils.randomAlphanumeric(10));
 
         String targetLanguage = "es";
 
@@ -199,7 +264,7 @@ class AdminNotificationApiControllerTest {
     @Test
     void testGetLocalizationDataTemplateForNewLanguage() throws Exception {
 
-        reusableCreateTemplate();
+        reusableCreateTemplateRequest(RandomStringUtils.randomAlphanumeric(10));
 
         String targetLanguage = "fr";
 
@@ -218,8 +283,8 @@ class AdminNotificationApiControllerTest {
     @Test
     void testPutLocalizationDataSuccess() throws Exception {
 
-        reusableCreateTemplate();
-        reusableCreateTemplate();
+        reusableCreateTemplateRequest(RandomStringUtils.randomAlphanumeric(10));
+        reusableCreateTemplateRequest(RandomStringUtils.randomAlphanumeric(10));
 
         String targetLanguage = "fr";
 

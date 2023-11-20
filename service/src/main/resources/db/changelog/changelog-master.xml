@@ -209,4 +209,16 @@
                 referencedColumnNames="id"
                 onDelete="CASCADE"/>
     </changeSet>
+
+    <changeSet id="unique-index-message_template-key" dbms="postgresql" author="dortega">
+        <sql>
+            create unique index message_template_key_uniqueness on message_template (lower(key));
+        </sql>
+    </changeSet>
+
+    <changeSet id="unique-index-email_layout-key" dbms="postgresql" author="dortega">
+        <sql>
+            create unique index email_layout_key_uniqueness on email_layout (lower(key));
+        </sql>
+    </changeSet>
 </databaseChangeLog>
