@@ -52,7 +52,7 @@ net:
     failureThreshold: 10
 
 env:
-  ALLOWED_ORIGINS: "https://api.dsgov.demo.nuvalence.io https://agency.dsgov.demo.nuvalence.io https://public.dsgov.demo.nuvalence.io"
+  ALLOWED_ORIGINS: "http://localhost:4200, http://localhost:4201, http://localhost:4202, https://api.dsgov.demo.nuvalence.io, https://agency.dsgov.demo.nuvalence.io, https://public.dsgov.demo.nuvalence.io, https://employer.dsgov.demo.nuvalence.io"
   CERBOS_URI: "127.0.0.1:3592"
   DB_CONNECTION_URL: "jdbc:postgresql://127.0.0.1:5432/notification-service"
   DB_USERNAME: "${sm://projects/dsgov-demo/secrets/dsgov-demo-db-user/versions/latest}"
