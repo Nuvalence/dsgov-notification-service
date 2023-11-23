@@ -93,10 +93,10 @@ public class ErrorHandler {
         try {
             if (e.getRootCause().getMessage().contains("key value violates unique constraint")) {
                 response =
-                        ResponseEntity.badRequest()
+                        ResponseEntity.status(409)
                                 .body(
                                         ProblemDetail.builder()
-                                                .status(HttpStatus.BAD_REQUEST.value())
+                                                .status(HttpStatus.CONFLICT.value())
                                                 .title(
                                                         "Case-insensitive key already exists for"
                                                                 + " this type.")
