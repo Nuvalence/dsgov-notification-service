@@ -99,7 +99,7 @@ class AdminNotificationApiControllerTest {
         when(emailLayoutService.createEmailLayout(anyString(), any())).thenThrow(exception);
 
         createEmailLayoutBaseRequest(RandomStringUtils.randomAlphanumeric(10))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(
                         jsonPath("$.title")
                                 .value("Case-insensitive key already exists for this type."));
@@ -148,7 +148,7 @@ class AdminNotificationApiControllerTest {
         when(templateService.createOrUpdateTemplate(anyString(), any())).thenThrow(exception);
 
         createTemplateBaseRequest(RandomStringUtils.randomAlphanumeric(10))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(
                         jsonPath("$.title")
                                 .value("Case-insensitive key already exists for this type."));
