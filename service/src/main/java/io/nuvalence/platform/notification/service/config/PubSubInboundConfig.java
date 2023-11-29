@@ -125,7 +125,6 @@ public class PubSubInboundConfig {
      *
      * @return Message Handler
      */
-    @Bean
     @ServiceActivator(inputChannel = INPUT_CHANNEL)
     public MessageHandler messageReceiverNotificationProcessing() {
         return subscriber;

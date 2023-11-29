@@ -17,7 +17,7 @@ spring:
       pubsub:
         topic: NOTIFICATION_MSG_QUEUE
         deadLetterTopic: NOTIFICATION_DEAD_LETTER_TEST
-        enabled: false
+        enabled: true
         subscriber:
           fully-qualified-name: NOTIFICATION_MSG_QUEUESUBSCRIPTION
         subscription2: NOTIFICATION_MSG_QUEUESUBSCRIPTION
@@ -86,3 +86,10 @@ sendgrid:
   sendEmailEndpoint: "mail/send"
   apiKey: "apiKey"
   from: "send@test.com"
+
+events:
+  subscriber:
+    subscriptions:
+      - 'test-events-subscription'
+    topics:
+      - 'test-events-topic'
