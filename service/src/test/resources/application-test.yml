@@ -16,7 +16,7 @@ spring:
     gcp:
       pubsub:
         topic: NOTIFICATION_MSG_QUEUE
-        deadLetterTopic: NOTIFICATION_DEAD_LETTER_TEST
+        deadLetterTopic: projects/dsgov-dev/topics/NOTIFICATION_DEAD_LETTER_TEST
         enabled: true
         subscriber:
           fully-qualified-name: NOTIFICATION_MSG_QUEUESUBSCRIPTION
