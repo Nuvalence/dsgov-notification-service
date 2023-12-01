@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
  * Service to handle messages from the PubSub subscription, for notification processing.
  */
 @Slf4j
-@Service
+@Service("notificationProcessingSubscriber")
 public class NotificationProcessingSubscriber implements MessageHandler {
 
     private static final String SENT_STATUS = "SENT";

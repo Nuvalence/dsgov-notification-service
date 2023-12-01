@@ -70,7 +70,6 @@ env:
   EVENT_NOTIFICATION_TOPIC: "projects/dsgov-dev/topics/NOTIFICATION_REQUESTS"
   EVENT_NOTIFICATION_SUBSCRIPTION: "projects/dsgov-dev/subscriptions/NOTIFICATION_REQUESTS_SUBSCRIPTION"
   PUBSUB_EMULATOR_HOST: false # set actual "host:port" to enable or false to disable
-  PUBSUB_ENABLED: true
   PUBSUB_CREATE_TOPIC: false
   PUBSUB_EMULATOR_ENABLED: false #true
   TOKEN_ISSUER: "dsgov"

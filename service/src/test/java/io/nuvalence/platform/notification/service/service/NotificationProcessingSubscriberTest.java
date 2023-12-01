@@ -39,6 +39,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.Message;
@@ -68,7 +69,8 @@ class NotificationProcessingSubscriberTest {
 
     @Autowired private MessageService messageService;
 
-    @Autowired private NotificationProcessingSubscriber service;
+    @Autowired
+    @Qualifier("notificationProcessingSubscriber") private NotificationProcessingSubscriber service;
 
     @MockBean private UserManagementClientService userManagementClientService;
 

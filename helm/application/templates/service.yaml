@@ -18,7 +18,7 @@ spec:
   sessionAffinity: None
   type: NodePort
 ---
-{{- if .Values.env.PUBSUB_ENABLED }}
+{{- if .Values.env.PUBSUB_EMULATOR_ENABLED }}
 {{- if .Values.env.PUBSUB_EMULATOR_HOST }}
 apiVersion: v1
 kind: Service
