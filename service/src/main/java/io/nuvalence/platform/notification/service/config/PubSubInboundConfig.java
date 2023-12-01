@@ -10,10 +10,8 @@ import io.nuvalence.platform.notification.service.service.NotificationProcessing
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.MessageChannel;
@@ -79,9 +77,6 @@ public class PubSubInboundConfig {
      * @return Message Adapter
      */
     @Bean
-    @ConditionalOnProperty(
-            value = "spring.cloud.gcp.pubsub.emulator-enabled",
-            havingValue = "false")
     public PubSubInboundChannelAdapter inboundChannelAdapter(
             @Qualifier(INPUT_CHANNEL) MessageChannel inputChannel,
             PubSubTemplate pubSubTemplate,

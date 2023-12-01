@@ -117,7 +117,6 @@ spec:
             name: notification-service-cerbos-policies
       {{- end }}
 ---
-{{- if .Values.env.PUBSUB_EMULATOR_ENABLED }}
 {{- if .Values.env.PUBSUB_EMULATOR_HOST }}
 apiVersion: apps/v1
 kind: Deployment
@@ -156,5 +155,4 @@ spec:
               memory: {{ .Values.resources.pubSubEmulator.requests.memory }}
             limits:
               memory: {{ .Values.resources.pubSubEmulator.limits.memory }}
-{{- end }}
 {{- end }}
