@@ -22,6 +22,7 @@ spring:
         subscription2: NOTIFICATION_MSG_QUEUESUBSCRIPTION
         enableTopicCreation: true
         emulator-enabled: true
+        unit-test: true
 
   liquibase:
     enabled: true

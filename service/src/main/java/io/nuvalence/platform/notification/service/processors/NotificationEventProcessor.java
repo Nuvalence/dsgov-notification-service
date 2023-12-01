@@ -6,17 +6,17 @@ import io.nuvalence.platform.notification.service.domain.Message;
 import io.nuvalence.platform.notification.service.domain.MessageTemplate;
 import io.nuvalence.platform.notification.service.exception.BadDataException;
 import io.nuvalence.platform.notification.service.exception.NotFoundException;
+import io.nuvalence.platform.notification.service.exception.UnprocessableNotificationException;
 import io.nuvalence.platform.notification.service.mapper.MessageMapperImpl;
 import io.nuvalence.platform.notification.service.repository.MessageRepository;
 import io.nuvalence.platform.notification.service.service.MessageService;
 import io.nuvalence.platform.notification.service.service.SendMessageService;
 import io.nuvalence.platform.notification.service.service.TemplateService;
-import io.nuvalence.platform.notification.usermanagent.client.ApiException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -32,6 +32,8 @@ import java.time.temporal.ChronoUnit;
 public class NotificationEventProcessor implements EventProcessor<NotificationEvent> {
     private static final String QUEUED_STATUS = "QUEUED";
     private static final String SENT_STATUS = "SENT";
+
+    private static final String UNPROCESSABLE_STATUS = "UNPROCESSABLE";
     private NotificationEvent event;
     private final MessageMapperImpl messageMapperImpl;
     private final TemplateService templateService;
@@ -50,6 +52,7 @@ public class NotificationEventProcessor implements EventProcessor<NotificationEv
     }
 
     @Override
+    @Transactional
     public void execute() {
         log.debug(
                 "Received event {} of type {}",
@@ -97,7 +100,9 @@ public class NotificationEventProcessor implements EventProcessor<NotificationEv
         try {
             sendMessageService.sendMessage(savedMessaged);
             messageService.updateMessageStatus(savedMessaged.getId(), SENT_STATUS);
-        } catch (ApiException | IOException e) {
+        } catch (UnprocessableNotificationException e) {
+            messageService.updateMessageStatus(savedMessaged.getId(), UNPROCESSABLE_STATUS);
+        } catch (Exception e) {
             log.error("An error occurred processing request", e);
         }
     }
