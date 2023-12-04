@@ -67,8 +67,10 @@ env:
   PUB_SUB_TOPIC: "projects/dsgov-demo/topics/NOTIFICATION_MSG_QUEUE"
   DEAD_LETTER_TOPIC: "projects/dsgov-demo/topics/NOTIFICATION_DEAD_LETTER"
   PUB_SUB_TOPIC_SUBSCRIPTION: "projects/dsgov-demo/subscriptions/NOTIFICATION_MSG_QUEUE_SUBSCRIPTION"
+  EVENT_NOTIFICATION_TOPIC: "projects/dsgov-demo/topics/NOTIFICATION_REQUESTS"
+  EVENT_NOTIFICATION_SUBSCRIPTION: "projects/dsgov-demo/subscriptions/NOTIFICATION_REQUESTS_SUBSCRIPTION"
   PUBSUB_EMULATOR_HOST: false # set actual "host:port" to enable or false to disable
-  PUBSUB_ENABLED: true
+  PUBSUB_EMULATOR_ENABLED: false
   PUBSUB_CREATE_TOPIC: false
   TOKEN_PRIVATE_KEY_SECRET: "dsgov-self-signed-token-private-key"
   TOKEN_ISSUER: "dsgov"

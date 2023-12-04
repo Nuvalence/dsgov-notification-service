@@ -8,7 +8,6 @@ import org.jdom2.output.XMLOutputter;
 
 import java.io.IOException;
 import java.io.StringReader;
-
 import javax.xml.XMLConstants;
 
 /**

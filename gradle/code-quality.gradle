@@ -7,7 +7,7 @@
  */
 
 checkstyle {
-    toolVersion '8.27'
+    toolVersion '10.12.4'
     configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
 }
 
@@ -27,7 +27,7 @@ spotless {
         targetExclude('**/generate-resources/**')
         googleJavaFormat('1.18.1').aosp().reflowLongStrings()
         toggleOffOn('/**', '*/') // don't reformat javadocs
-        importOrder('', 'java', 'javax')
+        importOrder('', 'java')
         formatAnnotations()
         removeUnusedImports()
     }

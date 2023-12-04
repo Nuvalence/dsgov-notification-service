@@ -46,6 +46,7 @@ public class EmailLayoutService {
      * @param key Email Layout key
      * @param emailLayout Email Layout
      * @return Email Layout
+     * @throws BadDataException if inputs are not defined in the template
      */
     public EmailLayout createEmailLayout(final String key, final EmailLayout emailLayout) {
         OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);

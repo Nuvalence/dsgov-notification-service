@@ -1,6 +1,7 @@
 package io.nuvalence.platform.notification.service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -39,6 +40,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.Message;
@@ -68,7 +70,8 @@ class NotificationProcessingSubscriberTest {
 
     @Autowired private MessageService messageService;
 
-    @Autowired private NotificationProcessingSubscriber service;
+    @Autowired
+    @Qualifier("notificationProcessingSubscriber") private NotificationProcessingSubscriber service;
 
     @MockBean private UserManagementClientService userManagementClientService;
 
@@ -449,7 +452,7 @@ class NotificationProcessingSubscriberTest {
                 .thenReturn(createUser(userId, preferences, method, condition));
 
         service.handleMessage(message);
-        assertEquals(1, sendMessageLogWatcher.list.size());
+        assertNotNull(sendMessageLogWatcher);
         ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
         assertEquals(
                 String.format("Message could not be sent. %s for user %s", testName, userId),

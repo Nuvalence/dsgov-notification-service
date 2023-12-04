@@ -18,7 +18,6 @@ spec:
   sessionAffinity: None
   type: NodePort
 ---
-{{- if .Values.env.PUBSUB_ENABLED }}
 {{- if .Values.env.PUBSUB_EMULATOR_HOST }}
 apiVersion: v1
 kind: Service
@@ -34,5 +33,4 @@ spec:
       targetPort: {{ (split ":" .Values.env.PUBSUB_EMULATOR_HOST)._1 }}
   sessionAffinity: None
   type: NodePort
-{{- end }}
 {{- end }}

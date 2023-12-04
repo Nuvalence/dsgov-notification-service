@@ -33,10 +33,15 @@ spring:
       pubsub:
         topic: ${PUB_SUB_TOPIC}
         deadLetterTopic: ${DEAD_LETTER_TOPIC}
-        enabled: ${PUBSUB_ENABLED}
         subscription2: ${PUB_SUB_TOPIC_SUBSCRIPTION}
         enableTopicCreation: ${PUBSUB_CREATE_TOPIC}
         emulator-host: ${PUBSUB_EMULATOR_HOST:false}
+        emulator-enabled: ${PUBSUB_EMULATOR_ENABLED:false}
+
+events:
+  subscriber:
+    subscriptions: ${EVENT_NOTIFICATION_SUBSCRIPTION}
+    topics: ${EVENT_NOTIFICATION_TOPIC}
 
 twilio:
   accountSID: ${TWILIO_ACCOUNT_SID}

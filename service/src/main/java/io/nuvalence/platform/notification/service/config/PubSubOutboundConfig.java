@@ -45,10 +45,6 @@ public class PubSubOutboundConfig {
      * @return Message Handler
      */
     @Bean
-    @ConditionalOnProperty(
-            value = "spring.cloud.gcp.pubsub.enabled",
-            havingValue = "true",
-            matchIfMissing = true)
     @ServiceActivator(inputChannel = OUTPUT_CHANNEL)
     public MessageHandler messageSender(PubSubTemplate pubsubTemplate, PubSubAdmin admin) {
         if (createTopicAndSubs && admin.getTopic(topic) == null) {
@@ -64,10 +60,7 @@ public class PubSubOutboundConfig {
      * @return Message Handler
      */
     @Bean
-    @ConditionalOnProperty(
-            value = "spring.cloud.gcp.pubsub.enabled",
-            havingValue = "false",
-            matchIfMissing = true)
+    @ConditionalOnProperty(value = "spring.cloud.gcp.pubsub.unit-test", havingValue = "true")
     @ServiceActivator(inputChannel = OUTPUT_CHANNEL)
     public MessageHandler localMessageSender() {
         return message -> {

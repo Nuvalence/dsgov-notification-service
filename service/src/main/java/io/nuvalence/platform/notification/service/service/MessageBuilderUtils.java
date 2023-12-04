@@ -65,6 +65,7 @@ public class MessageBuilderUtils {
      * @param parameters  parameters
      * @param handlebars  handlebars
      * @return template with parameters replaced
+     * @throws TemplateCompilationException when an error occurs compiling the template
      */
     public static String replaceParameterInTemplate(
             String template, Map<String, String> parameters, Handlebars handlebars) {
@@ -83,6 +84,7 @@ public class MessageBuilderUtils {
      * @param template   template
      * @param handlebars handlebars
      * @return variables in template
+     * @throws TemplateCompilationException when an error occurs compiling the template
      */
     public static Set<String> getVariablesInTemplate(String template, Handlebars handlebars) {
         try {

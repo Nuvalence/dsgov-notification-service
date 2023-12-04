@@ -39,6 +39,7 @@ public class SendGridEmailProvider implements EmailProvider {
      * @param subject subject for the email.
      * @param body    body for the email.
      * @throws IOException possibly thrown by api.
+     * @throws UnprocessableNotificationException if an error occurs while sending the message
      */
     public void sendEmail(String to, String subject, String body) throws IOException {
         Email sender = new Email(from);

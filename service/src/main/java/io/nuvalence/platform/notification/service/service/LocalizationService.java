@@ -80,6 +80,7 @@ public class LocalizationService {
      * Returns the localization data for a given locale tag.
      * @param localeTag an IETF BCP 47 locale tag to be used as target locale
      * @return a valid XLIFF string with the localization data
+     * @throws BadDataException when the locale tag is not valid
      */
     public String getLocalizationData(String localeTag) {
 
@@ -243,6 +244,7 @@ public class LocalizationService {
      * templates, but rather add language data to existing ones.
      * @param xliffFileString the XLIFF file with language support data to parse
      * @return a pair with the target locale and the list of message templates updated but pending to be persisted
+     * @throws BadDataException when the provided XLIFF file is not valid
      */
     public Pair<String, List<MessageTemplate>> parseXliffToExistingMsgTemplates(
             String xliffFileString) {
