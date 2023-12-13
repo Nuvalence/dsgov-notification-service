@@ -1,6 +1,7 @@
 package io.nuvalence.platform.notification.service.events.listener;
 
 import io.nuvalence.events.event.Event;
+import io.nuvalence.events.event.NotificationEvent;
 import io.nuvalence.events.exception.EventProcessingException;
 import io.nuvalence.events.subscriber.EventProcessor;
 import io.nuvalence.platform.notification.service.processors.NotificationEventProcessor;
@@ -27,7 +28,7 @@ public class EventProcessorRepository {
     public EventProcessorRepository(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.eventProcessorsMap = new HashMap<>();
-        this.eventProcessorsMap.put("notificationEvent", NotificationEventProcessor.class);
+        this.eventProcessorsMap.put(NotificationEvent.class.getSimpleName(), NotificationEventProcessor.class);
     }
 
     /**
