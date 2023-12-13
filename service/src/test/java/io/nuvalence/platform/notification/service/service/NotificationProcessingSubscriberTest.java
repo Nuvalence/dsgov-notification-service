@@ -30,8 +30,8 @@ import io.nuvalence.platform.notification.service.service.usermanagementapi.User
 import io.nuvalence.platform.notification.usermanagent.client.ApiException;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -331,7 +331,7 @@ class NotificationProcessingSubscriberTest {
         emailMessageProviderLogger.addAppender(emailMessageProviderLogWatcher);
     }
 
-    @AfterEach
+    @BeforeEach
     void clearLogWatchers() {
         sendGridLogWatcher.list.clear();
         sendMessageLogWatcher.list.clear();
@@ -457,7 +457,6 @@ class NotificationProcessingSubscriberTest {
         assertEquals(
                 String.format("Message could not be sent. %s for user %s", testName, userId),
                 logEvent.getMessage());
-
         Mockito.verify(ack).ack();
     }
 
