@@ -1,6 +1,5 @@
 package io.nuvalence.platform.notification.service.service;
 
-import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,8 +30,8 @@ import io.nuvalence.platform.notification.service.service.usermanagementapi.User
 import io.nuvalence.platform.notification.usermanagent.client.ApiException;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserDTO;
 import io.nuvalence.platform.notification.usermanagent.client.generated.models.UserPreferenceDTO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -332,7 +331,7 @@ class NotificationProcessingSubscriberTest {
         emailMessageProviderLogger.addAppender(emailMessageProviderLogWatcher);
     }
 
-    @AfterEach
+    @BeforeEach
     void clearLogWatchers() {
         sendGridLogWatcher.list.clear();
         sendMessageLogWatcher.list.clear();
@@ -452,25 +451,12 @@ class NotificationProcessingSubscriberTest {
         Mockito.when(userManagementClientService.getUser(any()))
                 .thenReturn(createUser(userId, preferences, method, condition));
 
-        // Clear the list before running the test
-        sendMessageLogWatcher.list.clear();
-
         service.handleMessage(message);
         assertNotNull(sendMessageLogWatcher);
-
-        // Iterate through the log events and find the one that corresponds to the current test case
-        boolean logEventFound = false;
-        for (ILoggingEvent logEvent : sendMessageLogWatcher.list) {
-            if (logEvent.getMessage()
-                    .equals(
-                            String.format(
-                                    "Message could not be sent. %s for user %s",
-                                    testName, userId))) {
-                logEventFound = true;
-                break;
-            }
-        }
-        assertTrue(logEventFound, "Expected log event not found for user: " + userId);
+        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
+        assertEquals(
+                String.format("Message could not be sent. %s for user %s", testName, userId),
+                logEvent.getMessage());
         Mockito.verify(ack).ack();
     }
 
