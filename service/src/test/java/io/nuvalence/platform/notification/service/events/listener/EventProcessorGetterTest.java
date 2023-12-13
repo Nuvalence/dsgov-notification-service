@@ -25,7 +25,7 @@ class EventProcessorGetterTest {
     void testGetEventProcessor() throws EventProcessingException {
         NotificationEvent event = new NotificationEvent();
         event.setMetadata(new EventMetadata());
-        event.getMetadata().setType("notificationEvent");
+        event.getMetadata().setType(NotificationEvent.class.getSimpleName());
 
         Mockito.when(applicationContext.getBean(NotificationEventProcessor.class))
                 .thenReturn(new NotificationEventProcessor(null, null, null, null, null));

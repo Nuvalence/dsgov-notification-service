@@ -28,7 +28,8 @@ public class EventProcessorRepository {
     public EventProcessorRepository(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.eventProcessorsMap = new HashMap<>();
-        this.eventProcessorsMap.put(NotificationEvent.class.getSimpleName(), NotificationEventProcessor.class);
+        this.eventProcessorsMap.put(
+                NotificationEvent.class.getSimpleName(), NotificationEventProcessor.class);
     }
 
     /**
