@@ -1,5 +1,6 @@
 package io.nuvalence.platform.notification.service.service;
 
+import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -451,13 +452,25 @@ class NotificationProcessingSubscriberTest {
         Mockito.when(userManagementClientService.getUser(any()))
                 .thenReturn(createUser(userId, preferences, method, condition));
 
+        // Clear the list before running the test
+        sendMessageLogWatcher.list.clear();
+
         service.handleMessage(message);
         assertNotNull(sendMessageLogWatcher);
-        ILoggingEvent logEvent = sendMessageLogWatcher.list.get(0);
-        assertEquals(
-                String.format("Message could not be sent. %s for user %s", testName, userId),
-                logEvent.getMessage());
 
+        // Iterate through the log events and find the one that corresponds to the current test case
+        boolean logEventFound = false;
+        for (ILoggingEvent logEvent : sendMessageLogWatcher.list) {
+            if (logEvent.getMessage()
+                    .equals(
+                            String.format(
+                                    "Message could not be sent. %s for user %s",
+                                    testName, userId))) {
+                logEventFound = true;
+                break;
+            }
+        }
+        assertTrue(logEventFound, "Expected log event not found for user: " + userId);
         Mockito.verify(ack).ack();
     }
 
