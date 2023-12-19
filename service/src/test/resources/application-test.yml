@@ -94,3 +94,6 @@ events:
       - 'test-events-subscription'
     topics:
       - 'test-events-topic'
+  publisher:
+    topics:
+      - APPLICATION_ROLE_REPORTING

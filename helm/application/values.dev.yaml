@@ -70,8 +70,10 @@ env:
   EVENT_NOTIFICATION_TOPIC: "projects/dsgov-dev/topics/NOTIFICATION_REQUESTS"
   EVENT_NOTIFICATION_SUBSCRIPTION: "projects/dsgov-dev/subscriptions/NOTIFICATION_REQUESTS_SUBSCRIPTION"
   PUBSUB_EMULATOR_HOST: false # set actual "host:port" to enable or false to disable
-  PUBSUB_CREATE_TOPIC: false
   PUBSUB_EMULATOR_ENABLED: false
+  # dsgov-events publisher topics separated by comma
+  PUBLISHER_TOPICS: projects/dsgov-dev/topics/APPLICATION_ROLE_REPORTING
+  PUBSUB_CREATE_TOPIC: false
   TOKEN_ISSUER: "dsgov"
   TOKEN_PRIVATE_KEY_VERSION: "latest"
   TWILIO_ACCOUNT_SID: "${sm://projects/dsgov-dev/secrets/dsgov-twilio-account-sid/versions/latest}"

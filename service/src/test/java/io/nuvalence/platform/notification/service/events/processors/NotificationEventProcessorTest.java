@@ -1,4 +1,4 @@
-package io.nuvalence.platform.notification.service.processors;
+package io.nuvalence.platform.notification.service.events.processors;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;

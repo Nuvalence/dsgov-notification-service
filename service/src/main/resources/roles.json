@@ -11,7 +11,11 @@
       "applicationRole": "ns:notification-admin",
       "name": "Template Manager",
       "description": "Can view details of configured templates",
-      "group": "notification-service"
+      "group": "notification-service",
+      "capabilities": [
+        "admin-console",
+        "notification-config"
+      ]
     }
   ]
 }

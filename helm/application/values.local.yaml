@@ -83,6 +83,8 @@ env:
   EVENT_NOTIFICATION_SUBSCRIPTION: "projects/dsgov-dev/subscriptions/NOTIFICATION_REQUESTS_SUBSCRIPTION"
   PUBSUB_EMULATOR_HOST: "pubsub-emulator-service:8085"
   PUBSUB_EMULATOR_ENABLED: true
+  # dsgov-events publisher topics separated by comma
+  PUBLISHER_TOPICS: projects/dsgov-dev/topics/APPLICATION_ROLE_REPORTING
   PUBSUB_CREATE_TOPIC: true
   TOKEN_ISSUER: "dsgov"
   TOKEN_PRIVATE_KEY_VERSION: "latest"

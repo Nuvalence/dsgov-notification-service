@@ -1,4 +1,4 @@
-package io.nuvalence.platform.notification.service.processors;
+package io.nuvalence.platform.notification.service.events.processors;
 
 import io.nuvalence.events.event.NotificationEvent;
 import io.nuvalence.events.subscriber.EventProcessor;
