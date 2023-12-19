@@ -30,11 +30,11 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationEventProcessor implements EventProcessor<NotificationEvent> {
+
     private static final String QUEUED_STATUS = "QUEUED";
     private static final String SENT_STATUS = "SENT";
 
     private static final String UNPROCESSABLE_STATUS = "UNPROCESSABLE";
-    private NotificationEvent event;
     private final MessageMapperImpl messageMapperImpl;
     private final TemplateService templateService;
     private final MessageRepository messageRepository;
@@ -42,19 +42,9 @@ public class NotificationEventProcessor implements EventProcessor<NotificationEv
     private final MessageService messageService;
 
     @Override
-    public void setData(NotificationEvent event) {
-        this.event = event;
-    }
-
-    @Override
-    public NotificationEvent getData() {
-        return event;
-    }
-
-    @Override
     @Transactional
-    public void execute() {
-        log.debug(
+    public void execute(NotificationEvent event) {
+        log.info(
                 "Received event {} of type {}",
                 event.getMetadata().getId(),
                 event.getMetadata().getType());
@@ -141,5 +131,10 @@ public class NotificationEventProcessor implements EventProcessor<NotificationEv
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public Class<NotificationEvent> getEventClass() {
+        return NotificationEvent.class;
     }
 }
