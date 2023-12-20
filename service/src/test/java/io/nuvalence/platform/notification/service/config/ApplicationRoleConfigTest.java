@@ -29,11 +29,11 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 class ApplicationRoleConfigTest {
 
+    private static final String TOPIC_KEY = "APPLICATION_ROLE_REPORTING";
+
     @Mock private EventGateway mockEventGateway;
     @Mock private PublisherProperties mockPublisherProperties;
     private ApplicationRoleConfig applicationRoleConfig;
-
-    private static final String TOPIC_KEY = "APPLICATION_ROLE_REPORTING";
 
     @BeforeEach
     void setUp() {
@@ -73,7 +73,7 @@ class ApplicationRoleConfigTest {
         when(mockPublisherProperties.getFullyQualifiedTopicName(TOPIC_KEY))
                 .thenReturn(Optional.of(topicName));
 
-        OffsetDateTime before = OffsetDateTime.now();
+        final OffsetDateTime before = OffsetDateTime.now();
 
         ArgumentCaptor<RoleReportingEvent> eventCaptor =
                 ArgumentCaptor.forClass(RoleReportingEvent.class);
@@ -103,7 +103,7 @@ class ApplicationRoleConfigTest {
         assertEquals(
                 "notification-config", capturedEvent.getRoles().get(1).getCapabilities().get(1));
 
-        OffsetDateTime after = OffsetDateTime.now();
+        final OffsetDateTime after = OffsetDateTime.now();
         var metadataTime = capturedEvent.getMetadata().getTimestamp();
 
         assertTrue(

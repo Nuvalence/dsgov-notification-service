@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.util.List;
 
+/**
+ * Represents a list of application roles.
+ */
 @Getter
 public class ApplicationRoles {
 
