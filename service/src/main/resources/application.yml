@@ -42,6 +42,8 @@ events:
   subscriber:
     subscriptions: ${EVENT_NOTIFICATION_SUBSCRIPTION}
     topics: ${EVENT_NOTIFICATION_TOPIC}
+  publisher:
+    topics: ${PUBLISHER_TOPICS}
 
 twilio:
   accountSID: ${TWILIO_ACCOUNT_SID}
@@ -84,4 +86,3 @@ sendgrid:
   sendEmailEndpoint: ${SEND_GRID_EMAIL_ENDPOINT}
   apiKey: ${SEND_GRID_API_KEY}
   from: ${SEND_GRID_SENDER}
-

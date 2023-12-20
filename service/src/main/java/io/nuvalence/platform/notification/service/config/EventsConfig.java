@@ -1,5 +1,6 @@
 package io.nuvalence.platform.notification.service.config;
 
+import io.nuvalence.events.brokerclient.config.PublisherProperties;
 import io.nuvalence.events.brokerclient.config.SubscriberProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,5 +19,5 @@ import org.springframework.integration.config.EnableIntegration;
             "io.nuvalence.events.event.service",
             "io.nuvalence.platform.notification.service.config"
         })
-@EnableConfigurationProperties(SubscriberProperties.class)
+@EnableConfigurationProperties({SubscriberProperties.class, PublisherProperties.class})
 public class EventsConfig {}

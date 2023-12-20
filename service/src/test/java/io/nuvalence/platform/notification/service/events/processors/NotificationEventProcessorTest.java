@@ -1,4 +1,4 @@
-package io.nuvalence.platform.notification.service.processors;
+package io.nuvalence.platform.notification.service.events.processors;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -214,8 +214,7 @@ class NotificationEventProcessorTest {
         when(messageRepository.save(any())).thenReturn(message);
 
         // Act
-        eventProcessor.setData(event);
-        eventProcessor.execute();
+        eventProcessor.execute(event);
 
         // Assert
         verify(sendMessageService, times(1)).sendMessage(message);
@@ -248,8 +247,7 @@ class NotificationEventProcessorTest {
         assertThrows(
                 BadDataException.class,
                 () -> {
-                    eventProcessor.setData(event);
-                    eventProcessor.execute();
+                    eventProcessor.execute(event);
                 });
 
         // Verify that sendMessageService and messageService are not called
@@ -287,8 +285,7 @@ class NotificationEventProcessorTest {
         assertThrows(
                 NotFoundException.class,
                 () -> {
-                    eventProcessor.setData(event);
-                    eventProcessor.execute();
+                    eventProcessor.execute(event);
                 });
 
         // Verify that sendMessageService and messageService are not called
