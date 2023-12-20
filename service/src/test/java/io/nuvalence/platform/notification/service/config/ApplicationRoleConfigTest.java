@@ -29,11 +29,11 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 class ApplicationRoleConfigTest {
 
+    private static final String TOPIC_KEY = "APPLICATION_ROLE_REPORTING";
+
     @Mock private EventGateway mockEventGateway;
     @Mock private PublisherProperties mockPublisherProperties;
     private ApplicationRoleConfig applicationRoleConfig;
-
-    private static final String TOPIC_KEY = "APPLICATION_ROLE_REPORTING";
 
     @BeforeEach
     void setUp() {
@@ -67,6 +67,7 @@ class ApplicationRoleConfigTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     void testPublishRoles_Success() {
 
         String topicName = "projects/dsgov-demo/topics/" + TOPIC_KEY;
