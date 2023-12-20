@@ -44,7 +44,7 @@ public class NotificationEventProcessor implements EventProcessor<NotificationEv
     @Override
     @Transactional
     public void execute(NotificationEvent event) {
-        log.info(
+        log.debug(
                 "Received event {} of type {}",
                 event.getMetadata().getId(),
                 event.getMetadata().getType());
