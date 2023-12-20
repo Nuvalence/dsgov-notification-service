@@ -3,8 +3,8 @@ logsBucket: "gs://${_ARTIFACT_BUCKET_NAME}/cloudbuild-logs/app-${_SERVICE_NAME}-
 options:
   machineType: 'E2_HIGHCPU_8'
 steps:
-  - id: 'Gradle Build && Set up ssh tunnel && Publish to SonarQube'
-    secretEnv: ['SONARQUBE_TOKEN']
+  - id: 'Gradle Build & Publish to SonarQube'
+    secretEnv: ['SONARQUBE_TOKEN','GH_TOKEN']
     name: 'us-east4-docker.pkg.dev/dsgov-services/builders/cloudbuild-jdk17'
     entrypoint: bash
     args:
@@ -48,7 +48,16 @@ steps:
         echo "Build exited with status code $$EXIT"
     
         kill $$PID
-    
+        
+        echo "Linking build report to github"
+        export REPORT_URL=$(cat /workspace/report_url.txt)
+        gh auth login --with-token
+        gh pr comment ${_PR_NUMBER} --body "
+        :sparkles: Build reports have been generated and can be accessed here:
+        :one: **Jacoco Report URL in GCS:** https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET_NAME}/${REPO_NAME}/${_PR_NUMBER}/jacoco/test/html/index.html
+        :two: **SonarQube:** ${_SONARQUBE_HOST}/dashboard?branch=${BRANCH_NAME}&id=${REPO_NAME}
+        "
+
         ## Fail code needs to be the last step in the ID.
         ## Moving an escape check to the end of the ID.
     
@@ -85,21 +94,6 @@ steps:
         echo "Uploading reports to GCS..."
         gsutil -m cp -r service/build/reports/* gs://${_ARTIFACT_BUCKET_NAME}/${REPO_NAME}/${_PR_NUMBER}
         echo "Reports uploaded!"
-
-  - id: 'Link Build Reports to GitHub'
-    name: '${_GAR_BUILDER_URL}/gh'
-    entrypoint: bash
-    args:
-      - "-c"
-      - |
-        export REPORT_URL=$(cat /workspace/report_url.txt)
-        gh auth login --with-token
-        gh pr comment ${_PR_NUMBER} --body "
-        :sparkles: Build reports have been generated and can be accessed here:
-        :one: **Jacoco Report URL in GCS:** https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET_NAME}/${REPO_NAME}/${_PR_NUMBER}/jacoco/test/html/index.html
-        :two: **SonarQube:** ${_SONARQUBE_HOST}/dashboard?branch=${BRANCH_NAME}&id=${REPO_NAME}
-        "
-    secretEnv: ['GH_TOKEN']
 
 # This secret at this time is manually created from SonarQube's admin UI and saved to Google Secrets Manager
 availableSecrets:
